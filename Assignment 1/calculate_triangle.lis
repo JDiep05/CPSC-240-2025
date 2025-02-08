@@ -1,0 +1,274 @@
+     1                                  ; License will be included soon
+     2                                  
+     3                                  ;declaration
+     4                                  
+     5                                  extern printf
+     6                                  
+     7                                  extern scanf
+     8                                  
+     9                                  extern fgets
+    10                                  
+    11                                  extern stdin
+    12                                  
+    13                                  extern strlen
+    14                                  
+    15                                  extern cos
+    16                                  
+    17                                  global calculate_triangle
+    18                                  
+    19                                  string_size equ 48
+    20 00000000 182D4454FB210940        pi dq 3.141592653589793238462643383279502884197
+    21 00000008 0000000000000040        two dq 2.0
+    22 00000010 0000000000806640        straight dq 180.0
+    23                                  
+    24                                  
+    25                                  segment .data
+    26                                  ;declared initialized arrays
+    27                                  
+    28 00000000 0A506C656173652065-     prompt_for_last_name db 10, "Please enter your last name: ", 0
+    28 00000009 6E74657220796F7572-
+    28 00000012 206C617374206E616D-
+    28 0000001B 653A2000           
+    29 0000001F 0A506C656173652065-     prompt_for_title db 10, "Please enter your title (Mr., Ms., Dr., Officer, Sergant, etc: ", 0
+    29 00000028 6E74657220796F7572-
+    29 00000031 207469746C6520284D-
+    29 0000003A 722E2C204D732E2C20-
+    29 00000043 44722E2C204F666669-
+    29 0000004C 6365722C2053657267-
+    29 00000055 616E742C206574633A-
+    29 0000005E 2000               
+    30                                  
+    31 00000060 0A506C656173652065-     prompt_trig_sides db 10, "Please enter the two sides of the triangle seperated by ws: ", 0
+    31 00000069 6E7465722074686520-
+    31 00000072 74776F207369646573-
+    31 0000007B 206F66207468652074-
+    31 00000084 7269616E676C652073-
+    31 0000008D 657065726174656420-
+    31 00000096 62792077733A2000   
+    32 0000009E 256C6620256C6600        side_format db "%lf %lf", 0
+    33 000000A6 0A506C656173652065-     prompt_trig_angle db 10, "Please enter the angle in degrees between the two sides of the triangle: ", 0
+    33 000000AF 6E7465722074686520-
+    33 000000B8 616E676C6520696E20-
+    33 000000C1 646567726565732062-
+    33 000000CA 65747765656E207468-
+    33 000000D3 652074776F20736964-
+    33 000000DC 6573206F6620746865-
+    33 000000E5 20747269616E676C65-
+    33 000000EE 3A2000             
+    34 000000F1 256C6600                angle_format db "%lf", 0
+    35 000000F5 0A546865206C656E67-     result_side3 db 10, "The length of the third side is %.9lf units", 10, 0   ; Rounds the float by 9 decimal places
+    35 000000FE 7468206F6620746865-
+    35 00000107 207468697264207369-
+    35 00000110 646520697320252E39-
+    35 00000119 6C6620756E6974730A-
+    35 00000122 00                 
+    36                                  
+    37 00000123 0A506C656173652065-     msg db 10, "Please enjoy your triangle %s %s.", 10, 0
+    37 0000012C 6E6A6F7920796F7572-
+    37 00000135 20747269616E676C65-
+    37 0000013E 2025732025732E0A00 
+    38                                  
+    39                                  
+    40                                  segment .bss
+    41                                  ;declared empty arrays
+    42                                  
+    43                                  align 64
+    44 00000000 <res 00000340>          backup_storage_area resb 832
+    45                                  
+    46 00000340 <res 00000030>          last_name resb string_size
+    47 00000370 <res 00000030>          title_name resb string_size
+    48                                  
+    49 000003A0 <res 00000008>          side_1 resq 1  
+    50 000003A8 <res 00000008>          side_2 resq 1
+    51 000003B0 <res 00000008>          angle resq 1
+    52                                  
+    53                                  segment .text
+    54                                  
+    55                                  calculate_triangle:
+    56                                  
+    57                                  ;backup GPRs
+    58 00000018 55                      push rbp
+    59 00000019 4889E5                  mov rbp, rsp
+    60 0000001C 53                      push rbx
+    61 0000001D 51                      push rcx
+    62 0000001E 52                      push rdx
+    63 0000001F 57                      push rdi
+    64 00000020 56                      push rsi
+    65 00000021 4150                    push r8
+    66 00000023 4151                    push r9
+    67 00000025 4152                    push r10
+    68 00000027 4153                    push r11
+    69 00000029 4154                    push r12
+    70 0000002B 4155                    push r13
+    71 0000002D 4156                    push r14
+    72 0000002F 4157                    push r15
+    73 00000031 9C                      pushf
+    74                                  
+    75                                  ;backup other registers
+    76 00000032 B807000000              mov rax, 7
+    77 00000037 B800000000              mov rax, 0
+    78 0000003C 0FAE2425[00000000]      xsave [backup_storage_area]
+    79                                  
+    80                                  ;output prompt for user input's last name
+    81 00000044 B800000000              mov rax, 0
+    82 00000049 48BF-                   mov rdi, prompt_for_last_name
+    82 0000004B [0000000000000000] 
+    83 00000053 E8(00000000)            call printf
+    84                                  
+    85                                  ;input for user's last name
+    86 00000058 B800000000              mov rax, 0
+    87 0000005D 48BF-                   mov rdi, last_name
+    87 0000005F [4003000000000000] 
+    88 00000067 BE30000000              mov rsi, string_size
+    89 0000006C 488B1425[00000000]      mov rdx, [stdin]
+    90 00000074 E8(00000000)            call fgets
+    91                                  
+    92                                  ;remove newline from fgets, replacing with null
+    93 00000079 B800000000              mov rax, 0
+    94 0000007E 48BF-                   mov rdi, last_name
+    94 00000080 [4003000000000000] 
+    95 00000088 E8(00000000)            call strlen
+    96 0000008D C680[3F030000]00        mov [last_name+rax-1], byte 0
+    97                                  
+    98                                  ;output prompt for user input's title
+    99 00000094 B800000000              mov rax, 0
+   100 00000099 48BF-                   mov rdi, prompt_for_title
+   100 0000009B [1F00000000000000] 
+   101 000000A3 E8(00000000)            call printf
+   102                                  
+   103                                  ;input for user's title
+   104 000000A8 B800000000              mov rax, 0
+   105 000000AD 48BF-                   mov rdi, title_name
+   105 000000AF [7003000000000000] 
+   106 000000B7 BE30000000              mov rsi, string_size
+   107 000000BC 488B1425[00000000]      mov rdx, [stdin]
+   108 000000C4 E8(00000000)            call fgets
+   109                                  
+   110                                  ;remove newline from fgets, replacing with null
+   111 000000C9 B800000000              mov rax, 0
+   112 000000CE 48BF-                   mov rdi, title_name
+   112 000000D0 [7003000000000000] 
+   113 000000D8 E8(00000000)            call strlen
+   114 000000DD C680[6F030000]00        mov [title_name+rax-1], byte 0
+   115                                  
+   116                                  input_sides:
+   117                                  ;prompt for user's input for the two sides of the triangle
+   118 000000E4 B800000000              mov rax, 0
+   119 000000E9 48BF-                   mov rdi, prompt_trig_sides
+   119 000000EB [6000000000000000] 
+   120 000000F3 E8(00000000)            call printf
+   121                                  
+   122                                  ;input for user's two sides of the triangle as a string variable
+   123 000000F8 48BF-                   mov rdi, side_format
+   123 000000FA [9E00000000000000] 
+   124 00000102 48BE-                   mov rsi, side_1
+   124 00000104 [A003000000000000] 
+   125 0000010C 48BA-                   mov rdx, side_2
+   125 0000010E [A803000000000000] 
+   126 00000116 E8(00000000)            call scanf
+   127                                  
+   128                                  ; Move the input values into xmm registers
+   129 0000011B F2440F103425-           movsd xmm14, [side_1]   ; Move first side into xmm14 (Dereference)
+   129 00000121 [A0030000]         
+   130 00000125 F2440F103C25-           movsd xmm15, [side_2]   ; Move second side into xmm15 (Dereference)
+   130 0000012B [A8030000]         
+   131                                  
+   132                                  input_angle:
+   133                                  ; Prompt for user's input for angle between the two sides of the triangle
+   134 0000012F B800000000              mov rax, 0
+   135 00000134 48BF-                   mov rdi, prompt_trig_angle
+   135 00000136 [A600000000000000] 
+   136 0000013E E8(00000000)            call printf
+   137                                  
+   138                                  ; Input for user's triangle angle
+   139 00000143 48BF-                   mov rdi, angle_format
+   139 00000145 [F100000000000000] 
+   140 0000014D 48BE-                   mov rsi, angle
+   140 0000014F [B003000000000000] 
+   141 00000157 E8(00000000)            call scanf
+   142                                  
+   143                                  ; Move the input values into xmm registers
+   144 0000015C F2440F102C25-           movsd xmm13, [angle]   ; Move first angle into xmm13 (Dereference)
+   144 00000162 [B0030000]         
+   145                                  
+   146                                  input_calculate:
+   147                                  ; Setting values for cos(angle) (calculation: 2(side_1)(side_2)*cos(angle))
+   148 00000166 F2450F10E6              movsd xmm12, xmm14   ; Moving side_1 into xmm12
+   149 0000016B F2450F59E7              mulsd xmm12, xmm15   ; Multiplying side_1 with side_2 (a * b)
+   150 00000170 F2440F592425-           mulsd xmm12, [two]   ; Multiplying two(2.0) with xmm12 (2 * (a*b))
+   150 00000176 [08000000]         
+   151                                  
+   152                                  ; Convert angle in Degrees into Radians
+   153 0000017A F2440F592C25-           mulsd xmm13, [pi]   ; d = (d * 3.141592653589793238462643383279502884197)
+   153 00000180 [00000000]         
+   154 00000184 F2440F5E2C25-           divsd xmm13, [straight]   ; d= d/180
+   154 0000018A [10000000]         
+   155                                  
+   156                                  ; Getting Cos value
+   157 0000018E B801000000              mov rax, 1
+   158 00000193 F2410F10C5              movsd xmm0, xmm13
+   159 00000198 E8(00000000)            call cos   ; cos(d)
+   160 0000019D F2440F10E8              movsd xmm13, xmm0
+   161                                  
+   162                                  ; Getting Squared of side_1
+   163 000001A2 F2450F59F6              mulsd xmm14, xmm14   ; (a*a)
+   164                                  
+   165                                  ; Getting Squared of side_2
+   166 000001A7 F2450F59FF              mulsd xmm15, xmm15   ; (b*b)
+   167                                  
+   168                                  ; Getting the value of the third side
+   169 000001AC F2450F58F7              addsd xmm14, xmm15   ; a^2 + b^2
+   170 000001B1 F2450F59EC              mulsd xmm13, xmm12   ; (2 *(a*b) * (cos(d)))
+   171 000001B6 F2450F10DE              movsd xmm11, xmm14   ; c^2 = a^2 + b^2
+   172 000001BB F2450F5CDD              subsd xmm11, xmm13   ; c^2 = a^2 + b^2 - (2 *(a*b) * (cos(d)))
+   173 000001C0 F2450F51DB              sqrtsd xmm11, xmm11   ; c = sqrt(a^2 + b^2 - (2 *(a*b) * (cos(d))))
+   174                                  
+   175                                  ; Print third side
+   176 000001C5 B801000000              mov rax, 1
+   177 000001CA F2410F10C3              movsd xmm0, xmm11
+   178 000001CF 48BF-                   mov rdi, result_side3
+   178 000001D1 [F500000000000000] 
+   179 000001D9 E8(00000000)            call printf
+   180                                  
+   181                                  ; Print message
+   182 000001DE B800000000              mov rax, 0
+   183 000001E3 48BF-                   mov rdi, msg
+   183 000001E5 [2301000000000000] 
+   184 000001ED 48BE-                   mov rsi, title_name
+   184 000001EF [7003000000000000] 
+   185 000001F7 48BA-                   mov rdx, last_name
+   185 000001F9 [4003000000000000] 
+   186 00000201 E8(00000000)            call printf
+   187                                  
+   188                                  ; Move result to stack
+   189 00000206 B800000000              mov rax, 0
+   190 0000020B 6A00                    push qword 0
+   191 0000020D F2440F111C24            movsd [rsp], xmm11
+   192                                  
+   193                                  ;Restore the values to non-GPRs
+   194 00000213 B807000000              mov rax,7
+   195 00000218 BA00000000              mov rdx,0
+   196 0000021D 0FAE2C25[00000000]      xrstor [backup_storage_area]
+   197                                  
+   198                                  ;Send back side 3 length
+   199 00000225 F20F100424              movsd xmm0, [rsp]    ; Move side_3 to xmm0 to send to main
+   200 0000022A 58                      pop rax
+   201                                  
+   202                                  ; Restore the GPRs
+   203 0000022B 9D                      popf
+   204 0000022C 415F                    pop r15
+   205 0000022E 415E                    pop r14
+   206 00000230 415D                    pop r13
+   207 00000232 415C                    pop r12
+   208 00000234 415B                    pop r11
+   209 00000236 415A                    pop r10
+   210 00000238 4159                    pop r9
+   211 0000023A 4158                    pop r8
+   212 0000023C 5E                      pop rsi
+   213 0000023D 5F                      pop rdi
+   214 0000023E 5A                      pop rdx
+   215 0000023F 59                      pop rcx
+   216 00000240 5B                      pop rbx
+   217 00000241 4889EC                  mov rsp, rbp
+   218 00000244 5D                      pop rbp   ;Restore rbp to the base of the activation record of the caller program
+   219 00000245 C3                      ret

@@ -1,0 +1,610 @@
+     1                                  ;****************************************************************************************************************************
+     2                                  ;Program name: "Amazing Triangles".  This program calculates for the third side of a triangle based on the user's input for the other two sides and the angle between them
+     3                                  ; Copyright (C) 2024  Kaitlyn Lee.          *
+     4                                  ;                                                                                                                           *
+     5                                  ;This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License  *
+     6                                  ;version 3 as published by the Free Software Foundation.  This program is distributed in the hope that it will be useful,   *
+     7                                  ;but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See   *
+     8                                  ;the GNU General Public License for more details A copy of the GNU General Public License v3 is available here:             *
+     9                                  ;<https://www.gnu.org/licenses/>.                                                                                           *
+    10                                  ;****************************************************************************************************************************
+    11                                  
+    12                                  
+    13                                  
+    14                                  
+    15                                  ;========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1=========2=========3**
+    16                                  ;Author information
+    17                                  ;  Author name: Kaitlyn Lee
+    18                                  ;  Author email: kaitlynlee@csu.fullerton.edu
+    19                                  ;  CWID: 886374479
+    20                                  ;  Class: 240-03 Section 03
+    21                                  ;
+    22                                  ;Program information
+    23                                  ;  Program name: Amazing Triangles
+    24                                  ;  Programming languages: One module in C, one in X86, and one in bash.
+    25                                  ;  Date program began: 2024-Feb-22
+    26                                  ;  Date of last update: 2024-Feb-24
+    27                                  ;  Files in this program: main.c, compute_triangles.asm, isfloat, r.sh.
+    28                                  ;  Testing: Alpha testing completed.  All functions are correct.
+    29                                  ;  Status: Ready for release to customers
+    30                                  ;
+    31                                  ;Purpose
+    32                                  ;  This program is a driving time, speed, and distance calculator based on the user's input
+    33                                  ;
+    34                                  ;This file:
+    35                                  ;  File name: compute_triangle.asm
+    36                                  ;  Language: X86-64
+    37                                  ;  Max page width: 124 columns
+    38                                  ;  Assemble (standard): nasm -f elf64 -l triangle.lis -o triangle.o compute_triangle.asm
+    39                                  ;  Assemble (debug): nasm -f elf64 -gdwarf -l triangle.lis -o triangle.o compute_triangle.asm
+    40                                  ;  Optimal print specification: Landscape, 7 points, monospace, 8½x11 paper
+    41                                  ;  Prototype of this function: extern double compute_triangle();
+    42                                  ; 
+    43                                  ;
+    44                                  ;
+    45                                  ;
+    46                                  ;========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1=========2=========3**
+    47                                  
+    48                                  ;declarations
+    49                                  
+    50                                  extern printf
+    51                                  
+    52                                  extern fgets
+    53                                  
+    54                                  extern stdin
+    55                                  
+    56                                  extern strlen
+    57                                  
+    58                                  extern atof
+    59                                  
+    60                                  extern cos
+    61                                  
+    62                                  extern isfloat
+    63                                  
+    64                                  global compute_triangle
+    65                                  
+    66                                  string_size equ 48
+    67 00000000 182D4454FB210940        pi dq 3.141592653589793238462643383279502884197
+    68 00000008 0000000000000040        two dq 2.0
+    69 00000010 0000000000806640        straight dq 180.0
+    70                                  
+    71                                  
+    72                                  segment .data
+    73                                  ;declare initialized arrays
+    74                                  
+    75 00000000 0A506C656173652065-     prompt_for_name db 10, "Please enter your name: ",0
+    75 00000009 6E74657220796F7572-
+    75 00000012 206E616D653A2000   
+    76 0000001A 0A506C656173652065-     prompt_for_title db 10, "Please enter your title (Sergeant, Chief, CEO, President, Teacher, etc): ", 10, 0
+    76 00000023 6E74657220796F7572-
+    76 0000002C 207469746C65202853-
+    76 00000035 65726765616E742C20-
+    76 0000003E 43686965662C204345-
+    76 00000047 4F2C20507265736964-
+    76 00000050 656E742C2054656163-
+    76 00000059 6865722C2065746329-
+    76 00000062 3A200A00           
+    77 00000066 0A476F6F64206D6F72-     gm_message db 10, "Good morning %s %s. We take care of all your triangles.", 10, 10, 0
+    77 0000006F 6E696E672025732025-
+    77 00000078 732E2057652074616B-
+    77 00000081 652063617265206F66-
+    77 0000008A 20616C6C20796F7572-
+    77 00000093 20747269616E676C65-
+    77 0000009C 732E0A0A00         
+    78                                  
+    79                                  
+    80 000000A1 506C6561736520656E-     side_1 db "Please enter the length of the first side: ", 0
+    80 000000AA 74657220746865206C-
+    80 000000B3 656E677468206F6620-
+    80 000000BC 746865206669727374-
+    80 000000C5 20736964653A2000   
+    81 000000CD 506C6561736520656E-     side_2 db "Please enter the length of the second side: ", 0
+    81 000000D6 74657220746865206C-
+    81 000000DF 656E677468206F6620-
+    81 000000E8 746865207365636F6E-
+    81 000000F1 6420736964653A2000 
+    82 000000FA 506C6561736520656E-     angle db "Please enter the size of the angle in degrees: ", 0
+    82 00000103 746572207468652073-
+    82 0000010C 697A65206F66207468-
+    82 00000115 6520616E676C652069-
+    82 0000011E 6E2064656772656573-
+    82 00000127 3A2000             
+    83 0000012A 496E76616C69642069-     invalid db "Invalid input. Try again: ", 0
+    83 00000133 6E7075742E20547279-
+    83 0000013C 20616761696E3A2000 
+    84                                  
+    85                                  
+    86 00000145 0A5468616E6B20796F-     results db 10, "Thank you %s. You entered %.6lf %.6lf and %.6lf.", 0
+    86 0000014E 752025732E20596F75-
+    86 00000157 20656E746572656420-
+    86 00000160 252E366C6620252E36-
+    86 00000169 6C6620616E6420252E-
+    86 00000172 366C662E00         
+    87 00000177 0A546865206C656E67-     side_3 db 10, "The length of the third side is %.6lf.", 10, 0
+    87 00000180 7468206F6620746865-
+    87 00000189 207468697264207369-
+    87 00000192 646520697320252E36-
+    87 0000019B 6C662E0A00         
+    88 000001A0 0A54686973206C656E-     sent db 10, "This length will be sent to the driver program.", 10, 0
+    88 000001A9 6774682077696C6C20-
+    88 000001B2 62652073656E742074-
+    88 000001BB 6F2074686520647269-
+    88 000001C4 7665722070726F6772-
+    88 000001CD 616D2E0A00         
+    89 000001D2 0A5468652073746172-     starting_time db 10, "The starting time on the system clock is %lu tics", 10, 0
+    89 000001DB 74696E672074696D65-
+    89 000001E4 206F6E207468652073-
+    89 000001ED 797374656D20636C6F-
+    89 000001F6 636B20697320256C75-
+    89 000001FF 20746963730A00     
+    90 00000206 0A5468652066696E61-     end_time db 10, "The final time on the system clock  is %lu tics", 10, 0
+    90 0000020F 6C2074696D65206F6E-
+    90 00000218 207468652073797374-
+    90 00000221 656D20636C6F636B20-
+    90 0000022A 20697320256C752074-
+    90 00000233 6963730A00         
+    91 00000238 0A4861766520612067-     goodday db 10, "Have a good day %s %s.", 10, 0
+    91 00000241 6F6F64206461792025-
+    91 0000024A 732025732E0A00     
+    92                                  
+    93                                  
+    94 00000251 0A256C660A00            numtest db 10, "%lf", 10, 0
+    95                                  
+    96                                  
+    97                                  segment .bss
+    98                                  ;declare empty arrays
+    99                                  
+   100                                  align 64
+   101 00000000 <res 00000340>          backup_storage_area resb 832
+   102                                  
+   103 00000340 <res 00000030>          user_name resb string_size
+   104 00000370 <res 00000030>          user_title resb string_size
+   105                                  
+   106                                  segment .text
+   107                                  
+   108                                  compute_triangle:
+   109                                  
+   110                                  ;backup GPRs
+   111 00000018 55                      push rbp
+   112 00000019 4889E5                  mov rbp, rsp
+   113 0000001C 53                      push rbx
+   114 0000001D 51                      push rcx
+   115 0000001E 52                      push rdx
+   116 0000001F 57                      push rdi
+   117 00000020 56                      push rsi
+   118 00000021 4150                    push r8
+   119 00000023 4151                    push r9
+   120 00000025 4152                    push r10
+   121 00000027 4153                    push r11
+   122 00000029 4154                    push r12
+   123 0000002B 4155                    push r13
+   124 0000002D 4156                    push r14
+   125 0000002F 4157                    push r15
+   126 00000031 9C                      pushf
+   127                                  
+   128                                  ;backup other registers
+   129 00000032 B807000000              mov rax,7
+   130 00000037 BA00000000              mov rdx,0
+   131 0000003C 0FAE2425[00000000]      xsave [backup_storage_area]
+   132                                  
+   133                                  
+   134                                  ;get starting time on system clock
+   135 00000044 0FA2                    cpuid
+   136 00000046 0F31                    rdtsc
+   137 00000048 48C1E220                shl rdx, 32
+   138 0000004C 4801C2                  add rdx, rax
+   139 0000004F 4989D4                  mov r12, rdx
+   140                                  
+   141                                  ;print starting time
+   142 00000052 B800000000              mov rax, 0
+   143 00000057 48BF-                   mov rdi, starting_time
+   143 00000059 [D201000000000000] 
+   144 00000061 4C89E6                  mov rsi, r12
+   145 00000064 E8(00000000)            call printf
+   146                                  
+   147                                  
+   148                                  ;output instructions for user to input name
+   149 00000069 B800000000              mov rax, 0
+   150 0000006E 48BF-                   mov rdi, prompt_for_name
+   150 00000070 [0000000000000000] 
+   151 00000078 E8(00000000)            call printf
+   152                                  
+   153                                  ;input user names
+   154 0000007D B800000000              mov rax, 0
+   155 00000082 48BF-                   mov rdi, user_name
+   155 00000084 [4003000000000000] 
+   156 0000008C BE30000000              mov rsi, string_size
+   157 00000091 488B1425[00000000]      mov rdx, [stdin]
+   158 00000099 E8(00000000)            call fgets
+   159                                  
+   160                                  ;remove newline
+   161 0000009E B800000000              mov rax, 0
+   162 000000A3 48BF-                   mov rdi, user_name
+   162 000000A5 [4003000000000000] 
+   163 000000AD E8(00000000)            call strlen
+   164 000000B2 C680[3F030000]00        mov [user_name+rax-1], byte 0
+   165                                  
+   166                                  ;output instructions for user to input title
+   167 000000B9 B800000000              mov rax, 0
+   168 000000BE 48BF-                   mov rdi, prompt_for_title
+   168 000000C0 [1A00000000000000] 
+   169 000000C8 E8(00000000)            call printf
+   170                                  
+   171                                  ;input user title
+   172 000000CD B800000000              mov rax, 0
+   173 000000D2 48BF-                   mov rdi, user_title
+   173 000000D4 [7003000000000000] 
+   174 000000DC BE30000000              mov rsi, string_size
+   175 000000E1 488B1425[00000000]      mov rdx, [stdin]
+   176 000000E9 E8(00000000)            call fgets
+   177                                  
+   178                                  ;remove newline
+   179 000000EE B800000000              mov rax, 0
+   180 000000F3 48BF-                   mov rdi, user_title
+   180 000000F5 [7003000000000000] 
+   181 000000FD E8(00000000)            call strlen
+   182 00000102 C680[6F030000]00        mov [user_title+rax-1], byte 0
+   183                                  
+   184                                  ;good morning user
+   185 00000109 B800000000              mov rax, 0
+   186 0000010E 48BF-                   mov rdi, gm_message
+   186 00000110 [6600000000000000] 
+   187 00000118 48BE-                   mov rsi, user_title
+   187 0000011A [7003000000000000] 
+   188 00000122 48BA-                   mov rdx, user_name
+   188 00000124 [4003000000000000] 
+   189 0000012C E8(00000000)            call printf
+   190                                  
+   191                                  
+   192                                  
+   193                                  input_loop_s1:
+   194                                  ;prompt the user for first side length
+   195 00000131 B800000000              mov rax, 0
+   196 00000136 48BF-                   mov rdi, side_1
+   196 00000138 [A100000000000000] 
+   197 00000140 E8(00000000)            call printf
+   198                                  
+   199                                  ;Have user input number for first side length as a string
+   200 00000145 4881EC00100000          sub rsp, 4096
+   201 0000014C 4889E7                  mov rdi, rsp
+   202 0000014F BE00100000              mov rsi, 4096
+   203 00000154 488B1425[00000000]      mov rdx, [stdin]
+   204 0000015C E8(00000000)            call fgets
+   205                                  
+   206                                  ;remove newline
+   207 00000161 B800000000              mov rax, 0
+   208 00000166 4889E7                  mov rdi, rsp
+   209 00000169 E8(00000000)            call strlen
+   210 0000016E C64404FF00              mov[rsp + rax-1], byte 0
+   211                                  
+   212                                  ;check recent input is a valid float number
+   213 00000173 B800000000              mov rax, 0
+   214 00000178 4889E7                  mov rdi, rsp
+   215 0000017B E8(00000000)            call isfloat
+   216                                  
+   217                                  ;if not valid float number, send to bad_input to try again
+   218 00000180 4883F800                cmp rax, 0
+   219 00000184 741B                    je bad_input_s1
+   220                                  
+   221                                  ;if input is valid float number, save value and jump to next function
+   222 00000186 B800000000              mov rax, 0
+   223 0000018B 4889E7                  mov rdi, rsp
+   224 0000018E E8(00000000)            call atof
+   225 00000193 F2440F10E0              movsd xmm12, xmm0
+   226 00000198 4881C400100000          add rsp, 4096
+   227 0000019F EB77                    jmp input_loop_s2
+   228                                  
+   229                                  
+   230                                  ;input is invalid, ask user to to input again
+   231                                  bad_input_s1:
+   232 000001A1 B800000000              mov rax, 0
+   233 000001A6 48BF-                   mov rdi, invalid
+   233 000001A8 [2A01000000000000] 
+   234 000001B0 E8(00000000)            call printf
+   235 000001B5 4881C400100000          add rsp, 4096
+   236                                  
+   237                                  ;Have user input number for first side length as a string again
+   238 000001BC 4881EC00100000          sub rsp, 4096
+   239 000001C3 4889E7                  mov rdi, rsp
+   240 000001C6 BE00100000              mov rsi, 4096
+   241 000001CB 488B1425[00000000]      mov rdx, [stdin]
+   242 000001D3 E8(00000000)            call fgets
+   243                                  
+   244                                  ;remove newline
+   245 000001D8 B800000000              mov rax, 0
+   246 000001DD 4889E7                  mov rdi, rsp
+   247 000001E0 E8(00000000)            call strlen
+   248 000001E5 C64404FF00              mov[rsp + rax-1], byte 0
+   249                                  
+   250                                  ;check recent input is a valid float number
+   251 000001EA B800000000              mov rax, 0
+   252 000001EF 4889E7                  mov rdi, rsp
+   253 000001F2 E8(00000000)            call isfloat
+   254                                  
+   255                                  ;if not valid float number, send to bad_input to try again
+   256 000001F7 4883F800                cmp rax, 0
+   257 000001FB 74A4                    je bad_input_s1
+   258                                  
+   259                                  ;if input is valid float number, save value and jump to next function
+   260 000001FD B800000000              mov rax, 0
+   261 00000202 4889E7                  mov rdi, rsp
+   262 00000205 E8(00000000)            call atof
+   263 0000020A F2440F10E0              movsd xmm12, xmm0
+   264 0000020F 4881C400100000          add rsp, 4096
+   265 00000216 EB00                    jmp input_loop_s2
+   266                                  
+   267                                  
+   268                                  
+   269                                  input_loop_s2:
+   270                                  ;prompt the user for second side length
+   271 00000218 B800000000              mov rax, 0
+   272 0000021D 48BF-                   mov rdi, side_2
+   272 0000021F [CD00000000000000] 
+   273 00000227 E8(00000000)            call printf
+   274                                  
+   275                                  ;Have user input number for second side length as a string
+   276 0000022C 4881EC00100000          sub rsp, 4096
+   277 00000233 4889E7                  mov rdi, rsp
+   278 00000236 BE00100000              mov rsi, 4096
+   279 0000023B 488B1425[00000000]      mov rdx, [stdin]
+   280 00000243 E8(00000000)            call fgets
+   281                                  
+   282                                  ;remove newline
+   283 00000248 B800000000              mov rax, 0
+   284 0000024D 4889E7                  mov rdi, rsp
+   285 00000250 E8(00000000)            call strlen
+   286 00000255 C64404FF00              mov[rsp + rax-1], byte 0
+   287                                  
+   288                                  ;check recent input is a valid float number
+   289 0000025A B800000000              mov rax, 0
+   290 0000025F 4889E7                  mov rdi, rsp
+   291 00000262 E8(00000000)            call isfloat
+   292                                  
+   293                                  ;if not valid float number, send to bad_input to try again
+   294 00000267 4883F800                cmp rax, 0
+   295 0000026B 741B                    je bad_input_s2
+   296                                  
+   297                                  ;if input is valid float number, save value and jump to next function
+   298 0000026D B800000000              mov rax, 0
+   299 00000272 4889E7                  mov rdi, rsp
+   300 00000275 E8(00000000)            call atof
+   301 0000027A F2440F10E8              movsd xmm13, xmm0
+   302 0000027F 4881C400100000          add rsp, 4096
+   303 00000286 EB77                    jmp input_loop_a
+   304                                  
+   305                                  
+   306                                  ;input is invalid, ask user to to input again
+   307                                  bad_input_s2:
+   308 00000288 B800000000              mov rax, 0
+   309 0000028D 48BF-                   mov rdi, invalid
+   309 0000028F [2A01000000000000] 
+   310 00000297 E8(00000000)            call printf
+   311 0000029C 4881C400100000          add rsp, 4096
+   312                                  
+   313                                  ;Have user input number for second side length as a string again
+   314 000002A3 4881EC00100000          sub rsp, 4096
+   315 000002AA 4889E7                  mov rdi, rsp
+   316 000002AD BE00100000              mov rsi, 4096
+   317 000002B2 488B1425[00000000]      mov rdx, [stdin]
+   318 000002BA E8(00000000)            call fgets
+   319                                  
+   320                                  ;remove newline
+   321 000002BF B800000000              mov rax, 0
+   322 000002C4 4889E7                  mov rdi, rsp
+   323 000002C7 E8(00000000)            call strlen
+   324 000002CC C64404FF00              mov[rsp + rax-1], byte 0
+   325                                  
+   326                                  ;check recent input is a valid float number
+   327 000002D1 B800000000              mov rax, 0
+   328 000002D6 4889E7                  mov rdi, rsp
+   329 000002D9 E8(00000000)            call isfloat
+   330                                  
+   331                                  ;if not valid float number, send to bad_input to try again
+   332 000002DE 4883F800                cmp rax, 0
+   333 000002E2 74A4                    je bad_input_s2
+   334                                  
+   335                                  ;if input is valid float number, save value and jump to next function
+   336 000002E4 B800000000              mov rax, 0
+   337 000002E9 4889E7                  mov rdi, rsp
+   338 000002EC E8(00000000)            call atof
+   339 000002F1 F2440F10E8              movsd xmm13, xmm0
+   340 000002F6 4881C400100000          add rsp, 4096
+   341 000002FD EB00                    jmp input_loop_a
+   342                                  
+   343                                  
+   344                                  
+   345                                  input_loop_a:
+   346                                  ;prompt the user for angle in degrees
+   347 000002FF B800000000              mov rax, 0
+   348 00000304 48BF-                   mov rdi, angle
+   348 00000306 [FA00000000000000] 
+   349 0000030E E8(00000000)            call printf
+   350                                  
+   351                                  ;Have user input number for angle in degrees as a string
+   352 00000313 4881EC00100000          sub rsp, 4096
+   353 0000031A 4889E7                  mov rdi, rsp
+   354 0000031D BE00100000              mov rsi, 4096
+   355 00000322 488B1425[00000000]      mov rdx, [stdin]
+   356 0000032A E8(00000000)            call fgets
+   357                                  
+   358                                  ;remove newline
+   359 0000032F B800000000              mov rax, 0
+   360 00000334 4889E7                  mov rdi, rsp
+   361 00000337 E8(00000000)            call strlen
+   362 0000033C C64404FF00              mov[rsp + rax-1], byte 0
+   363                                  
+   364                                  ;check recent input is a valid float number
+   365 00000341 B800000000              mov rax, 0
+   366 00000346 4889E7                  mov rdi, rsp
+   367 00000349 E8(00000000)            call isfloat
+   368                                  
+   369                                  ;if not valid float number, send to bad_input to try again
+   370 0000034E 4883F800                cmp rax, 0
+   371 00000352 741B                    je bad_input_a
+   372                                  
+   373                                  ;if input is valid float number, save value and jump to next function
+   374 00000354 B800000000              mov rax, 0
+   375 00000359 4889E7                  mov rdi, rsp
+   376 0000035C E8(00000000)            call atof
+   377 00000361 F2440F10F0              movsd xmm14, xmm0
+   378 00000366 4881C400100000          add rsp, 4096
+   379 0000036D EB77                    jmp input_data
+   380                                  
+   381                                  
+   382                                  ;input is invalid, ask user to to input again
+   383                                  bad_input_a:
+   384 0000036F B800000000              mov rax, 0
+   385 00000374 48BF-                   mov rdi, invalid
+   385 00000376 [2A01000000000000] 
+   386 0000037E E8(00000000)            call printf
+   387 00000383 4881C400100000          add rsp, 4096
+   388                                  
+   389                                  ;Have user input number for angle in degrees as a string again
+   390 0000038A 4881EC00100000          sub rsp, 4096
+   391 00000391 4889E7                  mov rdi, rsp
+   392 00000394 BE00100000              mov rsi, 4096
+   393 00000399 488B1425[00000000]      mov rdx, [stdin]
+   394 000003A1 E8(00000000)            call fgets
+   395                                  
+   396                                  ;remove newline
+   397 000003A6 B800000000              mov rax, 0
+   398 000003AB 4889E7                  mov rdi, rsp
+   399 000003AE E8(00000000)            call strlen
+   400 000003B3 C64404FF00              mov[rsp + rax-1], byte 0
+   401                                  
+   402                                  ;check recent input is a valid float number
+   403 000003B8 B800000000              mov rax, 0
+   404 000003BD 4889E7                  mov rdi, rsp
+   405 000003C0 E8(00000000)            call isfloat
+   406                                  
+   407                                  ;if not valid float number, send to bad_input to try again
+   408 000003C5 4883F800                cmp rax, 0
+   409 000003C9 74A4                    je bad_input_a
+   410                                  
+   411                                  ;if input is valid float number, save value and jump to next function
+   412 000003CB B800000000              mov rax, 0
+   413 000003D0 4889E7                  mov rdi, rsp
+   414 000003D3 E8(00000000)            call atof
+   415 000003D8 F2440F10F0              movsd xmm14, xmm0
+   416 000003DD 4881C400100000          add rsp, 4096
+   417 000003E4 EB00                    jmp input_data
+   418                                  
+   419                                  
+   420                                  
+   421                                  input_data:
+   422                                  ;print data inputted by user
+   423 000003E6 B803000000              mov rax, 3
+   424 000003EB F2410F10C4              movsd xmm0, xmm12
+   425 000003F0 F2410F10CD              movsd xmm1, xmm13
+   426 000003F5 F2410F10D6              movsd xmm2, xmm14
+   427 000003FA 48BF-                   mov rdi, results
+   427 000003FC [4501000000000000] 
+   428 00000404 48BE-                   mov rsi, user_name
+   428 00000406 [4003000000000000] 
+   429 0000040E E8(00000000)            call printf
+   430                                  
+   431                                  
+   432                                  ;multiply 2 * side 1 * side 2 to multiply with cos of the angle later
+   433 00000413 F2450F10DC              movsd xmm11, xmm12
+   434 00000418 F2450F59DD              mulsd xmm11, xmm13
+   435 0000041D F2440F591C25-           mulsd xmm11, [two]
+   435 00000423 [08000000]         
+   436                                  
+   437                                  ;convert angle in degrees to angle in radians
+   438 00000427 F2440F593425-           mulsd xmm14, [pi]
+   438 0000042D [00000000]         
+   439 00000431 F2440F5E3425-           divsd xmm14, [straight]
+   439 00000437 [10000000]         
+   440                                  
+   441                                  ;get the cos of the angle
+   442 0000043B B801000000              mov rax, 1
+   443 00000440 F2410F10C6              movsd xmm0, xmm14
+   444 00000445 E8(00000000)            call cos
+   445 0000044A F2440F10F0              movsd xmm14, xmm0
+   446                                  
+   447                                  ;find square of side 1
+   448 0000044F F2450F59E4              mulsd xmm12, xmm12
+   449                                  
+   450                                  ;find square of side 2
+   451 00000454 F2450F59ED              mulsd xmm13, xmm13
+   452                                  
+   453                                  ;multiply 2 * side 1 * side 2 with cos of the angle
+   454 00000459 F2450F59F3              mulsd xmm14, xmm11
+   455                                  
+   456                                  ;calculate the missing side
+   457 0000045E F2450F10FC              movsd xmm15, xmm12
+   458 00000463 F2450F58FD              addsd xmm15, xmm13
+   459 00000468 F2450F5CFE              subsd xmm15, xmm14
+   460 0000046D F2450F51FF              sqrtsd xmm15, xmm15
+   461                                  
+   462                                  ;print results
+   463 00000472 B801000000              mov rax, 1
+   464 00000477 F2410F10C7              movsd xmm0, xmm15 ;move side 3 length in xmm15 to xmm0 to print
+   465 0000047C 48BF-                   mov rdi, side_3
+   465 0000047E [7701000000000000] 
+   466 00000486 E8(00000000)            call printf
+   467                                  
+   468                                  ;tell user that length of 3rd side will be sent back
+   469 0000048B B800000000              mov rax, 0
+   470 00000490 48BF-                   mov rdi, sent
+   470 00000492 [A001000000000000] 
+   471 0000049A E8(00000000)            call printf
+   472                                  
+   473                                  ;get final time on system clock
+   474 0000049F 0FA2                    cpuid
+   475 000004A1 0F31                    rdtsc
+   476 000004A3 48C1E220                shl rdx, 32
+   477 000004A7 4801C2                  add rdx, rax
+   478 000004AA 4989D4                  mov r12, rdx
+   479                                  
+   480                                  ;print final time
+   481 000004AD B800000000              mov rax, 0
+   482 000004B2 48BF-                   mov rdi, end_time
+   482 000004B4 [0602000000000000] 
+   483 000004BC 4C89E6                  mov rsi, r12
+   484 000004BF E8(00000000)            call printf
+   485                                  
+   486                                  ;wish user a good day
+   487 000004C4 B800000000              mov rax, 0
+   488 000004C9 48BF-                   mov rdi, goodday
+   488 000004CB [3802000000000000] 
+   489 000004D3 48BE-                   mov rsi, user_title
+   489 000004D5 [7003000000000000] 
+   490 000004DD 48BA-                   mov rdx, user_name
+   490 000004DF [4003000000000000] 
+   491 000004E7 E8(00000000)            call printf
+   492                                  
+   493                                  
+   494                                  ;move results to stack
+   495 000004EC B800000000              mov rax, 0
+   496 000004F1 6A00                    push qword 0
+   497 000004F3 F2440F113C24            movsd [rsp], xmm15 ;move side 3 length in xmm15 to stack to restore sse registers
+   498                                  
+   499                                  ;Restore the values to non-GPRs
+   500 000004F9 B807000000              mov rax,7
+   501 000004FE BA00000000              mov rdx,0
+   502 00000503 0FAE2C25[00000000]      xrstor [backup_storage_area]
+   503                                  
+   504                                  ;Send back side 3 length
+   505 0000050B F20F100424              movsd xmm0, [rsp] ;move side 3 length from top of stack to xmm0 to send back to main
+   506 00000510 58                      pop rax
+   507                                  
+   508                                  
+   509                                  ;Restore the GPRs
+   510 00000511 9D                      popf
+   511 00000512 415F                    pop r15
+   512 00000514 415E                    pop r14
+   513 00000516 415D                    pop r13
+   514 00000518 415C                    pop r12
+   515 0000051A 415B                    pop r11
+   516 0000051C 415A                    pop r10
+   517 0000051E 4159                    pop r9
+   518 00000520 4158                    pop r8
+   519 00000522 5E                      pop rsi
+   520 00000523 5F                      pop rdi
+   521 00000524 5A                      pop rdx
+   522 00000525 59                      pop rcx
+   523 00000526 5B                      pop rbx
+   524 00000527 5D                      pop rbp   ;Restore rbp to the base of the activation record of the caller program
+   525 00000528 C3                      ret
+   526                                  ;End of the function average ====================================================================
