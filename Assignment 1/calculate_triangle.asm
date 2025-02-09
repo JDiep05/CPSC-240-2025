@@ -44,6 +44,9 @@
 ;
 ;========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1=========2=========3**
 
+
+
+
 ;declaration
 
 extern printf
@@ -236,14 +239,15 @@ push qword 0
 movsd [rsp], xmm11
 
 ;Restore the values to non-GPRs
-mov rax,7
-mov rdx,0
+mov rax, 7
+mov rdx, 0
 xrstor [backup_storage_area]
 
 ;Send back side 3 length
-movsd xmm0, [rsp]    ; Move side_3 to xmm0 to send to main
-pop rax
+movsd xmm0, [rsp]    ; Move side_3 to xmm0
+pop rax   ; xmm0 is returned to the main function in the count variable
 
+                    
 ; Restore the GPRs
 popf
 pop r15
