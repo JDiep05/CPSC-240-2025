@@ -1,4 +1,48 @@
-; License will be included soon
+;*******************************************************************************************************************************
+; Program name: "Triangle". This program calculates the third side of a triangle with two sides and an angle of a triangle based on user input
+; Copyright (C) 2025  Jonthan Diep                                                                                             *
+;                                                                                                                              *
+; This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License    *
+; as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.        *
+; This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty  *
+; of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.                *
+; You should have received a copy of the GNU General Public License along with this program.  If not, see                      *
+; <https://www.gnu.org/licenses/>.                                                                                             *
+;*******************************************************************************************************************************
+
+
+
+;========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1=========2=========3**
+; Author information
+;   Author name : Jonathan Diep
+;   Author email: jonathon.dieppp@csu.fullerton.edu
+;   CWID : 884973462
+;   Class: 240-03 Section 03
+; Program Information
+;   Program Name: Triangle
+;   Programming language: One module in C, one in X86, and one in bash.
+;   Date program began: 2025-Feb-06
+;   Date of last update: 2025-Feb-08
+;   Files in this program: geometry.c, calculate_triangle.asm, run.sh.
+;   Testing: Alpha testing completed. All functions are correct.
+;   Status: Ready for release to customers
+;
+;Purpose
+;   This program is a calculator for finding the third side of a triangle based on user input
+;
+;This file:
+;   File name: calculate_triangle.asm
+;   Language: X86-64
+;   Max page width: 124 columns
+;   Assemble (standard): nasm -f elf64 -l calculate_triangle.lis -o calculate_triangle.o calculate_triangle.asm
+;   Assemble (debug): nasm -f elf64 -gdwarf -l calculate_triangle.lis -o calculate_triangle.o calculatetriangle.asm
+;   Optimal print specification: Landscape, 7 points, monospace, 8½x11 paper
+;   Prototype of this function: extern double calculate_triangle();
+; 
+;
+;
+;
+;========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1=========2=========3**
 
 ;declaration
 
@@ -16,7 +60,7 @@ extern cos
 
 global calculate_triangle
 
-string_size equ 48
+string_size equ 48   ; Assign string_size with 48
 pi dq 3.141592653589793238462643383279502884197
 two dq 2.0
 straight dq 180.0
@@ -43,10 +87,10 @@ segment .bss
 align 64
 backup_storage_area resb 832
 
-last_name resb string_size
-title_name resb string_size
+last_name resb string_size   ; Reserving 48 byte for string input
+title_name resb string_size   ; 48 byte is optimal for flexibility
 
-side_1 resq 1  
+side_1 resq 1   ; Reserving 1 byte for double input
 side_2 resq 1
 angle resq 1
 
@@ -92,8 +136,9 @@ call fgets
 ;remove newline from fgets, replacing with null
 mov rax, 0
 mov rdi, last_name
-call strlen
-mov [last_name+rax-1], byte 0
+call strlen   ; rax = length of last_name + newline
+mov [last_name+rax-1], byte 0   ; rax points to the index of last_name based on the value it holds 
+                                ; and replaces it with null
 
 ;output prompt for user input's title
 mov rax, 0
@@ -126,8 +171,8 @@ mov rdx, side_2
 call scanf
 
 ; Move the input values into xmm registers
-movsd xmm14, [side_1]   ; Move first side into xmm14 (Dereference)
-movsd xmm15, [side_2]   ; Move second side into xmm15 (Dereference)
+movsd xmm14, [side_1]   ; Move first side into xmm14 (Dereference to get the value in side_1)
+movsd xmm15, [side_2]   ; Move second side into xmm15 (Dereference to get the value in side_2)
 
 input_angle:
 ; Prompt for user's input for angle between the two sides of the triangle
@@ -141,7 +186,7 @@ mov rsi, angle
 call scanf
 
 ; Move the input values into xmm registers
-movsd xmm13, [angle]   ; Move first angle into xmm13 (Dereference)
+movsd xmm13, [angle]   ; Move first angle into xmm13 (Dereference to get the value in angle)
 
 input_calculate:
 ; Setting values for cos(angle) (calculation: 2(side_1)(side_2)*cos(angle))
@@ -151,7 +196,7 @@ mulsd xmm12, [two]   ; Multiplying two(2.0) with xmm12 (2 * (a*b))
 
 ; Convert angle in Degrees into Radians
 mulsd xmm13, [pi]   ; d = (d * 3.141592653589793238462643383279502884197)
-divsd xmm13, [straight]   ; d= d/180
+divsd xmm13, [straight]   ; d = d/180
 
 ; Getting Cos value
 mov rax, 1
@@ -173,7 +218,7 @@ subsd xmm11, xmm13   ; c^2 = a^2 + b^2 - (2 *(a*b) * (cos(d)))
 sqrtsd xmm11, xmm11   ; c = sqrt(a^2 + b^2 - (2 *(a*b) * (cos(d))))
 
 ; Print third side
-mov rax, 1
+mov rax, 1   ; Passing 1 float number
 movsd xmm0, xmm11
 mov rdi, result_side3
 call printf

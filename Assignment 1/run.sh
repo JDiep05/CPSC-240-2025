@@ -1,13 +1,16 @@
-#/bin/bash
+# /bin/bash
 
-#Program name "Triangles"
-#Author: Kaitlyn Lee
-#Author Email: kaitlynlee@csu.fullerton.edu
-#CWID: 886374479
-#Class: 240-03 Section 03
-#This file is the script file that accompanies the "Triangles" program.
-#Prepare for execution in normal mode (not gdb mode).
+# Program name "Triangles"
+# Author: Jonathan Diep
+# Author Email: jonathon.dieppp@csu.fullerton.edu
+# CWID: 884973462
+# Class: 240-03 Section 03
+# Date program began: 2024-Feb-06
+# Date of last update: 2024-Feb-08
+# This file is the script file that accompanies the "Triangles" program.
+# Prepare for execution in normal mode (not gdb mode).
 
+# Delete un-needed files
 rm -f *.o
 rm -f *.out
 
