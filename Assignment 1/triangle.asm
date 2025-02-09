@@ -23,7 +23,7 @@
 ;   Programming language: One module in C, one in X86, and one in bash.
 ;   Date program began: 2025-Feb-06
 ;   Date of last update: 2025-Feb-08
-;   Files in this program: geometry.c, calculate_triangle.asm, run.sh.
+;   Files in this program: geometry.c, triangle.asm, run.sh.
 ;   Testing: Alpha testing completed. All functions are correct.
 ;   Status: Ready for release to customers
 ;
@@ -31,13 +31,13 @@
 ;   This program is a calculator for finding the third side of a triangle based on user input
 ;
 ;This file:
-;   File name: calculate_triangle.asm
+;   File name: triangle.asm
 ;   Language: X86-64
 ;   Max page width: 124 columns
-;   Assemble (standard): nasm -f elf64 -l calculate_triangle.lis -o calculate_triangle.o calculate_triangle.asm
-;   Assemble (debug): nasm -f elf64 -gdwarf -l calculate_triangle.lis -o calculate_triangle.o calculatetriangle.asm
+;   Assemble (standard): nasm -f elf64 -l triangle.lis -o triangle.o triangle.asm
+;   Assemble (debug): nasm -f elf64 -gdwarf -l triangle.lis -o triangle.o calculatetriangle.asm
 ;   Optimal print specification: Landscape, 7 points, monospace, 8½x11 paper
-;   Prototype of this function: extern double calculate_triangle();
+;   Prototype of this function: extern double triangle();
 ; 
 ;
 ;
@@ -60,7 +60,7 @@ extern strlen
 
 extern cos
 
-global calculate_triangle
+global triangle
 
 string_size equ 48   ; Assign string_size with 48
 pi dq 3.141592653589793238462643383279502884197
@@ -98,7 +98,7 @@ angle resq 1
 
 segment .text
 
-calculate_triangle:
+triangle:
 
 ;backup GPRs
 push rbp
