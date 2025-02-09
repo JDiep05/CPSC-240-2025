@@ -17,7 +17,7 @@
 // Author email: jonathon.dieppp@csu.fullerton.edu
 // CWID: 884973462
 // Class: 240-03 Section 03
-// Program name: Amazing Triangles
+// Program name: Triangles
 // Programming languages: One module in C, one in X86, and one in bash.
 // Date program began: 2024-Feb-06
 // Date of last update: 2024-Feb-08
@@ -29,7 +29,7 @@
 //  This program calculates for the third side of a triangle based on the user's input for the other two sides and the angle between them
 // This file:
 //  File name: geometry.c
-//  Language: C language, 202x standardization where x will be a decimal digit.
+//  Language: C language
 //  Max page width: 124 columns
 //  Compile: gcc -m64 -Wall -no-pie -o geometry.o -std=c2x -c geometry.c
 //  Link: gcc -m64 -no-pie -o triangle.out calculate_triangle.o geometry.o -std=c2x -Wall -z noexecstack -lm
