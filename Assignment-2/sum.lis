@@ -1,0 +1,40 @@
+     1                                  extern printf
+     2                                  
+     3                                  global sum
+     4                                  
+     5                                  segment .data
+     6                                      ; This segment is empty
+     7                                  
+     8                                  segment .bss
+     9                                      ; This segment is empty
+    10                                  
+    11                                  segment .text
+    12                                  
+    13                                  sum:
+    14                                  
+    15                                  ; Backup GPRs
+    16 00000000 55                      push rbp
+    17 00000001 4889E5                  mov rbp, rsp
+    18 00000004 4154                    push r12
+    19 00000006 4155                    push r13
+    20 00000008 4156                    push r14
+    21                                  
+    22 0000000A 4989FC                  mov r12, rdi
+    23 0000000D 4989F5                  mov r13, rsi
+    24 00000010 4D31F6                  xor r14, r14    ; Index/loop counter
+    25                                  
+    26                                  sum_loop:
+    27 00000013 F2470F103CF4            movsd xmm15, [r12 + r14*8]
+    28 00000019 F2450F58F7              addsd xmm14, xmm15
+    29 0000001E 4D39EE                  cmp r14, r13
+    30 00000021 7CF0                    jl sum_loop     ; If index < length then continue the loop
+    31 00000023 7F00                    jg sum_exit     ; If index > length then exit the loop
+    32                                  
+    33                                  sum_exit:
+    34 00000025 F2410F10C6              movsd xmm0, xmm14
+    35                                  
+    36 0000002A 415E                    pop r14
+    37 0000002C 415D                    pop r13
+    38 0000002E 415C                    pop r12
+    39 00000030 5D                      pop rbp
+    40 00000031 C3                      ret

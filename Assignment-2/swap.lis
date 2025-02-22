@@ -1,0 +1,17 @@
+     1                                  global swap
+     2                                  
+     3                                  segment .data
+     4                                      ; This segment is empty
+     5                                  segment .bss
+     6                                      ; This segment is empty
+     7                                  segment .text
+     8                                  
+     9                                  swap:
+    10                                  
+    11 00000000 F20F1007                movsd xmm0, [rdi]    ; xmm0 = *a
+    12 00000004 F20F100E                movsd xmm1, [rsi]    ; xmm1 = *b
+    13                                  
+    14                                  ; Write swapped values back to memory
+    15 00000008 F20F110F                movsd [rdi], xmm1    ; *a = xmm1
+    16 0000000C F20F1106                movsd [rsi], xmm0    ; *b = xmm0
+    17 00000010 C3                      ret

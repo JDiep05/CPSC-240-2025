@@ -1,0 +1,59 @@
+     1                                  extern printf
+     2                                  
+     3                                  global output_array
+     4                                  
+     5                                  segment .data
+     6 00000000 252E39662000            floatformat db "%.9f ", 0
+     7 00000006 256400                  intformat db "%d", 0
+     8                                  
+     9 00000009 0A00                    newline db 10, 0
+    10                                  
+    11                                  segment .bss
+    12                                      ;This segment is empty
+    13                                  
+    14                                  segment .text
+    15                                  
+    16                                  output_array:
+    17                                  
+    18                                  ;backup GPRs
+    19 00000000 55                      push rbp
+    20 00000001 4889E5                  mov rbp, rsp
+    21 00000004 4154                    push r12
+    22 00000006 4155                    push r13
+    23 00000008 4156                    push r14
+    24                                  
+    25 0000000A 4989FC                  mov r12, rdi    ; Storing address to r12
+    26 0000000D 4989F5                  mov r13, rsi    ; Storing numbers of elements
+    27 00000010 41BE00000000            mov r14, 0   ; Set r14 as counter for loop
+    28                                  
+    29                                  
+    30                                  output_loop:
+    31 00000016 4D39EE                  cmp r14, r13    ; Compare index with length
+    32 00000019 7D31                    jge output_exit ; End loop if index < length
+    33                                  
+    34                                  ; Print current index
+    35 0000001B 48BF-                   mov rdi, floatformat
+    35 0000001D [0000000000000000] 
+    36 00000025 F2430F1004F4            movsd xmm0, [r12 + r14*8]   ; Moving current index from the selected address to xmm0 [Address + Index*byte]
+    37 0000002B E8(00000000)            call printf
+    38                                  
+    39 00000030 49FFC6                  inc r14         ; Increase r14 by 1
+    40 00000033 B800000000              mov rax, 0
+    41 00000038 48BF-                   mov rdi, intformat
+    41 0000003A [0600000000000000] 
+    42 00000042 4C89F6                  mov rsi, r14
+    43 00000045 E8(00000000)            call printf
+    44                                  
+    45 0000004A EBCA                    jmp output_loop ; Calling output_loop
+    46                                  
+    47                                  output_exit:
+    48 0000004C B800000000              mov rax, 0
+    49 00000051 48BF-                   mov rdi, newline    ; Print newline after output
+    49 00000053 [0900000000000000] 
+    50 0000005B E8(00000000)            call printf
+    51                                  
+    52 00000060 415E                    pop r14
+    53 00000062 415D                    pop r13
+    54 00000064 415C                    pop r12
+    55 00000066 5D                      pop rbp
+    56 00000067 C3                      ret
