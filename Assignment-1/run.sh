@@ -14,14 +14,14 @@
 rm -f *.o
 rm -f *.out
 
-echo "Assembling the source file triangle.asm"
-nasm -f elf64 -l triangle.lis -o triangle.o triangle.asm
+echo "Assembling the source file calculate_triangle.asm"
+nasm -f elf64 -l calculate_triangle.lis -o calculate_triangle.o calculate_triangle.asm
 
 echo "Compiling the source file geometry.c"
 gcc -m64 -Wall -no-pie -o geometry.o -std=c2x -c geometry.c
 
 echo "Linking the object modules to create an executable file"
-gcc -m64 -no-pie -o triangle.out triangle.o geometry.o -std=c2x -Wall -z noexecstack -lm
+gcc -m64 -no-pie -o triangle.out calculate_triangle.o geometry.o -std=c2x -Wall -z noexecstack -lm
 
 echo "Executing the program"
 chmod +x triangle.out
