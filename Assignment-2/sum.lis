@@ -6,35 +6,66 @@
      6                                      ; This segment is empty
      7                                  
      8                                  segment .bss
-     9                                      ; This segment is empty
-    10                                  
-    11                                  segment .text
-    12                                  
-    13                                  sum:
-    14                                  
-    15                                  ; Backup GPRs
-    16 00000000 55                      push rbp
-    17 00000001 4889E5                  mov rbp, rsp
-    18 00000004 4154                    push r12
-    19 00000006 4155                    push r13
-    20 00000008 4156                    push r14
-    21                                  
-    22 0000000A 4989FC                  mov r12, rdi
-    23 0000000D 4989F5                  mov r13, rsi
-    24 00000010 4D31F6                  xor r14, r14    ; Index/loop counter
-    25                                  
-    26                                  sum_loop:
-    27 00000013 F2470F103CF4            movsd xmm15, [r12 + r14*8]
-    28 00000019 F2450F58F7              addsd xmm14, xmm15
-    29 0000001E 4D39EE                  cmp r14, r13
-    30 00000021 7CF0                    jl sum_loop     ; If index < length then continue the loop
-    31 00000023 7F00                    jg sum_exit     ; If index > length then exit the loop
-    32                                  
-    33                                  sum_exit:
-    34 00000025 F2410F10C6              movsd xmm0, xmm14
-    35                                  
-    36 0000002A 415E                    pop r14
-    37 0000002C 415D                    pop r13
-    38 0000002E 415C                    pop r12
-    39 00000030 5D                      pop rbp
-    40 00000031 C3                      ret
+     9                                  align 64
+    10 00000000 <res 00000340>          backup_storage_area resb 832
+    11                                  
+    12                                  segment .text
+    13                                  
+    14                                  sum:
+    15                                  
+    16                                  ;backup GPRs
+    17 00000000 55                      push rbp
+    18 00000001 4889E5                  mov rbp, rsp
+    19 00000004 53                      push rbx
+    20 00000005 51                      push rcx
+    21 00000006 52                      push rdx
+    22 00000007 57                      push rdi
+    23 00000008 56                      push rsi
+    24 00000009 4150                    push r8
+    25 0000000B 4151                    push r9
+    26 0000000D 4152                    push r10
+    27 0000000F 4153                    push r11
+    28 00000011 4154                    push r12
+    29 00000013 4155                    push r13
+    30 00000015 4156                    push r14
+    31 00000017 4157                    push r15
+    32 00000019 9C                      pushf
+    33                                  
+    34                                  ;backup other registers
+    35 0000001A B807000000              mov rax,7
+    36 0000001F BA00000000              mov rdx,0
+    37 00000024 0FAE2425[00000000]      xsave [backup_storage_area]
+    38                                  
+    39 0000002C 4989FC                  mov r12, rdi
+    40 0000002F 4989F5                  mov r13, rsi
+    41 00000032 41BE00000000            mov r14, 0    ; Index/loop counter
+    42                                  
+    43                                  sum_loop:
+    44 00000038 4883EC08                sub rsp, 8
+    45 0000003C F2470F103CF4            movsd xmm15, [r12 + r14*8]
+    46 00000042 F2450F58F7              addsd xmm14, xmm15
+    47 00000047 4883C408                add rsp, 8
+    48                                  
+    49 0000004B 49FFC6                  inc r14
+    50 0000004E 4D39EE                  cmp r14, r13
+    51 00000051 7CE5                    jl sum_loop     ; If index < length then continue the loop
+    52 00000053 7F00                    jg sum_exit     ; If index > length then exit the loop
+    53                                  
+    54                                  sum_exit:
+    55 00000055 F2410F10C6              movsd xmm0, xmm14
+    56 0000005A 9D                      popf
+    57 0000005B 415F                    pop r15
+    58 0000005D 415E                    pop r14
+    59 0000005F 415D                    pop r13
+    60 00000061 415C                    pop r12
+    61 00000063 415B                    pop r11
+    62 00000065 415A                    pop r10
+    63 00000067 4159                    pop r9
+    64 00000069 4158                    pop r8
+    65 0000006B 5E                      pop rsi
+    66 0000006C 5F                      pop rdi
+    67 0000006D 5A                      pop rdx
+    68 0000006E 59                      pop rcx
+    69 0000006F 5B                      pop rbx
+    70 00000070 5D                      pop rbp   ;Restore rbp to the base of the activation record of the caller program
+    71 00000071 C3                      ret

@@ -34,171 +34,174 @@
     16 000000A6 6C6F77656420627920-
     16 000000AF 436F6E74726F6C2B44-
     16 000000B8 3A0A00             
-    17 000000BB 5468657365206E756D-     info_4 db "These numbers were received and placed into an array", 10, 0
-    17 000000C4 626572732077657265-
-    17 000000CD 207265636569766564-
-    17 000000D6 20616E6420706C6163-
-    17 000000DF 656420696E746F2061-
-    17 000000E8 6E2061727261790A00 
-    18 000000F1 5468652073756D206F-     info_5 db "The sum of the inputted number is %.9lf", 10, 0
-    18 000000FA 662074686520696E70-
-    18 00000103 7574746564206E756D-
-    18 0000010C 62657220697320252E-
-    18 00000115 396C660A00         
-    19 0000011A 546865206172697468-     info_6 db "The arithmetic mean of the numbers in the array is %.6lf", 10, 0
-    19 00000123 6D65746963206D6561-
-    19 0000012C 6E206F662074686520-
-    19 00000135 6E756D626572732069-
-    19 0000013E 6E2074686520617272-
-    19 00000147 617920697320252E36-
-    19 00000150 6C660A00           
-    20 00000154 546869732069732074-     info_7 db "This is the array after the sort process completed:", 10, 0
-    20 0000015D 686520617272617920-
-    20 00000166 616674657220746865-
-    20 0000016F 20736F72742070726F-
-    20 00000178 6365737320636F6D70-
-    20 00000181 6C657465643A0A00   
-    21 00000189 0A256C660A00            floatformat db 10, "%lf", 10, 0
-    22                                  
-    23                                  segment .bss
-    24                                  align 64
-    25 00000000 <res 00000340>          backup_storage_area resb 832
-    26                                  
-    27 00000340 <res 00000080>          my_array resq 16    ; reserve 16 quadword (128 bytes)
+    17 000000BB 0A5468657365206E75-     info_4 db 10, "These numbers were received and placed into an array", 10, 0
+    17 000000C4 6D6265727320776572-
+    17 000000CD 652072656365697665-
+    17 000000D6 6420616E6420706C61-
+    17 000000DF 63656420696E746F20-
+    17 000000E8 616E2061727261790A-
+    17 000000F1 00                 
+    18 000000F2 5468652073756D206F-     info_5 db "The sum of the inputted number is %.9lf", 10, 0
+    18 000000FB 662074686520696E70-
+    18 00000104 7574746564206E756D-
+    18 0000010D 62657220697320252E-
+    18 00000116 396C660A00         
+    19 0000011B 546865206172697468-     info_6 db "The arithmetic mean of the numbers in the array is %.6lf", 10, 0
+    19 00000124 6D65746963206D6561-
+    19 0000012D 6E206F662074686520-
+    19 00000136 6E756D626572732069-
+    19 0000013F 6E2074686520617272-
+    19 00000148 617920697320252E36-
+    19 00000151 6C660A00           
+    20 00000155 546869732069732074-     info_7 db "This is the array after the sort process completed:", 10, 0
+    20 0000015E 686520617272617920-
+    20 00000167 616674657220746865-
+    20 00000170 20736F72742070726F-
+    20 00000179 6365737320636F6D70-
+    20 00000182 6C657465643A0A00   
+    21 0000018A 0A256C660A00            floatformat db 10, "%lf", 10, 0
+    22 00000190 0A25640A00              intformat db 10,"%d", 10, 0
+    23 00000195 38E92F54FB210940        my_double dq 3.141592653
+    24                                  
+    25                                  segment .bss
+    26                                  align 64
+    27 00000000 <res 00000340>          backup_storage_area resb 832
     28                                  
-    29                                  segment .text
-    30                                  manager: 
-    31                                  
-    32                                  ;backup GPRs
-    33 00000000 55                      push rbp
-    34 00000001 4889E5                  mov rbp, rsp
-    35 00000004 53                      push rbx
-    36 00000005 51                      push rcx
-    37 00000006 52                      push rdx
-    38 00000007 57                      push rdi
-    39 00000008 56                      push rsi
-    40 00000009 4150                    push r8
-    41 0000000B 4151                    push r9
-    42 0000000D 4152                    push r10
-    43 0000000F 4153                    push r11
-    44 00000011 4154                    push r12
-    45 00000013 4155                    push r13
-    46 00000015 4156                    push r14
-    47 00000017 4157                    push r15
-    48 00000019 9C                      pushf
-    49                                  
-    50                                  ;backup other registers
-    51 0000001A B807000000              mov rax, 7
-    52 0000001F BA00000000              mov rdx, 0
-    53 00000024 0FAE2425[00000000]      xsave [backup_storage_area]
-    54                                  
-    55 0000002C B800000000              mov rax, 0 
-    56 00000031 48BF-                   mov rdi, info_1
-    56 00000033 [0000000000000000] 
-    57 0000003B E8(00000000)            call printf
-    58                                  
-    59 00000040 B800000000              mov rax, 0
-    60 00000045 48BF-                   mov rdi, info_2
-    60 00000047 [3700000000000000] 
-    61 0000004F E8(00000000)            call printf
-    62                                  
-    63 00000054 B800000000              mov rax, 0
-    64 00000059 48BF-                   mov rdi, info_3
-    64 0000005B [8200000000000000] 
-    65 00000063 E8(00000000)            call printf
-    66                                  
-    67 00000068 B800000000              mov rax, 0
-    68 0000006D 48BF-                   mov rdi, my_array
-    68 0000006F [4003000000000000] 
-    69 00000077 BE10000000              mov rsi, 16
-    70 0000007C E8(00000000)            call input_array
-    71                                  
-    72 00000081 4989C5                  mov r13, rax
+    29 00000340 <res 00000080>          my_array resq 16    ; reserve 16 quadword (128 bytes)
+    30                                  
+    31                                  segment .text
+    32                                  manager: 
+    33                                  
+    34                                  ;backup GPRs
+    35 00000000 55                      push rbp
+    36 00000001 4889E5                  mov rbp, rsp
+    37 00000004 53                      push rbx
+    38 00000005 51                      push rcx
+    39 00000006 52                      push rdx
+    40 00000007 57                      push rdi
+    41 00000008 56                      push rsi
+    42 00000009 4150                    push r8
+    43 0000000B 4151                    push r9
+    44 0000000D 4152                    push r10
+    45 0000000F 4153                    push r11
+    46 00000011 4154                    push r12
+    47 00000013 4155                    push r13
+    48 00000015 4156                    push r14
+    49 00000017 4157                    push r15
+    50 00000019 9C                      pushf
+    51                                  
+    52                                  ;backup other registers
+    53 0000001A B807000000              mov rax, 7
+    54 0000001F BA00000000              mov rdx, 0
+    55 00000024 0FAE2425[00000000]      xsave [backup_storage_area]
+    56                                  
+    57 0000002C B800000000              mov rax, 0 
+    58 00000031 48BF-                   mov rdi, info_1
+    58 00000033 [0000000000000000] 
+    59 0000003B E8(00000000)            call printf
+    60                                  
+    61 00000040 B800000000              mov rax, 0
+    62 00000045 48BF-                   mov rdi, info_2
+    62 00000047 [3700000000000000] 
+    63 0000004F E8(00000000)            call printf
+    64                                  
+    65 00000054 B800000000              mov rax, 0
+    66 00000059 48BF-                   mov rdi, info_3
+    66 0000005B [8200000000000000] 
+    67 00000063 E8(00000000)            call printf
+    68                                  
+    69 00000068 B800000000              mov rax, 0
+    70 0000006D 48BF-                   mov rdi, my_array
+    70 0000006F [4003000000000000] 
+    71 00000077 BE10000000              mov rsi, 16
+    72 0000007C E8(00000000)            call input_array
     73                                  
-    74 00000084 B800000000              mov rax, 0
-    75 00000089 48BF-                   mov rdi, info_4
-    75 0000008B [BB00000000000000] 
-    76 00000093 E8(00000000)            call printf
-    77                                  
-    78 00000098 B800000000              mov rax, 0
-    79 0000009D 48BF-                   mov rdi, my_array
-    79 0000009F [4003000000000000] 
-    80 000000A7 4C89EE                  mov rsi, r13
-    81 000000AA E8(00000000)            call output_array
-    82                                  
-    83 000000AF B800000000              mov rax, 0
-    84 000000B4 48BF-                   mov rdi, my_array
-    84 000000B6 [4003000000000000] 
-    85 000000BE 4C89EE                  mov rsi, r13
-    86 000000C1 E8(00000000)            call sum
-    87                                  
-    88 000000C6 B801000000              mov rax, 1
-    89 000000CB 48BF-                   mov rdi, info_5
-    89 000000CD [F100000000000000] 
-    90 000000D5 E8(00000000)            call printf
+    74 00000081 4989C5                  mov r13, rax
+    75                                  
+    76 00000084 B800000000              mov rax, 0
+    77 00000089 48BF-                   mov rdi, info_4
+    77 0000008B [BB00000000000000] 
+    78 00000093 E8(00000000)            call printf
+    79                                  
+    80 00000098 B800000000              mov rax, 0
+    81 0000009D 48BF-                   mov rdi, my_array
+    81 0000009F [4003000000000000] 
+    82 000000A7 4C89EE                  mov rsi, r13
+    83 000000AA E8(00000000)            call output_array
+    84                                  
+    85 000000AF B800000000              mov rax, 0
+    86 000000B4 48BF-                   mov rdi, my_array
+    86 000000B6 [4003000000000000] 
+    87 000000BE 4C89EE                  mov rsi, r13
+    88 000000C1 E8(00000000)            call sum
+    89                                  
+    90 000000C6 F2440F10F8              movsd xmm15, xmm0   ; Move sum of array to non-volatile register for later use
     91                                  
-    92 000000DA F2440F10F8              movsd xmm15, xmm0   ; Move sum of array to non-volatile register for later use
-    93 000000DF 4D89EE                  mov r14, r13        ; Backing up r13
-    94                                  
-    95                                  ; Convert r13 (int count) to a double
-    96 000000E2 F2490F2ACD              cvtsi2sd xmm1, r13  ; Convert r13 (number of elements) to a double into xmm1
-    97                                  
-    98                                  ; Compute mean = sum / count
-    99 000000E7 F20F5EC1                divsd xmm0, xmm1    ; xmm0 = sum / count
-   100                                  
-   101 000000EB 4D89F5                  mov r13, r14        ; Restoring r13
+    92 000000CB B801000000              mov rax, 1
+    93 000000D0 48BF-                   mov rdi, info_5
+    93 000000D2 [F200000000000000] 
+    94 000000DA F2410F10C7              movsd xmm0, xmm15   ; Moving sum into xmm0 to print
+    95 000000DF E8(00000000)            call printf
+    96                                  
+    97 000000E4 4D89EE                  mov r14, r13        ; Backing up r13 (length of array)
+    98                                  
+    99 000000E7 F2490F2ACD              cvtsi2sd xmm1, r13  ; Convert r13 (number of elements) to a double into xmm1
+   100 000000EC F2410F10C7              movsd xmm0, xmm15   ; Using sum to find the mean by dividing with count
+   101 000000F1 F20F5EC1                divsd xmm0, xmm1    ; xmm0 = sum / count
    102                                  
-   103                                  ; Print mean
-   104 000000EE B801000000              mov rax, 1
-   105 000000F3 48BF-                   mov rdi, info_6
-   105 000000F5 [1A01000000000000] 
-   106 000000FD E8(00000000)            call printf
-   107                                  
-   108 00000102 B800000000              mov rax, 0
-   109 00000107 48BF-                   mov rdi, info_7
-   109 00000109 [5401000000000000] 
-   110 00000111 E8(00000000)            call printf
-   111                                  
-   112 00000116 B800000000              mov rax, 0
-   113 0000011B 48BF-                   mov rdi, my_array
-   113 0000011D [4003000000000000] 
-   114 00000125 4C89EE                  mov rsi, r13
-   115 00000128 E8(00000000)            call sort
-   116                                  
-   117 0000012D B800000000              mov rax, 0
-   118 00000132 48BF-                   mov rdi, my_array
-   118 00000134 [4003000000000000] 
-   119 0000013C 4C89EE                  mov rsi, r13
-   120 0000013F E8(00000000)            call output_array
-   121                                  
-   122 00000144 B800000000              mov rax, 0
-   123 00000149 6A00                    push qword 0
-   124 0000014B F2440F113C24            movsd [rsp], xmm15
-   125                                  
-   126 00000151 B807000000              mov rax, 7
-   127 00000156 B800000000              mov rax, 0
-   128 0000015B 0FAE2C25[00000000]      xrstor [backup_storage_area]
-   129                                  
-   130 00000163 F20F100424              movsd xmm0, [rsp]
-   131 00000168 58                      pop rax
-   132                                  
-   133                                  ;Restore the GPRs
-   134 00000169 9D                      popf
-   135 0000016A 415F                    pop r15
-   136 0000016C 415E                    pop r14
-   137 0000016E 415D                    pop r13
-   138 00000170 415C                    pop r12
-   139 00000172 415B                    pop r11
-   140 00000174 415A                    pop r10
-   141 00000176 4159                    pop r9
-   142 00000178 4158                    pop r8
-   143 0000017A 5E                      pop rsi
-   144 0000017B 5F                      pop rdi
-   145 0000017C 5A                      pop rdx
-   146 0000017D 59                      pop rcx
-   147 0000017E 5B                      pop rbx
-   148 0000017F 5D                      pop rbp
-   149 00000180 C3                      ret
-   150                                  
-   151                                  
+   103 000000F5 4D89F5                  mov r13, r14        ; Restoring r13 (length of array)
+   104                                  
+   105                                  ; Print mean
+   106 000000F8 B801000000              mov rax, 1
+   107 000000FD 48BF-                   mov rdi, info_6
+   107 000000FF [1B01000000000000] 
+   108 00000107 E8(00000000)            call printf
+   109                                  
+   110 0000010C B800000000              mov rax, 0
+   111 00000111 48BF-                   mov rdi, info_7
+   111 00000113 [5501000000000000] 
+   112 0000011B E8(00000000)            call printf
+   113                                  
+   114 00000120 B800000000              mov rax, 0
+   115 00000125 48BF-                   mov rdi, my_array
+   115 00000127 [4003000000000000] 
+   116 0000012F 4C89EE                  mov rsi, r13
+   117 00000132 E8(00000000)            call sort
+   118                                  
+   119 00000137 B800000000              mov rax, 0
+   120 0000013C 48BF-                   mov rdi, my_array
+   120 0000013E [4003000000000000] 
+   121 00000146 4C89EE                  mov rsi, r13
+   122 00000149 E8(00000000)            call output_array
+   123                                  
+   124 0000014E B800000000              mov rax, 0
+   125 00000153 6A00                    push qword 0
+   126 00000155 F2440F113C24            movsd [rsp], xmm15
+   127                                  
+   128 0000015B B807000000              mov rax, 7
+   129 00000160 B800000000              mov rax, 0
+   130 00000165 0FAE2C25[00000000]      xrstor [backup_storage_area]
+   131                                  
+   132 0000016D F20F100424              movsd xmm0, [rsp]
+   133 00000172 58                      pop rax
+   134                                  
+   135                                  ;Restore the GPRs
+   136 00000173 9D                      popf
+   137 00000174 415F                    pop r15
+   138 00000176 415E                    pop r14
+   139 00000178 415D                    pop r13
+   140 0000017A 415C                    pop r12
+   141 0000017C 415B                    pop r11
+   142 0000017E 415A                    pop r10
+   143 00000180 4159                    pop r9
+   144 00000182 4158                    pop r8
+   145 00000184 5E                      pop rsi
+   146 00000185 5F                      pop rdi
+   147 00000186 5A                      pop rdx
+   148 00000187 59                      pop rcx
+   149 00000188 5B                      pop rbx
+   150 00000189 5D                      pop rbp
+   151 0000018A C3                      ret
    152                                  
+   153                                  
+   154                                  

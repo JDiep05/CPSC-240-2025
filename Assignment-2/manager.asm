@@ -1,3 +1,50 @@
+;*******************************************************************************************************************************
+; Program name: "Triangle". This program calculates the third side of a triangle with two sides and an angle of a triangle based on user input
+; Copyright (C) 2025  Jonthan Diep                                                                                             *
+;                                                                                                                              *
+; This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License    *
+; as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.        *
+; This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty  *
+; of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.                *
+; You should have received a copy of the GNU General Public License along with this program.  If not, see                      *
+; <https://www.gnu.org/licenses/>.                                                                                             *
+;*******************************************************************************************************************************
+
+
+
+;========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1=========2=========3**
+; Author information
+;   Author name : Jonathan Diep
+;   Author email: jonathon.dieppp@csu.fullerton.edu
+;   CWID : 884973462
+;   Class: 240-03 Section 03
+; Program Information
+;   Program Name: Triangle
+;   Programming language: One module in C, one in X86, and one in bash.
+;   Date program began: 2025-Feb-06
+;   Date of last update: 2025-Feb-08
+;   Files in this program: geometry.c, triangle.asm, run.sh.
+;   Testing: Alpha testing completed. All functions are correct.
+;   Status: Ready for release to customers
+;
+;Purpose
+;   This program is a calculator for finding the third side of a triangle based on user input
+;
+;This file:
+;   File name: triangle.asm
+;   Language: X86-64
+;   Max page width: 124 columns
+;   Assemble (standard): nasm -f elf64 -l triangle.lis -o triangle.o triangle.asm
+;   Assemble (debug): nasm -f elf64 -gdwarf -l triangle.lis -o triangle.o calculatetriangle.asm
+;   Optimal print specification: Landscape, 7 points, monospace, 8½x11 paper
+;   Prototype of this function: extern double triangle();
+; 
+;
+;
+;
+;========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1=========2=========3**
+
+
 extern printf
 
 extern input_array
@@ -14,11 +61,12 @@ segment .data
 info_1 db "This program will manage your arrays of 64-bit floats", 10, 0
 info_2 db "For the array enter a sequence of 64-bit floats separated by white space.", 10, 0
 info_3 db "After the last input press enter followed by Control+D:", 10, 0
-info_4 db "These numbers were received and placed into an array", 10, 0
+info_4 db 10, "These numbers were received and placed into an array", 10, 0
 info_5 db "The sum of the inputted number is %.9lf", 10, 0
 info_6 db "The arithmetic mean of the numbers in the array is %.6lf", 10, 0
 info_7 db "This is the array after the sort process completed:", 10, 0
-floatformat db 10, "%lf", 10, 0
+floatformat db 10, "%lf", 10, 0 ; To test if floats are passing
+intformat db 10,"%d", 10, 0     ; To test if size is working
 
 segment .bss
 align 64
@@ -64,12 +112,13 @@ mov rax, 0
 mov rdi, info_3
 call printf
 
+; Calling input_array(array, size)
 mov rax, 0
 mov rdi, my_array
 mov rsi, 16
 call input_array
 
-mov r13, rax
+mov r13, rax        ; Saving length of array
 
 mov rax, 0
 mov rdi, info_4
@@ -85,22 +134,22 @@ mov rdi, my_array
 mov rsi, r13
 call sum
 
+movsd xmm15, xmm0   ; Move sum of array to non-volatile register for later use
+
 mov rax, 1
 mov rdi, info_5
+movsd xmm0, xmm15   ; Moving sum into xmm0 to print
 call printf
 
-movsd xmm15, xmm0   ; Move sum of array to non-volatile register for later use
-mov r14, r13        ; Backing up r13
+mov r14, r13        ; Backing up r13 (length of array)
 
-; Convert r13 (int count) to a double
 cvtsi2sd xmm1, r13  ; Convert r13 (number of elements) to a double into xmm1
-
-; Compute mean = sum / count
+movsd xmm0, xmm15   ; Using sum to find the mean by dividing with count
 divsd xmm0, xmm1    ; xmm0 = sum / count
 
-mov r13, r14        ; Restoring r13
+mov r13, r14        ; Restoring r13 (length of array)
 
-; Print mean
+; Print the Mean
 mov rax, 1
 mov rdi, info_6
 call printf
@@ -109,16 +158,19 @@ mov rax, 0
 mov rdi, info_7
 call printf
 
+; Sort the array in numerical order
 mov rax, 0
 mov rdi, my_array
 mov rsi, r13
 call sort
 
+; Print out the sorted array
 mov rax, 0
 mov rdi, my_array
 mov rsi, r13
 call output_array
 
+; Saving xmm15 (sum) 
 mov rax, 0
 push qword 0
 movsd [rsp], xmm15
@@ -127,6 +179,7 @@ mov rax, 7
 mov rax, 0
 xrstor [backup_storage_area]
 
+; Sending the sum to main
 movsd xmm0, [rsp]
 pop rax
 

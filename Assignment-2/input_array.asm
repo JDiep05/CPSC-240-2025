@@ -51,7 +51,7 @@ get_input:
 ; Prompt user for input
 push qword 0
 push qword 0
-mov rax, 0         ; Allocates 32 bytes for user input
+mov rax, 0
 mov rdi, floatformat
 mov rsi, rsp           ; Store user input at rsp
 call scanf             ; Read user input
@@ -80,7 +80,7 @@ jge array_full        ; Stops input process if array is full
 
 ; Store float in array
 movsd [r15 + r13*8], xmm15  ; Store float in array [address + index*byte]
-mov rax, 0                 ; Increment array counter
+inc r13
 jmp get_input         ; Loop input
 
 invalid_input:
