@@ -96,51 +96,57 @@ push r14
 push r15
 pushf
 
-;backup other registers
+; Backup other registers
 mov rax, 7
 mov rdx, 0
 xsave [backup_storage_area]
 
+; Print first message
 mov rax, 0 
 mov rdi, info_1
 call printf
 
+; Print second message
 mov rax, 0
 mov rdi, info_2
 call printf
 
+; Print third message
 mov rax, 0
 mov rdi, info_3
 call printf
 
 ; Calling input_array(array, size)
 mov rax, 0
-mov rdi, my_array
-mov rsi, 16
-call input_array
+mov rdi, my_array   ; The name of the array
+mov rsi, 16         ; The size of the array
+call input_array    ; Calling the function to implement user's input into the array
 
 mov r13, rax        ; Saving length of array
 
+; Print fourth message
 mov rax, 0
 mov rdi, info_4
 call printf
 
+; Printing out the array
+mov rax, 0
+mov rdi, my_array   ; The array with the user's input
+mov rsi, r13        ; The length of the array
+call output_array   ; Function for printing out all the numbers in the array onto one line
+
+; Calling sum function to add all the numbers in the array
 mov rax, 0
 mov rdi, my_array
 mov rsi, r13
-call output_array
+call sum            ; Function that will add all the numbers in the array
 
-mov rax, 0
-mov rdi, my_array
-mov rsi, r13
-call sum
+movsd xmm15, xmm0   ; Moving the sum result from the function into a non-violatile register
 
-movsd xmm15, xmm0   ; Move sum of array to non-volatile register for later use
-
-mov rax, 1
+mov rax, 1          ; Passing one floating-point number
 mov rdi, info_5
 movsd xmm0, xmm15   ; Moving sum into xmm0 to print
-call printf
+call printf         ; Prints the fifth message and implementing xmm0(sum) into the placeholder
 
 mov r14, r13        ; Backing up r13 (length of array)
 
@@ -151,10 +157,11 @@ divsd xmm0, xmm1    ; xmm0 = sum / count
 mov r13, r14        ; Restoring r13 (length of array)
 
 ; Print the Mean
-mov rax, 1
-mov rdi, info_6
-call printf
+mov rax, 1          ; Passing one floating-point number
+mov rdi, info_6     ; The mean is already in xmm0, which is needed to pass into printf
+call printf         ; Prints the sixth message with the Arithmetic Mean Value
 
+; Print seventh message
 mov rax, 0
 mov rdi, info_7
 call printf
@@ -163,25 +170,26 @@ call printf
 mov rax, 0
 mov rdi, my_array
 mov rsi, r13
-call sort
+call sort           ; A function that uses nested loop to iterate through the array and sort it numerically
 
 ; Print out the sorted array
 mov rax, 0
-mov rdi, my_array
+mov rdi, my_array   ; Contains the sorted array
 mov rsi, r13
-call output_array
+call output_array   ; Passing the sorted array into the output_array function to print
 
 ; Saving xmm15 (sum) 
 mov rax, 0
-push qword 0
-movsd [rsp], xmm15
+push qword 0        ; Reserving 8 bytes to maintain the sum
+movsd [rsp], xmm15  ; Passing the sum into the reserved q word
 
+; Restoring registers
 mov rax, 7
 mov rax, 0
 xrstor [backup_storage_area]
 
 ; Sending the sum to main
-movsd xmm0, [rsp]
+movsd xmm0, [rsp]   ; Passing rsp to xmm0, xmm0 will be returned
 pop rax
 
 ;Restore the GPRs
