@@ -32,7 +32,7 @@
 ;   The program will calculate the sum, the mean, and sort the array.
 ;
 ;This file:
-;   File name: triangle.asm
+;   File name: manager.asm
 ;   Language: X86-64
 ;   Max page width: 124 columns
 ;   Assemble (standard): nasm -f elf64 -l manager.lis -o manager.o manager.asm
