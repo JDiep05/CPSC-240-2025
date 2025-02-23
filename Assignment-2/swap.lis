@@ -1,17 +1,66 @@
-     1                                  global swap
-     2                                  
-     3                                  segment .data
-     4                                      ; This segment is empty
-     5                                  segment .bss
-     6                                      ; This segment is empty
-     7                                  segment .text
-     8                                  
-     9                                  swap:
-    10                                  
-    11 00000000 F20F1007                movsd xmm0, [rdi]    ; xmm0 = *a
-    12 00000004 F20F100E                movsd xmm1, [rsi]    ; xmm1 = *b
+     1                                  ;*******************************************************************************************************************************
+     2                                  ; Program name: "Arrays of Floating Point Numbers". This program takes user input's of floating point number and place them into an array.
+     3                                  ; Copyright (C) 2025  Jonthan Diep                                                                                             *
+     4                                  ;                                                                                                                              *
+     5                                  ; This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License    *
+     6                                  ; as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.        *
+     7                                  ; This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty  *
+     8                                  ; of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.                *
+     9                                  ; You should have received a copy of the GNU General Public License along with this program.  If not, see                      *
+    10                                  ; <https://www.gnu.org/licenses/>.                                                                                             *
+    11                                  ;*******************************************************************************************************************************
+    12                                  
     13                                  
-    14                                  ; Write swapped values back to memory
-    15 00000008 F20F110F                movsd [rdi], xmm1    ; *a = xmm1
-    16 0000000C F20F1106                movsd [rsi], xmm0    ; *b = xmm0
-    17 00000010 C3                      ret
+    14                                  
+    15                                  ;========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1=========2=========3**
+    16                                  ; Author information
+    17                                  ;   Author name : Jonathan Diep
+    18                                  ;   Author email: jonathon.dieppp@csu.fullerton.edu
+    19                                  ;   CWID : 884973462
+    20                                  ;   Class: 240-03 Section 03
+    21                                  ; Program Information
+    22                                  ;   Program Name: Arrays of Floating Point Numbers
+    23                                  ;   Programming language: Two module in C, Six module in X86, and One module in bash.
+    24                                  ;   Date program began: 2025-Feb-22
+    25                                  ;   Date of last update: 2025-Feb-22
+    26                                  ;   Files in this program: main.c, manager.asm, input_array.asm, output_array.asm, sum.asm, sort.asm, swap.asm, isfloat.asm, run.sh.
+    27                                  ;   Testing: Alpha testing completed. All functions are correct.
+    28                                  ;   Status: Ready for release to customers
+    29                                  ;
+    30                                  ;Purpose
+    31                                  ;   This program takes user input's of floating point number and place them into an array.
+    32                                  ;   The program will calculate the sum, the mean, and sort the array.
+    33                                  ;
+    34                                  ;This file:
+    35                                  ;   File name: swap.asm
+    36                                  ;   Language: X86-64
+    37                                  ;   Max page width: 124 columns
+    38                                  ;   Assemble (standard): nasm -f elf64 -l swap.lis -o swap.o swap.asm
+    39                                  ;   Assemble (debug): nasm -f elf64 -gdwarf -l swap.lis -o swap.o swap.asm
+    40                                  ;   Optimal print specification: Landscape, 7 points, monospace, 8½x11 paper
+    41                                  ;   Prototype of this function: extern double swap();
+    42                                  ; 
+    43                                  ;
+    44                                  ;
+    45                                  ;
+    46                                  ;========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1=========2=========3**
+    47                                  
+    48                                  
+    49                                  
+    50                                  global swap
+    51                                  
+    52                                  segment .data
+    53                                      ; This segment is empty
+    54                                  segment .bss
+    55                                      ; This segment is empty
+    56                                  segment .text
+    57                                  
+    58                                  swap:
+    59                                  
+    60 00000000 F20F1007                movsd xmm0, [rdi]    ; xmm0 = *a
+    61 00000004 F20F100E                movsd xmm1, [rsi]    ; xmm1 = *b
+    62                                  
+    63                                  ; Write swapped values back to memory
+    64 00000008 F20F110F                movsd [rdi], xmm1    ; *a = xmm1
+    65 0000000C F20F1106                movsd [rsi], xmm0    ; *b = xmm0
+    66 00000010 C3                      ret

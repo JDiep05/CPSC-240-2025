@@ -31,8 +31,8 @@
 //  File name: main.c
 //  Language: C language
 //  Max page width: 124 columns
-//  Compile: gcc -m64 -Wall -no-pie -o geometry.o -std=c2x -c geometry.c
-//  Link: gcc -m64 -no-pie -o triangle.out calculate_triangle.o geometry.o -std=c2x -Wall -z noexecstack -lm
+//  Compile: gcc -c -m64 -Wall -no-pie -o main.o main.c -std=c2x
+//  Link: gcc -m64 -no-pie -o main.out main.o manager.o input_array.o output_array.o sum.o swap.o sort.o isfloat.o -std=c2x -Wall -z noexecstack
 //========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1=========2=========3**
 
 

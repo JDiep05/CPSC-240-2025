@@ -1,5 +1,5 @@
 ;*******************************************************************************************************************************
-; Program name: "Triangle". This program calculates the third side of a triangle with two sides and an angle of a triangle based on user input
+; Program name: "Arrays of Floating Point Numbers". This program takes user input's of floating point number and place them into an array.
 ; Copyright (C) 2025  Jonthan Diep                                                                                             *
 ;                                                                                                                              *
 ; This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License    *
@@ -19,23 +19,24 @@
 ;   CWID : 884973462
 ;   Class: 240-03 Section 03
 ; Program Information
-;   Program Name: Triangle
-;   Programming language: One module in C, one in X86, and one in bash.
-;   Date program began: 2025-Feb-06
-;   Date of last update: 2025-Feb-08
-;   Files in this program: geometry.c, triangle.asm, run.sh.
+;   Program Name: Arrays of Floating Point Numbers
+;   Programming language: Two module in C, Six module in X86, and One module in bash.
+;   Date program began: 2025-Feb-22
+;   Date of last update: 2025-Feb-22
+;   Files in this program: main.c, manager.asm, input_array.asm, output_array.asm, sum.asm, sort.asm, swap.asm, isfloat.asm, run.sh.
 ;   Testing: Alpha testing completed. All functions are correct.
 ;   Status: Ready for release to customers
 ;
 ;Purpose
-;   This program is a calculator for finding the third side of a triangle based on user input
+;   This program takes user input's of floating point number and place them into an array.
+;   The program will calculate the sum, the mean, and sort the array.
 ;
 ;This file:
 ;   File name: triangle.asm
 ;   Language: X86-64
 ;   Max page width: 124 columns
-;   Assemble (standard): nasm -f elf64 -l triangle.lis -o triangle.o triangle.asm
-;   Assemble (debug): nasm -f elf64 -gdwarf -l triangle.lis -o triangle.o calculatetriangle.asm
+;   Assemble (standard): nasm -f elf64 -l manager.lis -o manager.o manager.asm
+;   Assemble (debug): nasm -f elf64 -gdwarf -l manager.lis -o manager.o manager.asm
 ;   Optimal print specification: Landscape, 7 points, monospace, 8½x11 paper
 ;   Prototype of this function: extern double triangle();
 ; 

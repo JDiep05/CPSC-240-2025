@@ -1,137 +1,186 @@
-     1                                  extern printf
-     2                                  
-     3                                  extern scanf
-     4                                  
-     5                                  extern atof
-     6                                  
-     7                                  extern isfloat
-     8                                  
-     9                                  global input_array
-    10                                  
-    11                                  segment .data
-    12 00000000 257300                    floatformat db "%s", 0
-    13 00000003 546865206C61737420-       invalid_float db "The last input was invalid and not entered into the array. Try again.", 10, 0
-    13 0000000C 696E70757420776173-
-    13 00000015 20696E76616C696420-
-    13 0000001E 616E64206E6F742065-
-    13 00000027 6E746572656420696E-
-    13 00000030 746F20746865206172-
-    13 00000039 7261792E2054727920-
-    13 00000042 616761696E2E0A00   
+     1                                  ;*******************************************************************************************************************************
+     2                                  ; Program name: "Arrays of Floating Point Numbers". This program takes user input's of floating point number and place them into an array.
+     3                                  ; Copyright (C) 2025  Jonthan Diep                                                                                             *
+     4                                  ;                                                                                                                              *
+     5                                  ; This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License    *
+     6                                  ; as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.        *
+     7                                  ; This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty  *
+     8                                  ; of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.                *
+     9                                  ; You should have received a copy of the GNU General Public License along with this program.  If not, see                      *
+    10                                  ; <https://www.gnu.org/licenses/>.                                                                                             *
+    11                                  ;*******************************************************************************************************************************
+    12                                  
+    13                                  
     14                                  
-    15                                  segment .bss      ;Declare pointers to un-initialized space in this segment.
-    16                                    align 64
-    17 00000000 <res 00000340>            backup_storage_area resb 832
-    18                                    
-    19                                  segment .text
-    20                                  
-    21                                  input_array:
-    22                                  
-    23                                  ;backup GPRs
-    24 00000000 55                      push rbp
-    25 00000001 4889E5                  mov rbp, rsp
-    26 00000004 53                      push rbx
-    27 00000005 51                      push rcx
-    28 00000006 52                      push rdx
-    29 00000007 57                      push rdi
-    30 00000008 56                      push rsi
-    31 00000009 4150                    push r8
-    32 0000000B 4151                    push r9
-    33 0000000D 4152                    push r10
-    34 0000000F 4153                    push r11
-    35 00000011 4154                    push r12
-    36 00000013 4155                    push r13
-    37 00000015 4156                    push r14
-    38 00000017 4157                    push r15
-    39 00000019 9C                      pushf
-    40                                  
-    41                                  ;backup other registers/sse registers
-    42 0000001A B807000000              mov rax,7
-    43 0000001F BA00000000              mov rdx,0
-    44 00000024 0FAE2425[00000000]      xsave [backup_storage_area]
-    45                                  
-    46 0000002C 4989FF                  mov r15, rdi    ;storing address
-    47 0000002F 4989F6                  mov r14, rsi    ;storing reserved size
-    48 00000032 41BD00000000            mov r13, 0      ;count for index
+    15                                  ;========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1=========2=========3**
+    16                                  ; Author information
+    17                                  ;   Author name : Jonathan Diep
+    18                                  ;   Author email: jonathon.dieppp@csu.fullerton.edu
+    19                                  ;   CWID : 884973462
+    20                                  ;   Class: 240-03 Section 03
+    21                                  ; Program Information
+    22                                  ;   Program Name: Arrays of Floating Point Numbers
+    23                                  ;   Programming language: Two module in C, Six module in X86, and One module in bash.
+    24                                  ;   Date program began: 2025-Feb-22
+    25                                  ;   Date of last update: 2025-Feb-22
+    26                                  ;   Files in this program: main.c, manager.asm, input_array.asm, output_array.asm, sum.asm, sort.asm, swap.asm, isfloat.asm, run.sh.
+    27                                  ;   Testing: Alpha testing completed. All functions are correct.
+    28                                  ;   Status: Ready for release to customers
+    29                                  ;
+    30                                  ;Purpose
+    31                                  ;   This program takes user input's of floating point number and place them into an array.
+    32                                  ;   The program will calculate the sum, the mean, and sort the array.
+    33                                  ;
+    34                                  ;This file:
+    35                                  ;   File name: input_array.asm
+    36                                  ;   Language: X86-64
+    37                                  ;   Max page width: 124 columns
+    38                                  ;   Assemble (standard): nasm -f elf64 -l input_array.lis -o input_array.o input_array.asm
+    39                                  ;   Assemble (debug): nasm -f elf64 -gdwarf -l input_array.lis -o input_array.o input_array.asm
+    40                                  ;   Optimal print specification: Landscape, 7 points, monospace, 8½x11 paper
+    41                                  ;   Prototype of this function: extern double input_array();
+    42                                  ; 
+    43                                  ;
+    44                                  ;
+    45                                  ;
+    46                                  ;========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1=========2=========3**
+    47                                  
+    48                                  
     49                                  
-    50                                  get_input:
-    51                                  ; Prompt user for input
-    52 00000038 6A00                    push qword 0
-    53 0000003A 6A00                    push qword 0
-    54 0000003C B800000000              mov rax, 0
-    55 00000041 48BF-                   mov rdi, floatformat
-    55 00000043 [0000000000000000] 
-    56 0000004B 4889E6                  mov rsi, rsp           ; Store user input at rsp
-    57 0000004E E8(00000000)            call scanf             ; Read user input
-    58                                  
-    59                                  ; Check for Control+D input
-    60 00000053 4898                    cdqe
-    61 00000055 4883F8FF                cmp rax, -1           
-    62 00000059 744F                    je exit_input         ; If EOF, exit input loop
+    50                                  extern printf
+    51                                  
+    52                                  extern scanf
+    53                                  
+    54                                  extern atof
+    55                                  
+    56                                  extern isfloat
+    57                                  
+    58                                  global input_array
+    59                                  
+    60                                  segment .data
+    61 00000000 257300                    floatformat db "%s", 0
+    62 00000003 546865206C61737420-       invalid_float db "The last input was invalid and not entered into the array. Try again.", 10, 0
+    62 0000000C 696E70757420776173-
+    62 00000015 20696E76616C696420-
+    62 0000001E 616E64206E6F742065-
+    62 00000027 6E746572656420696E-
+    62 00000030 746F20746865206172-
+    62 00000039 7261792E2054727920-
+    62 00000042 616761696E2E0A00   
     63                                  
-    64                                  ; Check for valid input as a floating-point number
-    65 0000005B 4889E7                  mov rdi, rsp          ; Pass user input to isfloat
-    66 0000005E E8(00000000)            call isfloat
-    67 00000063 4883F800                cmp rax, 0            ; If not a float, show error
-    68 00000067 7421                    je invalid_input      ; Jump if invalid input
+    64                                  segment .bss      ;Declare pointers to un-initialized space in this segment.
+    65                                    align 64
+    66 00000000 <res 00000340>            backup_storage_area resb 832
+    67                                    
+    68                                  segment .text
     69                                  
-    70                                  ; Convert valid float input from string to double value
-    71 00000069 4889E7                  mov rdi, rsp          ; Pass input to atof
-    72 0000006C E8(00000000)            call atof             ; Result in xmm0
-    73 00000071 F2440F10F8              movsd xmm15, xmm0     ; Store converted float in xmm15
-    74 00000076 4159                    pop r9
-    75 00000078 4159                    pop r9
-    76                                  
-    77                                  ; Check if input is full
-    78 0000007A 4D39F5                  cmp r13, r14          ; Compare index to max size
-    79 0000007D 7D25                    jge array_full        ; Stops input process if array is full
-    80                                  
-    81                                  ; Store float in array
-    82 0000007F F2470F113CEF            movsd [r15 + r13*8], xmm15  ; Store float in array [address + index*byte]
-    83 00000085 49FFC5                  inc r13
-    84 00000088 EBAE                    jmp get_input         ; Loop input
-    85                                  
-    86                                  invalid_input:
-    87                                  ; Print error message
-    88 0000008A B800000000              mov rax, 0
-    89 0000008F 48BF-                   mov rdi, invalid_float
-    89 00000091 [0300000000000000] 
-    90 00000099 E8(00000000)            call printf
-    91 0000009E 4159                    pop r9
-    92 000000A0 4159                    pop r9
-    93                                  
-    94 000000A2 EB94                    jmp get_input         ; Loop input
-    95                                  
-    96                                  array_full:
-    97                                  ; The array is full, exit input loop
-    98 000000A4 4159                    pop r9
-    99 000000A6 4159                    pop r9
-   100 000000A8 EB00                    jmp exit_input
-   101                                  
-   102                                  exit_input:
-   103 000000AA 4159                    pop r9
-   104 000000AC 4159                    pop r9
-   105                                  ; Restore registers
-   106 000000AE B807000000              mov rax, 7
-   107 000000B3 BA00000000              mov rdx, 0
-   108 000000B8 0FAE2C25[00000000]      xrstor [backup_storage_area]  ; Restore SSE registers
-   109                                  
-   110 000000C0 4C89E8                  mov rax, r13   ; Store array length in rax to return
-   111                                  
-   112                                  ; Restore general-purpose registers
-   113 000000C3 9D                      popf
-   114 000000C4 415F                    pop r15
-   115 000000C6 415E                    pop r14
-   116 000000C8 415D                    pop r13
-   117 000000CA 415C                    pop r12
-   118 000000CC 415B                    pop r11
-   119 000000CE 415A                    pop r10
-   120 000000D0 4159                    pop r9
-   121 000000D2 4158                    pop r8
-   122 000000D4 5E                      pop rsi
-   123 000000D5 5F                      pop rdi
-   124 000000D6 5A                      pop rdx
-   125 000000D7 59                      pop rcx
-   126 000000D8 5B                      pop rbx
-   127 000000D9 5D                      pop rbp
-   128 000000DA C3                      ret
+    70                                  input_array:
+    71                                  
+    72                                  ;backup GPRs
+    73 00000000 55                      push rbp
+    74 00000001 4889E5                  mov rbp, rsp
+    75 00000004 53                      push rbx
+    76 00000005 51                      push rcx
+    77 00000006 52                      push rdx
+    78 00000007 57                      push rdi
+    79 00000008 56                      push rsi
+    80 00000009 4150                    push r8
+    81 0000000B 4151                    push r9
+    82 0000000D 4152                    push r10
+    83 0000000F 4153                    push r11
+    84 00000011 4154                    push r12
+    85 00000013 4155                    push r13
+    86 00000015 4156                    push r14
+    87 00000017 4157                    push r15
+    88 00000019 9C                      pushf
+    89                                  
+    90                                  ;backup other registers/sse registers
+    91 0000001A B807000000              mov rax,7
+    92 0000001F BA00000000              mov rdx,0
+    93 00000024 0FAE2425[00000000]      xsave [backup_storage_area]
+    94                                  
+    95 0000002C 4989FF                  mov r15, rdi    ;storing address
+    96 0000002F 4989F6                  mov r14, rsi    ;storing reserved size
+    97 00000032 41BD00000000            mov r13, 0      ;count for index
+    98                                  
+    99                                  get_input:
+   100                                  ; Prompt user for input
+   101 00000038 6A00                    push qword 0
+   102 0000003A 6A00                    push qword 0
+   103 0000003C B800000000              mov rax, 0
+   104 00000041 48BF-                   mov rdi, floatformat
+   104 00000043 [0000000000000000] 
+   105 0000004B 4889E6                  mov rsi, rsp           ; Store user input at rsp
+   106 0000004E E8(00000000)            call scanf             ; Read user input
+   107                                  
+   108                                  ; Check for Control+D input
+   109 00000053 4898                    cdqe
+   110 00000055 4883F8FF                cmp rax, -1           
+   111 00000059 744F                    je exit_input         ; If EOF, exit input loop
+   112                                  
+   113                                  ; Check for valid input as a floating-point number
+   114 0000005B 4889E7                  mov rdi, rsp          ; Pass user input to isfloat
+   115 0000005E E8(00000000)            call isfloat
+   116 00000063 4883F800                cmp rax, 0            ; If not a float, show error
+   117 00000067 7421                    je invalid_input      ; Jump if invalid input
+   118                                  
+   119                                  ; Convert valid float input from string to double value
+   120 00000069 4889E7                  mov rdi, rsp          ; Pass input to atof
+   121 0000006C E8(00000000)            call atof             ; Result in xmm0
+   122 00000071 F2440F10F8              movsd xmm15, xmm0     ; Store converted float in xmm15
+   123 00000076 4159                    pop r9
+   124 00000078 4159                    pop r9
+   125                                  
+   126                                  ; Check if input is full
+   127 0000007A 4D39F5                  cmp r13, r14          ; Compare index to max size
+   128 0000007D 7D25                    jge array_full        ; Stops input process if array is full
+   129                                  
+   130                                  ; Store float in array
+   131 0000007F F2470F113CEF            movsd [r15 + r13*8], xmm15  ; Store float in array [address + index*byte]
+   132 00000085 49FFC5                  inc r13
+   133 00000088 EBAE                    jmp get_input         ; Loop input
+   134                                  
+   135                                  invalid_input:
+   136                                  ; Print error message
+   137 0000008A B800000000              mov rax, 0
+   138 0000008F 48BF-                   mov rdi, invalid_float
+   138 00000091 [0300000000000000] 
+   139 00000099 E8(00000000)            call printf
+   140 0000009E 4159                    pop r9
+   141 000000A0 4159                    pop r9
+   142                                  
+   143 000000A2 EB94                    jmp get_input         ; Loop input
+   144                                  
+   145                                  array_full:
+   146                                  ; The array is full, exit input loop
+   147 000000A4 4159                    pop r9
+   148 000000A6 4159                    pop r9
+   149 000000A8 EB00                    jmp exit_input
+   150                                  
+   151                                  exit_input:
+   152 000000AA 4159                    pop r9
+   153 000000AC 4159                    pop r9
+   154                                  ; Restore registers
+   155 000000AE B807000000              mov rax, 7
+   156 000000B3 BA00000000              mov rdx, 0
+   157 000000B8 0FAE2C25[00000000]      xrstor [backup_storage_area]  ; Restore SSE registers
+   158                                  
+   159 000000C0 4C89E8                  mov rax, r13   ; Store array length in rax to return
+   160                                  
+   161                                  ; Restore general-purpose registers
+   162 000000C3 9D                      popf
+   163 000000C4 415F                    pop r15
+   164 000000C6 415E                    pop r14
+   165 000000C8 415D                    pop r13
+   166 000000CA 415C                    pop r12
+   167 000000CC 415B                    pop r11
+   168 000000CE 415A                    pop r10
+   169 000000D0 4159                    pop r9
+   170 000000D2 4158                    pop r8
+   171 000000D4 5E                      pop rsi
+   172 000000D5 5F                      pop rdi
+   173 000000D6 5A                      pop rdx
+   174 000000D7 59                      pop rcx
+   175 000000D8 5B                      pop rbx
+   176 000000D9 5D                      pop rbp
+   177 000000DA C3                      ret

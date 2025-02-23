@@ -1,71 +1,120 @@
-     1                                  extern printf
-     2                                  
-     3                                  global sum
-     4                                  
-     5                                  segment .data
-     6                                      ; This segment is empty
-     7                                  
-     8                                  segment .bss
-     9                                  align 64
-    10 00000000 <res 00000340>          backup_storage_area resb 832
-    11                                  
-    12                                  segment .text
+     1                                  ;*******************************************************************************************************************************
+     2                                  ; Program name: "Arrays of Floating Point Numbers". This program takes user input's of floating point number and place them into an array.
+     3                                  ; Copyright (C) 2025  Jonthan Diep                                                                                             *
+     4                                  ;                                                                                                                              *
+     5                                  ; This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License    *
+     6                                  ; as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.        *
+     7                                  ; This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty  *
+     8                                  ; of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.                *
+     9                                  ; You should have received a copy of the GNU General Public License along with this program.  If not, see                      *
+    10                                  ; <https://www.gnu.org/licenses/>.                                                                                             *
+    11                                  ;*******************************************************************************************************************************
+    12                                  
     13                                  
-    14                                  sum:
-    15                                  
-    16                                  ;backup GPRs
-    17 00000000 55                      push rbp
-    18 00000001 4889E5                  mov rbp, rsp
-    19 00000004 53                      push rbx
-    20 00000005 51                      push rcx
-    21 00000006 52                      push rdx
-    22 00000007 57                      push rdi
-    23 00000008 56                      push rsi
-    24 00000009 4150                    push r8
-    25 0000000B 4151                    push r9
-    26 0000000D 4152                    push r10
-    27 0000000F 4153                    push r11
-    28 00000011 4154                    push r12
-    29 00000013 4155                    push r13
-    30 00000015 4156                    push r14
-    31 00000017 4157                    push r15
-    32 00000019 9C                      pushf
-    33                                  
-    34                                  ;backup other registers
-    35 0000001A B807000000              mov rax,7
-    36 0000001F BA00000000              mov rdx,0
-    37 00000024 0FAE2425[00000000]      xsave [backup_storage_area]
-    38                                  
-    39 0000002C 4989FC                  mov r12, rdi
-    40 0000002F 4989F5                  mov r13, rsi
-    41 00000032 41BE00000000            mov r14, 0    ; Index/loop counter
-    42                                  
-    43                                  sum_loop:
-    44 00000038 4883EC08                sub rsp, 8
-    45 0000003C F2470F103CF4            movsd xmm15, [r12 + r14*8]
-    46 00000042 F2450F58F7              addsd xmm14, xmm15
-    47 00000047 4883C408                add rsp, 8
+    14                                  
+    15                                  ;========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1=========2=========3**
+    16                                  ; Author information
+    17                                  ;   Author name : Jonathan Diep
+    18                                  ;   Author email: jonathon.dieppp@csu.fullerton.edu
+    19                                  ;   CWID : 884973462
+    20                                  ;   Class: 240-03 Section 03
+    21                                  ; Program Information
+    22                                  ;   Program Name: Arrays of Floating Point Numbers
+    23                                  ;   Programming language: Two module in C, Six module in X86, and One module in bash.
+    24                                  ;   Date program began: 2025-Feb-22
+    25                                  ;   Date of last update: 2025-Feb-22
+    26                                  ;   Files in this program: main.c, manager.asm, input_array.asm, output_array.asm, sum.asm, sort.asm, swap.asm, isfloat.asm, run.sh.
+    27                                  ;   Testing: Alpha testing completed. All functions are correct.
+    28                                  ;   Status: Ready for release to customers
+    29                                  ;
+    30                                  ;Purpose
+    31                                  ;   This program takes user input's of floating point number and place them into an array.
+    32                                  ;   The program will calculate the sum, the mean, and sort the array.
+    33                                  ;
+    34                                  ;This file:
+    35                                  ;   File name: sum.asm
+    36                                  ;   Language: X86-64
+    37                                  ;   Max page width: 124 columns
+    38                                  ;   Assemble (standard): nasm -f elf64 -l sum.lis -o sum.o sum.asm
+    39                                  ;   Assemble (debug): nasm -f elf64 -gdwarf -l sum.lis -o sum.o sum.asm
+    40                                  ;   Optimal print specification: Landscape, 7 points, monospace, 8½x11 paper
+    41                                  ;   Prototype of this function: extern double sum();
+    42                                  ; 
+    43                                  ;
+    44                                  ;
+    45                                  ;
+    46                                  ;========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1=========2=========3**
+    47                                  
     48                                  
-    49 0000004B 49FFC6                  inc r14
-    50 0000004E 4D39EE                  cmp r14, r13
-    51 00000051 7CE5                    jl sum_loop     ; If index < length then continue the loop
-    52 00000053 7F00                    jg sum_exit     ; If index > length then exit the loop
+    49                                  
+    50                                  extern printf
+    51                                  
+    52                                  global sum
     53                                  
-    54                                  sum_exit:
-    55 00000055 F2410F10C6              movsd xmm0, xmm14
-    56 0000005A 9D                      popf
-    57 0000005B 415F                    pop r15
-    58 0000005D 415E                    pop r14
-    59 0000005F 415D                    pop r13
-    60 00000061 415C                    pop r12
-    61 00000063 415B                    pop r11
-    62 00000065 415A                    pop r10
-    63 00000067 4159                    pop r9
-    64 00000069 4158                    pop r8
-    65 0000006B 5E                      pop rsi
-    66 0000006C 5F                      pop rdi
-    67 0000006D 5A                      pop rdx
-    68 0000006E 59                      pop rcx
-    69 0000006F 5B                      pop rbx
-    70 00000070 5D                      pop rbp   ;Restore rbp to the base of the activation record of the caller program
-    71 00000071 C3                      ret
+    54                                  segment .data
+    55                                      ; This segment is empty
+    56                                  
+    57                                  segment .bss
+    58                                  align 64
+    59 00000000 <res 00000340>          backup_storage_area resb 832
+    60                                  
+    61                                  segment .text
+    62                                  
+    63                                  sum:
+    64                                  
+    65                                  ;backup GPRs
+    66 00000000 55                      push rbp
+    67 00000001 4889E5                  mov rbp, rsp
+    68 00000004 53                      push rbx
+    69 00000005 51                      push rcx
+    70 00000006 52                      push rdx
+    71 00000007 57                      push rdi
+    72 00000008 56                      push rsi
+    73 00000009 4150                    push r8
+    74 0000000B 4151                    push r9
+    75 0000000D 4152                    push r10
+    76 0000000F 4153                    push r11
+    77 00000011 4154                    push r12
+    78 00000013 4155                    push r13
+    79 00000015 4156                    push r14
+    80 00000017 4157                    push r15
+    81 00000019 9C                      pushf
+    82                                  
+    83                                  ;backup other registers
+    84 0000001A B807000000              mov rax,7
+    85 0000001F BA00000000              mov rdx,0
+    86 00000024 0FAE2425[00000000]      xsave [backup_storage_area]
+    87                                  
+    88 0000002C 4989FC                  mov r12, rdi
+    89 0000002F 4989F5                  mov r13, rsi
+    90 00000032 41BE00000000            mov r14, 0    ; Index/loop counter
+    91                                  
+    92                                  sum_loop:
+    93 00000038 4883EC08                sub rsp, 8
+    94 0000003C F2470F103CF4            movsd xmm15, [r12 + r14*8]
+    95 00000042 F2450F58F7              addsd xmm14, xmm15
+    96 00000047 4883C408                add rsp, 8
+    97                                  
+    98 0000004B 49FFC6                  inc r14
+    99 0000004E 4D39EE                  cmp r14, r13
+   100 00000051 7CE5                    jl sum_loop     ; If index < length then continue the loop
+   101 00000053 7F00                    jg sum_exit     ; If index > length then exit the loop
+   102                                  
+   103                                  sum_exit:
+   104 00000055 F2410F10C6              movsd xmm0, xmm14
+   105 0000005A 9D                      popf
+   106 0000005B 415F                    pop r15
+   107 0000005D 415E                    pop r14
+   108 0000005F 415D                    pop r13
+   109 00000061 415C                    pop r12
+   110 00000063 415B                    pop r11
+   111 00000065 415A                    pop r10
+   112 00000067 4159                    pop r9
+   113 00000069 4158                    pop r8
+   114 0000006B 5E                      pop rsi
+   115 0000006C 5F                      pop rdi
+   116 0000006D 5A                      pop rdx
+   117 0000006E 59                      pop rcx
+   118 0000006F 5B                      pop rbx
+   119 00000070 5D                      pop rbp   ;Restore rbp to the base of the activation record of the caller program
+   120 00000071 C3                      ret
