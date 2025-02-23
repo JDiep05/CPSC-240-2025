@@ -28,7 +28,7 @@
 // Purpose of this program:
 //  This program calculates for the third side of a triangle based on the user's input for the other two sides and the angle between them
 // This file:
-//  File name: main.c
+//  File name: sort.c
 //  Language: C language
 //  Max page width: 124 columns
 //  Compile: gcc -c -m64 -Wall -no-pie -o sort.o sort.c -std=c2x
