@@ -1,0 +1,100 @@
+     1                                  
+     2                                  global huron
+     3                                  
+     4                                  segment .data
+     5 00000000 30                          half db 0.5
+     6                                  
+     7                                  segment .bss
+     8                                  align 64
+     9 00000000 <res 00000340>          backup_storage_area resb 832
+    10                                  
+    11                                  segment .text
+    12                                  
+    13                                  huron:
+    14                                  
+    15                                  ;backup GPRs
+    16 00000000 55                      push rbp
+    17 00000001 4889E5                  mov rbp, rsp
+    18 00000004 53                      push rbx
+    19 00000005 51                      push rcx
+    20 00000006 52                      push rdx
+    21 00000007 57                      push rdi
+    22 00000008 56                      push rsi
+    23 00000009 4150                    push r8
+    24 0000000B 4151                    push r9
+    25 0000000D 4152                    push r10
+    26 0000000F 4153                    push r11
+    27 00000011 4154                    push r12
+    28 00000013 4155                    push r13
+    29 00000015 4156                    push r14
+    30 00000017 4157                    push r15
+    31 00000019 9C                      pushf
+    32                                  
+    33                                  ;backup other registers
+    34 0000001A B807000000              mov rax,7
+    35 0000001F BA00000000              mov rdx,0
+    36 00000024 0FAE2425[00000000]      xsave [backup_storage_area]
+    37                                  
+    38 0000002C 4883EC20                sub rsp, 32
+    39 00000030 F2440F1165F8            movsd [rbp - 8], xmm12
+    40 00000036 F2440F116DF0            movsd [rbp - 16], xmm13
+    41 0000003C F2440F1175E8            movsd [rbp - 24], xmm14
+    42                                  
+    43 00000042 F2440F10E0              movsd xmm12, xmm0   ; Moving side_1 into non-violatile register = a
+    44 00000047 F2440F10E9              movsd xmm13, xmm1   ; Moving side_2 into non-violatile register = b
+    45 0000004C F2440F10F2              movsd xmm14, xmm2   ; Moving side_3 into non-violatile register = c
+    46                                  
+    47                                  ; Calculate the semi-perimeter (s = (a + b + c) / 2)
+    48 00000051 F2450F58FC              addsd xmm15, xmm12   ; xmm15 = a
+    49 00000056 F2450F58FD              addsd xmm15, xmm13   ; xmm15 = a + b
+    50 0000005B F2450F58FE              addsd xmm15, xmm14   ; xmm15 = a + b + c
+    51 00000060 F2440F593C25-           mulsd xmm15, [half]  ; xmm15 = (a + b + c) * 0.5 = s
+    51 00000066 [00000000]         
+    52                                  
+    53                                  ; Calculate (s - a), (s - b), and (s - c)
+    54 0000006A F2410F10CF              movsd xmm1, xmm15   ; xmm1 = s
+    55 0000006F F2410F5CCC              subsd xmm1, xmm12  ; xmm1 = s - a
+    56                                  
+    57 00000074 F2410F10D7              movsd xmm2, xmm15   ; xmm2 = s
+    58 00000079 F2410F5CD5              subsd xmm2, xmm13  ; xmm2 = s - b
+    59                                  
+    60 0000007E F2410F10DF              movsd xmm3, xmm15   ; xmm3 = s
+    61 00000083 F2410F5CDE              subsd xmm3, xmm14  ; xmm3 = s - c
+    62                                  
+    63                                  ; Calculate s * (s - a) * (s - b) * (s - c)
+    64 00000088 F2440F59F9              mulsd xmm15, xmm1   ; xmm15 = s * (s - a)
+    65 0000008D F2440F59FA              mulsd xmm15, xmm2   ; xmm15 = s * (s - a) * (s - b)
+    66 00000092 F2440F59FB              mulsd xmm15, xmm3   ; xmm15 = s * (s - a) * (s - b) * (s - c)
+    67                                  
+    68                                  ; Calculate the square root to get the area
+    69 00000097 F2450F51FF              sqrtsd xmm15, xmm15  ; xmm15 = sqrt(s * (s - a) * (s - b) * (s - c)) = area
+    70                                  
+    71                                  ; Store the result in the reserved memory location
+    72 0000009C B807000000              mov rax, 7
+    73 000000A1 BA00000000              mov rdx, 0
+    74 000000A6 0FAE2C25[00000000]      xrstor [backup_storage_area]  ; Restore SSE registers
+    75                                  
+    76 000000AE F2440F1065F8            movsd xmm12, [rbp - 8]
+    77 000000B4 F2440F106DF0            movsd xmm13, [rbp - 16]
+    78 000000BA F2440F1075E8            movsd xmm14, [rbp - 24]
+    79 000000C0 4883C420                add rsp, 32
+    80                                  
+    81 000000C4 F2410F10C7              movsd xmm0, xmm15   ; Moving xmm15 to xmm0 to return the area of the triangle.
+    82                                  
+    83                                  ; Restore general-purpose registers
+    84 000000C9 9D                      popf
+    85 000000CA 415F                    pop r15
+    86 000000CC 415E                    pop r14
+    87 000000CE 415D                    pop r13
+    88 000000D0 415C                    pop r12
+    89 000000D2 415B                    pop r11
+    90 000000D4 415A                    pop r10
+    91 000000D6 4159                    pop r9
+    92 000000D8 4158                    pop r8
+    93 000000DA 5E                      pop rsi
+    94 000000DB 5F                      pop rdi
+    95 000000DC 5A                      pop rdx
+    96 000000DD 59                      pop rcx
+    97 000000DE 5B                      pop rbx
+    98 000000DF 5D                      pop rbp
+    99 000000E0 C3                      ret

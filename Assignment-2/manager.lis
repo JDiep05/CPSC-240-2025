@@ -32,7 +32,7 @@
     32                                  ;   The program will calculate the sum, the mean, and sort the array.
     33                                  ;
     34                                  ;This file:
-    35                                  ;   File name: triangle.asm
+    35                                  ;   File name: manager.asm
     36                                  ;   Language: X86-64
     37                                  ;   Max page width: 124 columns
     38                                  ;   Assemble (standard): nasm -f elf64 -l manager.lis -o manager.o manager.asm
@@ -137,123 +137,131 @@
     96 00000017 4157                    push r15
     97 00000019 9C                      pushf
     98                                  
-    99                                  ;backup other registers
+    99                                  ; Backup other registers
    100 0000001A B807000000              mov rax, 7
    101 0000001F BA00000000              mov rdx, 0
    102 00000024 0FAE2425[00000000]      xsave [backup_storage_area]
    103                                  
-   104 0000002C B800000000              mov rax, 0 
-   105 00000031 48BF-                   mov rdi, info_1
-   105 00000033 [0000000000000000] 
-   106 0000003B E8(00000000)            call printf
-   107                                  
-   108 00000040 B800000000              mov rax, 0
-   109 00000045 48BF-                   mov rdi, info_2
-   109 00000047 [3700000000000000] 
-   110 0000004F E8(00000000)            call printf
-   111                                  
-   112 00000054 B800000000              mov rax, 0
-   113 00000059 48BF-                   mov rdi, info_3
-   113 0000005B [8200000000000000] 
-   114 00000063 E8(00000000)            call printf
-   115                                  
-   116                                  ; Calling input_array(array, size)
-   117 00000068 B800000000              mov rax, 0
-   118 0000006D 48BF-                   mov rdi, my_array
-   118 0000006F [4003000000000000] 
-   119 00000077 BE10000000              mov rsi, 16
-   120 0000007C E8(00000000)            call input_array
-   121                                  
-   122 00000081 4989C5                  mov r13, rax        ; Saving length of array
-   123                                  
-   124 00000084 B800000000              mov rax, 0
-   125 00000089 48BF-                   mov rdi, info_4
-   125 0000008B [BB00000000000000] 
-   126 00000093 E8(00000000)            call printf
-   127                                  
-   128 00000098 B800000000              mov rax, 0
-   129 0000009D 48BF-                   mov rdi, my_array
-   129 0000009F [4003000000000000] 
-   130 000000A7 4C89EE                  mov rsi, r13
-   131 000000AA E8(00000000)            call output_array
-   132                                  
-   133 000000AF B800000000              mov rax, 0
-   134 000000B4 48BF-                   mov rdi, my_array
-   134 000000B6 [4003000000000000] 
-   135 000000BE 4C89EE                  mov rsi, r13
-   136 000000C1 E8(00000000)            call sum
+   104                                  ; Print first message
+   105 0000002C B800000000              mov rax, 0 
+   106 00000031 48BF-                   mov rdi, info_1
+   106 00000033 [0000000000000000] 
+   107 0000003B E8(00000000)            call printf
+   108                                  
+   109                                  ; Print second message
+   110 00000040 B800000000              mov rax, 0
+   111 00000045 48BF-                   mov rdi, info_2
+   111 00000047 [3700000000000000] 
+   112 0000004F E8(00000000)            call printf
+   113                                  
+   114                                  ; Print third message
+   115 00000054 B800000000              mov rax, 0
+   116 00000059 48BF-                   mov rdi, info_3
+   116 0000005B [8200000000000000] 
+   117 00000063 E8(00000000)            call printf
+   118                                  
+   119                                  ; Calling input_array(array, size)
+   120 00000068 B800000000              mov rax, 0
+   121 0000006D 48BF-                   mov rdi, my_array   ; The name of the array
+   121 0000006F [4003000000000000] 
+   122 00000077 BE10000000              mov rsi, 16         ; The size of the array
+   123 0000007C E8(00000000)            call input_array    ; Calling the function to implement user's input into the array
+   124                                  
+   125 00000081 4989C5                  mov r13, rax        ; Saving length of array
+   126                                  
+   127                                  ; Print fourth message
+   128 00000084 B800000000              mov rax, 0
+   129 00000089 48BF-                   mov rdi, info_4
+   129 0000008B [BB00000000000000] 
+   130 00000093 E8(00000000)            call printf
+   131                                  
+   132                                  ; Printing out the array
+   133 00000098 B800000000              mov rax, 0
+   134 0000009D 48BF-                   mov rdi, my_array   ; The array with the user's input
+   134 0000009F [4003000000000000] 
+   135 000000A7 4C89EE                  mov rsi, r13        ; The length of the array
+   136 000000AA E8(00000000)            call output_array   ; Function for printing out all the numbers in the array onto one line
    137                                  
-   138 000000C6 F2440F10F8              movsd xmm15, xmm0   ; Move sum of array to non-volatile register for later use
-   139                                  
-   140 000000CB B801000000              mov rax, 1
-   141 000000D0 48BF-                   mov rdi, info_5
-   141 000000D2 [F200000000000000] 
-   142 000000DA F2410F10C7              movsd xmm0, xmm15   ; Moving sum into xmm0 to print
-   143 000000DF E8(00000000)            call printf
-   144                                  
-   145 000000E4 4D89EE                  mov r14, r13        ; Backing up r13 (length of array)
-   146                                  
-   147 000000E7 F2490F2ACD              cvtsi2sd xmm1, r13  ; Convert r13 (number of elements) to a double into xmm1
-   148 000000EC F2410F10C7              movsd xmm0, xmm15   ; Using sum to find the mean by dividing with count
-   149 000000F1 F20F5EC1                divsd xmm0, xmm1    ; xmm0 = sum / count
+   138                                  ; Calling sum function to add all the numbers in the array
+   139 000000AF B800000000              mov rax, 0
+   140 000000B4 48BF-                   mov rdi, my_array
+   140 000000B6 [4003000000000000] 
+   141 000000BE 4C89EE                  mov rsi, r13
+   142 000000C1 E8(00000000)            call sum            ; Function that will add all the numbers in the array
+   143                                  
+   144 000000C6 F2440F10F8              movsd xmm15, xmm0   ; Moving the sum result from the function into a non-violatile register
+   145                                  
+   146 000000CB B801000000              mov rax, 1          ; Passing one floating-point number
+   147 000000D0 48BF-                   mov rdi, info_5
+   147 000000D2 [F200000000000000] 
+   148 000000DA F2410F10C7              movsd xmm0, xmm15   ; Moving sum into xmm0 to print
+   149 000000DF E8(00000000)            call printf         ; Prints the fifth message and implementing xmm0(sum) into the placeholder
    150                                  
-   151 000000F5 4D89F5                  mov r13, r14        ; Restoring r13 (length of array)
+   151 000000E4 4D89EE                  mov r14, r13        ; Backing up r13 (length of array)
    152                                  
-   153                                  ; Print the Mean
-   154 000000F8 B801000000              mov rax, 1
-   155 000000FD 48BF-                   mov rdi, info_6
-   155 000000FF [1B01000000000000] 
-   156 00000107 E8(00000000)            call printf
-   157                                  
-   158 0000010C B800000000              mov rax, 0
-   159 00000111 48BF-                   mov rdi, info_7
-   159 00000113 [5501000000000000] 
-   160 0000011B E8(00000000)            call printf
-   161                                  
-   162                                  ; Sort the array in numerical order
-   163 00000120 B800000000              mov rax, 0
-   164 00000125 48BF-                   mov rdi, my_array
-   164 00000127 [4003000000000000] 
-   165 0000012F 4C89EE                  mov rsi, r13
-   166 00000132 E8(00000000)            call sort
-   167                                  
-   168                                  ; Print out the sorted array
-   169 00000137 B800000000              mov rax, 0
-   170 0000013C 48BF-                   mov rdi, my_array
-   170 0000013E [4003000000000000] 
-   171 00000146 4C89EE                  mov rsi, r13
-   172 00000149 E8(00000000)            call output_array
-   173                                  
-   174                                  ; Saving xmm15 (sum) 
-   175 0000014E B800000000              mov rax, 0
-   176 00000153 6A00                    push qword 0
-   177 00000155 F2440F113C24            movsd [rsp], xmm15
-   178                                  
-   179 0000015B B807000000              mov rax, 7
-   180 00000160 B800000000              mov rax, 0
-   181 00000165 0FAE2C25[00000000]      xrstor [backup_storage_area]
-   182                                  
-   183                                  ; Sending the sum to main
-   184 0000016D F20F100424              movsd xmm0, [rsp]
-   185 00000172 58                      pop rax
-   186                                  
-   187                                  ;Restore the GPRs
-   188 00000173 9D                      popf
-   189 00000174 415F                    pop r15
-   190 00000176 415E                    pop r14
-   191 00000178 415D                    pop r13
-   192 0000017A 415C                    pop r12
-   193 0000017C 415B                    pop r11
-   194 0000017E 415A                    pop r10
-   195 00000180 4159                    pop r9
-   196 00000182 4158                    pop r8
-   197 00000184 5E                      pop rsi
-   198 00000185 5F                      pop rdi
-   199 00000186 5A                      pop rdx
-   200 00000187 59                      pop rcx
-   201 00000188 5B                      pop rbx
-   202 00000189 5D                      pop rbp
-   203 0000018A C3                      ret
-   204                                  
-   205                                  
-   206                                  
+   153 000000E7 F2490F2ACD              cvtsi2sd xmm1, r13  ; Convert r13 (number of elements) to a double into xmm1
+   154 000000EC F2410F10C7              movsd xmm0, xmm15   ; Using sum to find the mean by dividing with count
+   155 000000F1 F20F5EC1                divsd xmm0, xmm1    ; xmm0 = sum / count
+   156                                  
+   157 000000F5 4D89F5                  mov r13, r14        ; Restoring r13 (length of array)
+   158                                  
+   159                                  ; Print the Mean
+   160 000000F8 B801000000              mov rax, 1          ; Passing one floating-point number
+   161 000000FD 48BF-                   mov rdi, info_6     ; The mean is already in xmm0, which is needed to pass into printf
+   161 000000FF [1B01000000000000] 
+   162 00000107 E8(00000000)            call printf         ; Prints the sixth message with the Arithmetic Mean Value
+   163                                  
+   164                                  ; Print seventh message
+   165 0000010C B800000000              mov rax, 0
+   166 00000111 48BF-                   mov rdi, info_7
+   166 00000113 [5501000000000000] 
+   167 0000011B E8(00000000)            call printf
+   168                                  
+   169                                  ; Sort the array in numerical order
+   170 00000120 B800000000              mov rax, 0
+   171 00000125 48BF-                   mov rdi, my_array
+   171 00000127 [4003000000000000] 
+   172 0000012F 4C89EE                  mov rsi, r13
+   173 00000132 E8(00000000)            call sort           ; A function that uses nested loop to iterate through the array and sort it numerically
+   174                                  
+   175                                  ; Print out the sorted array
+   176 00000137 B800000000              mov rax, 0
+   177 0000013C 48BF-                   mov rdi, my_array   ; Contains the sorted array
+   177 0000013E [4003000000000000] 
+   178 00000146 4C89EE                  mov rsi, r13
+   179 00000149 E8(00000000)            call output_array   ; Passing the sorted array into the output_array function to print
+   180                                  
+   181                                  ; Saving xmm15 (sum) 
+   182 0000014E B800000000              mov rax, 0
+   183 00000153 6A00                    push qword 0        ; Reserving 8 bytes to maintain the sum
+   184 00000155 F2440F113C24            movsd [rsp], xmm15  ; Passing the sum into the reserved q word
+   185                                  
+   186                                  ; Restoring registers
+   187 0000015B B807000000              mov rax, 7
+   188 00000160 B800000000              mov rax, 0
+   189 00000165 0FAE2C25[00000000]      xrstor [backup_storage_area]
+   190                                  
+   191                                  ; Sending the sum to main
+   192 0000016D F20F100424              movsd xmm0, [rsp]   ; Passing rsp to xmm0, xmm0 will be returned
+   193 00000172 58                      pop rax
+   194                                  
+   195                                  ;Restore the GPRs
+   196 00000173 9D                      popf
+   197 00000174 415F                    pop r15
+   198 00000176 415E                    pop r14
+   199 00000178 415D                    pop r13
+   200 0000017A 415C                    pop r12
+   201 0000017C 415B                    pop r11
+   202 0000017E 415A                    pop r10
+   203 00000180 4159                    pop r9
+   204 00000182 4158                    pop r8
+   205 00000184 5E                      pop rsi
+   206 00000185 5F                      pop rdi
+   207 00000186 5A                      pop rdx
+   208 00000187 59                      pop rcx
+   209 00000188 5B                      pop rbx
+   210 00000189 5D                      pop rbp
+   211 0000018A C3                      ret
+   212                                  
+   213                                  
+   214                                  
