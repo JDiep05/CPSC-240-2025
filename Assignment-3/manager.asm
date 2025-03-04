@@ -22,7 +22,6 @@ author_info db 10, "This program is brought to you as a courtesy of", 10 ,\
                      "CWID: 884973462", 10 ,\
                      "Email: jonathon.dieppp@csu.fullerton.edu", 10, 0
 
-
 prompt_for_sides db 10, "Please enter the lengths of three sides of a triangle: ", 0
 string_format db "%s %s %s", 0
 sides_format db "%f %f %f", 0
@@ -76,81 +75,84 @@ call printf
 
 ; Read three numbers as strings
 mov rdi, string_format  ; "%s %s %s"
-mov rsi, side1        ; First buffer
-mov rdx, side2        ; Second buffer
-mov rcx, side3        ; Third buffer
+mov rsi, side1          ; First side
+mov rdx, side2          ; Second side
+mov rcx, side3          ; Third side
 call scanf
 
 ; Validate and convert side1
-mov rdi, side1
-call isfloat
-cmp rax, 0
-je invalid_input
-mov rdi, side1
-call atof
-movsd xmm12, xmm0
+mov rdi, side1          ; Passing side1 as argu for isfloat function
+call isfloat            ; Function to check if argu is a float-point number
+cmp rax, 0              ; If returned false will prompt invalid_msg
+je invalid_input        ; Jump to invalid_input block
+mov rdi, side1          ; Passing side1 as argu for string conversion into float-point number
+call atof               ; Function to convert string into float-point number
+movsd xmm12, xmm0       ; Saving side1 into a non-violatile register
 
 ; Validate and convert side2
-mov rdi, side2
-call isfloat
-cmp rax, 0
-je invalid_input
-mov rdi, side2
-call atof
-movsd xmm13, xmm0
+mov rdi, side2          ; Passing side2 as argu for isfloat function
+call isfloat            ; Function to check if argu is a float-point number
+cmp rax, 0              ; If returned false will prompt invalid_msg
+je invalid_input        ; Jump to invalid_input block
+mov rdi, side2          ; Passing side2 as argu for string conversion into float-point number
+call atof               ; Function to convert string into float-point number
+movsd xmm13, xmm0       ; Saving side2 into a non-violatile register
 
 ; Validate and convert side3
-mov rdi, side3
-call isfloat
-cmp rax, 0
-je invalid_input
-mov rdi, side3
-call atof
-movsd xmm14, xmm0
+mov rdi, side3          ; Passing side3 as argu for isfloat function
+call isfloat            ; Function to check if argu is a float-point number
+cmp rax, 0              ; If returned false will prompt invalid_msg
+je invalid_input        ; Jump to invalid_input block
+mov rdi, side3          ; Passing side3 as argu for string conversion into float-point number
+call atof               ; Function to convert string into float-point number
+movsd xmm14, xmm0       ; Saving side3 into a non-violatile register
 
 ; Call istriangle to validate the sides
-movsd xmm0, xmm12
-movsd xmm1, xmm13
-movsd xmm2, xmm14
-call istriangle
-cmp rax, 0
-je invalid_input
+movsd xmm0, xmm12       ; Passing side1
+movsd xmm1, xmm13       ; Passing side2
+movsd xmm2, xmm14       ; Passing side3
+call istriangle         ; Function using the three side args to check if the side make a vaild triangle
+cmp rax, 0              ; If returned false will prompt invalid_msg
+je invalid_input        ; Jump to invalid_input block
 
-jmp next
+jmp next                ; If returned true will jump to next
 
 invalid_input:
 mov rax, 0
-mov rdi, msg_2
+mov rdi, msg_2          ; Display invalid_msg and prompt for re-input
 call printf
-jmp ask_input
+jmp ask_input           ; Loop back to input
 
 next:
 mov rax, 0
-mov rdi, msg_3
+mov rdi, msg_1          ; Display thank you msg
 call printf
 
 mov rax, 0
-mov rdi, msg_4
+mov rdi, msg_3          ; Display msg for valid triangle
 call printf
 
+mov rax, 0
+mov rdi, msg_4          ; Display msg for Heron's formula
+call printf
 
 ; Call huron to calculate the area
-movsd xmm0, xmm12
-movsd xmm1, xmm13
-movsd xmm2, xmm14
-call huron
-movsd xmm15, xmm0
+movsd xmm0, xmm12       ; Passing side1
+movsd xmm1, xmm13       ; Passing side2
+movsd xmm2, xmm14       ; Passing side3
+call huron              ; Function using Heron's formula to calculate for triangle's area with the three sides
+movsd xmm15, xmm0       ; Saving area into non-violatile register
 
 ; Print the area
-mov rax, 1
-mov rdi, msg_5
-movsd xmm0, xmm15
+mov rax, 1              ; Passing one float-point value
+mov rdi, msg_5          ; Display triangle's area msg
+movsd xmm0, xmm15       ; Pass xmm15 to xmm0 to call printf
 call printf
 
 ; Return the area to the caller
 mov rax, 0
-push qword 0
-movsd [rsp], xmm15
+push qword 0            ; Reserving 8 bytes to push triangle's area
+movsd [rsp], xmm15      ; Saving xmm15 into [rsp] (area)
 
 ; Restore registers
 mov rax, 7
@@ -158,7 +160,7 @@ mov rax, 0
 xrstor [backup_storage_area]
 
 ; Return the area in xmm0
-movsd xmm0, [rsp]
+movsd xmm0, [rsp]       ; Moving [rsp] to xmm0 to return to main
 pop rax
 
 ; Restore GPRs

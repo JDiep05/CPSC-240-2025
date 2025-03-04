@@ -16,7 +16,7 @@ segment .text
 
 huron:
 
-;backup GPRs
+; Backup GPRs
 push rbp
 mov rbp, rsp
 push rbx
