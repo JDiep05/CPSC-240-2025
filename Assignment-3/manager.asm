@@ -39,8 +39,7 @@ segment .text
 
 manager:
 
-; backup GPRs
-;backup GPRs
+; Backup GPRs and other registers
 push rbp
 mov rbp, rsp
 push rbx
@@ -58,7 +57,6 @@ push r14
 push r15
 pushf
 
-; Backup other registers
 mov rax, 7
 mov rdx, 0
 xsave [backup_storage_area]
@@ -74,7 +72,6 @@ mov rsi, side1        ; First buffer
 mov rdx, side2        ; Second buffer
 mov rcx, side3        ; Third buffer
 call scanf
-
 
 ; Validate and convert side1
 mov rdi, side1
@@ -103,6 +100,14 @@ mov rdi, side3
 call atof
 movsd xmm14, xmm0
 
+; Call istriangle to validate the sides
+movsd xmm0, xmm12
+movsd xmm1, xmm13
+movsd xmm2, xmm14
+call istriangle
+cmp rax, 0
+je invalid_input
+
 jmp next
 
 invalid_input:
@@ -112,14 +117,7 @@ call printf
 jmp ask_input
 
 next:
-mov rax, 3
-movsd xmm0, xmm12
-movsd xmm1, xmm13
-movsd xmm2, xmm14
-call istriangle
-cmp rax, 0
-je invalid_input
-
+; If the sides form a valid triangle, proceed
 mov rax, 0
 mov rdi, msg_3
 call printf
@@ -128,7 +126,7 @@ mov rax, 0
 mov rdi, msg_4
 call printf
 
-mov rax, 3
+; Call huron to calculate the area
 movsd xmm0, xmm12
 movsd xmm1, xmm13
 movsd xmm2, xmm14
@@ -136,25 +134,27 @@ call huron
 
 movsd xmm15, xmm0
 
+; Print the area
 mov rax, 1
 mov rdi, msg_5
 movsd xmm0, xmm15
 call printf
 
+; Return the area to the caller
 mov rax, 0
 push qword 0
 movsd [rsp], xmm15
 
-; Restoring registers
+; Restore registers
 mov rax, 7
 mov rax, 0
 xrstor [backup_storage_area]
 
-; Sending the area to main
-movsd xmm0, [rsp]   ; Passing rsp to xmm0, xmm0 will be returned
+; Return the area in xmm0
+movsd xmm0, [rsp]
 pop rax
 
-;Restore the GPRs
+; Restore GPRs
 popf
 pop r15
 pop r14
@@ -171,6 +171,3 @@ pop rcx
 pop rbx
 pop rbp
 ret
-
-
-

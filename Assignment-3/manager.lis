@@ -70,153 +70,150 @@
     39                                  
     40                                  manager:
     41                                  
-    42                                  ; backup GPRs
-    43                                  ;backup GPRs
-    44 00000000 55                      push rbp
-    45 00000001 4889E5                  mov rbp, rsp
-    46 00000004 53                      push rbx
-    47 00000005 51                      push rcx
-    48 00000006 52                      push rdx
-    49 00000007 57                      push rdi
-    50 00000008 56                      push rsi
-    51 00000009 4150                    push r8
-    52 0000000B 4151                    push r9
-    53 0000000D 4152                    push r10
-    54 0000000F 4153                    push r11
-    55 00000011 4154                    push r12
-    56 00000013 4155                    push r13
-    57 00000015 4156                    push r14
-    58 00000017 4157                    push r15
-    59 00000019 9C                      pushf
-    60                                  
-    61                                  ; Backup other registers
-    62 0000001A B807000000              mov rax, 7
-    63 0000001F BA00000000              mov rdx, 0
-    64 00000024 0FAE2425[00000000]      xsave [backup_storage_area]
-    65                                  
-    66                                  ask_input:
-    67 0000002C B800000000              mov rax, 0
-    68 00000031 48BF-                   mov rdi, prompt_for_sides
-    68 00000033 [0000000000000000] 
-    69 0000003B E8(00000000)            call printf
-    70                                  
-    71                                  ; Read three numbers as strings
-    72 00000040 48BF-                   mov rdi, string_format  ; "%s %s %s"
-    72 00000042 [3900000000000000] 
-    73 0000004A 48BE-                   mov rsi, side1        ; First buffer
-    73 0000004C [4003000000000000] 
-    74 00000054 48BA-                   mov rdx, side2        ; Second buffer
-    74 00000056 [6003000000000000] 
-    75 0000005E 48B9-                   mov rcx, side3        ; Third buffer
-    75 00000060 [8003000000000000] 
-    76 00000068 E8(00000000)            call scanf
-    77                                  
-    78                                  
-    79                                  ; Validate and convert side1
-    80 0000006D 48BF-                   mov rdi, side1
-    80 0000006F [4003000000000000] 
-    81 00000077 E8(00000000)            call isfloat
-    82 0000007C 4883F800                cmp rax, 0
-    83 00000080 7468                    je invalid_input
-    84 00000082 48BF-                   mov rdi, side1
-    84 00000084 [4003000000000000] 
-    85 0000008C E8(00000000)            call atof
-    86 00000091 F2440F10E0              movsd xmm12, xmm0
-    87                                  
-    88                                  ; Validate and convert side2
-    89 00000096 48BF-                   mov rdi, side2
-    89 00000098 [6003000000000000] 
-    90 000000A0 E8(00000000)            call isfloat
-    91 000000A5 4883F800                cmp rax, 0
-    92 000000A9 743F                    je invalid_input
-    93 000000AB 48BF-                   mov rdi, side2
-    93 000000AD [6003000000000000] 
-    94 000000B5 E8(00000000)            call atof
-    95 000000BA F2440F10E8              movsd xmm13, xmm0
-    96                                  
-    97                                  ; Validate and convert side3
-    98 000000BF 48BF-                   mov rdi, side3
-    98 000000C1 [8003000000000000] 
-    99 000000C9 E8(00000000)            call isfloat
-   100 000000CE 4883F800                cmp rax, 0
-   101 000000D2 7416                    je invalid_input
-   102 000000D4 48BF-                   mov rdi, side3
-   102 000000D6 [8003000000000000] 
-   103 000000DE E8(00000000)            call atof
-   104 000000E3 F2440F10F0              movsd xmm14, xmm0
-   105                                  
-   106 000000E8 EB19                    jmp next
-   107                                  
-   108                                  invalid_input:
-   109 000000EA B800000000              mov rax, 0
-   110 000000EF 48BF-                   mov rdi, msg_2
-   110 000000F1 [5B00000000000000] 
-   111 000000F9 E8(00000000)            call printf
-   112 000000FE E929FFFFFF              jmp ask_input
-   113                                  
-   114                                  next:
-   115 00000103 B803000000              mov rax, 3
-   116 00000108 F2410F10C4              movsd xmm0, xmm12
-   117 0000010D F2410F10CD              movsd xmm1, xmm13
-   118 00000112 F2410F10D6              movsd xmm2, xmm14
-   119 00000117 E8(00000000)            call istriangle
-   120 0000011C 4883F800                cmp rax, 0
-   121 00000120 74C8                    je invalid_input
-   122                                  
-   123 00000122 B800000000              mov rax, 0
-   124 00000127 48BF-                   mov rdi, msg_3
-   124 00000129 [8700000000000000] 
-   125 00000131 E8(00000000)            call printf
-   126                                  
-   127 00000136 B800000000              mov rax, 0
-   128 0000013B 48BF-                   mov rdi, msg_4
-   128 0000013D [CE00000000000000] 
-   129 00000145 E8(00000000)            call printf
-   130                                  
-   131 0000014A B803000000              mov rax, 3
-   132 0000014F F2410F10C4              movsd xmm0, xmm12
-   133 00000154 F2410F10CD              movsd xmm1, xmm13
-   134 00000159 F2410F10D6              movsd xmm2, xmm14
-   135 0000015E E8(00000000)            call huron
+    42                                  ; Backup GPRs and other registers
+    43 00000000 55                      push rbp
+    44 00000001 4889E5                  mov rbp, rsp
+    45 00000004 53                      push rbx
+    46 00000005 51                      push rcx
+    47 00000006 52                      push rdx
+    48 00000007 57                      push rdi
+    49 00000008 56                      push rsi
+    50 00000009 4150                    push r8
+    51 0000000B 4151                    push r9
+    52 0000000D 4152                    push r10
+    53 0000000F 4153                    push r11
+    54 00000011 4154                    push r12
+    55 00000013 4155                    push r13
+    56 00000015 4156                    push r14
+    57 00000017 4157                    push r15
+    58 00000019 9C                      pushf
+    59                                  
+    60 0000001A B807000000              mov rax, 7
+    61 0000001F BA00000000              mov rdx, 0
+    62 00000024 0FAE2425[00000000]      xsave [backup_storage_area]
+    63                                  
+    64                                  ask_input:
+    65 0000002C B800000000              mov rax, 0
+    66 00000031 48BF-                   mov rdi, prompt_for_sides
+    66 00000033 [0000000000000000] 
+    67 0000003B E8(00000000)            call printf
+    68                                  
+    69                                  ; Read three numbers as strings
+    70 00000040 48BF-                   mov rdi, string_format  ; "%s %s %s"
+    70 00000042 [3900000000000000] 
+    71 0000004A 48BE-                   mov rsi, side1        ; First buffer
+    71 0000004C [4003000000000000] 
+    72 00000054 48BA-                   mov rdx, side2        ; Second buffer
+    72 00000056 [6003000000000000] 
+    73 0000005E 48B9-                   mov rcx, side3        ; Third buffer
+    73 00000060 [8003000000000000] 
+    74 00000068 E8(00000000)            call scanf
+    75                                  
+    76                                  ; Validate and convert side1
+    77 0000006D 48BF-                   mov rdi, side1
+    77 0000006F [4003000000000000] 
+    78 00000077 E8(00000000)            call isfloat
+    79 0000007C 4883F800                cmp rax, 0
+    80 00000080 0F8482000000            je invalid_input
+    81 00000086 48BF-                   mov rdi, side1
+    81 00000088 [4003000000000000] 
+    82 00000090 E8(00000000)            call atof
+    83 00000095 F2440F10E0              movsd xmm12, xmm0
+    84                                  
+    85                                  ; Validate and convert side2
+    86 0000009A 48BF-                   mov rdi, side2
+    86 0000009C [6003000000000000] 
+    87 000000A4 E8(00000000)            call isfloat
+    88 000000A9 4883F800                cmp rax, 0
+    89 000000AD 7459                    je invalid_input
+    90 000000AF 48BF-                   mov rdi, side2
+    90 000000B1 [6003000000000000] 
+    91 000000B9 E8(00000000)            call atof
+    92 000000BE F2440F10E8              movsd xmm13, xmm0
+    93                                  
+    94                                  ; Validate and convert side3
+    95 000000C3 48BF-                   mov rdi, side3
+    95 000000C5 [8003000000000000] 
+    96 000000CD E8(00000000)            call isfloat
+    97 000000D2 4883F800                cmp rax, 0
+    98 000000D6 7430                    je invalid_input
+    99 000000D8 48BF-                   mov rdi, side3
+    99 000000DA [8003000000000000] 
+   100 000000E2 E8(00000000)            call atof
+   101 000000E7 F2440F10F0              movsd xmm14, xmm0
+   102                                  
+   103                                  ; Call istriangle to validate the sides
+   104 000000EC F2410F10C4              movsd xmm0, xmm12
+   105 000000F1 F2410F10CD              movsd xmm1, xmm13
+   106 000000F6 F2410F10D6              movsd xmm2, xmm14
+   107 000000FB E8(00000000)            call istriangle
+   108 00000100 4883F800                cmp rax, 0
+   109 00000104 7402                    je invalid_input
+   110                                  
+   111 00000106 EB19                    jmp next
+   112                                  
+   113                                  invalid_input:
+   114 00000108 B800000000              mov rax, 0
+   115 0000010D 48BF-                   mov rdi, msg_2
+   115 0000010F [5B00000000000000] 
+   116 00000117 E8(00000000)            call printf
+   117 0000011C E90BFFFFFF              jmp ask_input
+   118                                  
+   119                                  next:
+   120                                  ; If the sides form a valid triangle, proceed
+   121 00000121 B800000000              mov rax, 0
+   122 00000126 48BF-                   mov rdi, msg_3
+   122 00000128 [8700000000000000] 
+   123 00000130 E8(00000000)            call printf
+   124                                  
+   125 00000135 B800000000              mov rax, 0
+   126 0000013A 48BF-                   mov rdi, msg_4
+   126 0000013C [CE00000000000000] 
+   127 00000144 E8(00000000)            call printf
+   128                                  
+   129                                  ; Call huron to calculate the area
+   130 00000149 F2410F10C4              movsd xmm0, xmm12
+   131 0000014E F2410F10CD              movsd xmm1, xmm13
+   132 00000153 F2410F10D6              movsd xmm2, xmm14
+   133 00000158 E8(00000000)            call huron
+   134                                  
+   135 0000015D F2440F10F8              movsd xmm15, xmm0
    136                                  
-   137 00000163 F2440F10F8              movsd xmm15, xmm0
-   138                                  
-   139 00000168 B801000000              mov rax, 1
-   140 0000016D 48BF-                   mov rdi, msg_5
-   140 0000016F [0201000000000000] 
-   141 00000177 F2410F10C7              movsd xmm0, xmm15
-   142 0000017C E8(00000000)            call printf
-   143                                  
-   144 00000181 B800000000              mov rax, 0
-   145 00000186 6A00                    push qword 0
-   146 00000188 F2440F113C24            movsd [rsp], xmm15
+   137                                  ; Print the area
+   138 00000162 B801000000              mov rax, 1
+   139 00000167 48BF-                   mov rdi, msg_5
+   139 00000169 [0201000000000000] 
+   140 00000171 F2410F10C7              movsd xmm0, xmm15
+   141 00000176 E8(00000000)            call printf
+   142                                  
+   143                                  ; Return the area to the caller
+   144 0000017B B800000000              mov rax, 0
+   145 00000180 6A00                    push qword 0
+   146 00000182 F2440F113C24            movsd [rsp], xmm15
    147                                  
-   148                                  ; Restoring registers
-   149 0000018E B807000000              mov rax, 7
-   150 00000193 B800000000              mov rax, 0
-   151 00000198 0FAE2C25[00000000]      xrstor [backup_storage_area]
+   148                                  ; Restore registers
+   149 00000188 B807000000              mov rax, 7
+   150 0000018D B800000000              mov rax, 0
+   151 00000192 0FAE2C25[00000000]      xrstor [backup_storage_area]
    152                                  
-   153                                  ; Sending the area to main
-   154 000001A0 F20F100424              movsd xmm0, [rsp]   ; Passing rsp to xmm0, xmm0 will be returned
-   155 000001A5 58                      pop rax
+   153                                  ; Return the area in xmm0
+   154 0000019A F20F100424              movsd xmm0, [rsp]
+   155 0000019F 58                      pop rax
    156                                  
-   157                                  ;Restore the GPRs
-   158 000001A6 9D                      popf
-   159 000001A7 415F                    pop r15
-   160 000001A9 415E                    pop r14
-   161 000001AB 415D                    pop r13
-   162 000001AD 415C                    pop r12
-   163 000001AF 415B                    pop r11
-   164 000001B1 415A                    pop r10
-   165 000001B3 4159                    pop r9
-   166 000001B5 4158                    pop r8
-   167 000001B7 5E                      pop rsi
-   168 000001B8 5F                      pop rdi
-   169 000001B9 5A                      pop rdx
-   170 000001BA 59                      pop rcx
-   171 000001BB 5B                      pop rbx
-   172 000001BC 5D                      pop rbp
-   173 000001BD C3                      ret
-   174                                  
-   175                                  
-   176                                  
+   157                                  ; Restore GPRs
+   158 000001A0 9D                      popf
+   159 000001A1 415F                    pop r15
+   160 000001A3 415E                    pop r14
+   161 000001A5 415D                    pop r13
+   162 000001A7 415C                    pop r12
+   163 000001A9 415B                    pop r11
+   164 000001AB 415A                    pop r10
+   165 000001AD 4159                    pop r9
+   166 000001AF 4158                    pop r8
+   167 000001B1 5E                      pop rsi
+   168 000001B2 5F                      pop rdi
+   169 000001B3 5A                      pop rdx
+   170 000001B4 59                      pop rcx
+   171 000001B5 5B                      pop rbx
+   172 000001B6 5D                      pop rbp
+   173 000001B7 C3                      ret
