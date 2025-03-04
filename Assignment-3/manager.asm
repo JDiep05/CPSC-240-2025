@@ -17,6 +17,7 @@ global manager
 segment .data
 prompt_for_sides db 10, "Please enter the lengths of three sides of a triangle: ", 0
 string_format db "%s %s %s", 0
+sides_format db "%f %f %f", 0
 float_format db 10, "%lf", 0
 msg_1 db 10, "Thank you", 10, 
 msg_2 db 10, "Invalid input. Please enter valid number.", 10, 0
@@ -30,9 +31,9 @@ segment .bss
 align 64
 backup_storage_area resb 832
 
-side1 resq 1   ; Reserving 1 byte for double input
-side2 resq 1
-side3 resq 1
+side1 resb 32   ; Reserving 1 byte for double input
+side2 resb 32
+side3 resb 32
 
 segment .text
 
@@ -74,6 +75,7 @@ mov rdx, side2        ; Second buffer
 mov rcx, side3        ; Third buffer
 call scanf
 
+
 ; Validate and convert side1
 mov rdi, side1
 call isfloat
@@ -99,7 +101,7 @@ cmp rax, 0
 je invalid_input
 mov rdi, side3
 call atof
-movsd xmm12, xmm0
+movsd xmm14, xmm0
 
 jmp next
 
@@ -110,7 +112,7 @@ call printf
 jmp ask_input
 
 next:
-
+mov rax, 3
 movsd xmm0, xmm12
 movsd xmm1, xmm13
 movsd xmm2, xmm14
@@ -127,9 +129,9 @@ mov rdi, msg_4
 call printf
 
 mov rax, 3
-movsd xmm0, [side1]
-movsd xmm1, [side2]
-movsd xmm2, [side3]
+movsd xmm0, xmm12
+movsd xmm1, xmm13
+movsd xmm2, xmm14
 call huron
 
 movsd xmm15, xmm0

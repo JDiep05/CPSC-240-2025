@@ -53,9 +53,8 @@ true equ -1
 false equ 0
 
 segment .data
-floatform db 10,"%lf", 10, 0
    ;This segment is empty
-
+string db "%s",0
 segment .bss
    ;This segment is empty
 
@@ -84,12 +83,10 @@ pushf                                             ;Backup rflags
 
 ;Make a copy of the passed in array of ascii values
 mov r13, rdi                                      ;r13 is the array of char
-
 mov rax, 0
-mov rdi, floatform
+mov rdi, string
 mov rsi, r13
 call printf
-
 ;Let r14 be an index of the array r13.  Initialize to integer 0
 xor r14, r14
 
@@ -295,3 +292,4 @@ pop rdi                                 ;Restore rdi
 pop rbp                                 ;Restore rbp
 
 ret                                     ;Pop the integer stack and jump to the address represented by the popped value.
+
