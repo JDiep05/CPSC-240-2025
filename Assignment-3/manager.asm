@@ -12,9 +12,17 @@ extern istriangle
 
 extern huron
 
+%include "triangle.inc" 
+
 global manager
 
 segment .data
+author_info db 10, "This program is brought to you as a courtesy of", 10 ,\
+                    "Author: Jonathan Diep", 10 ,\
+                     "CWID: 884973462", 10 ,\
+                     "Email: jonathon.dieppp@csu.fullerton.edu", 10, 0
+
+
 prompt_for_sides db 10, "Please enter the lengths of three sides of a triangle: ", 0
 string_format db "%s %s %s", 0
 sides_format db "%f %f %f", 0
@@ -38,7 +46,7 @@ side3 resb 32
 segment .text
 
 manager:
-
+print_str author_info  ; Use macro to print author_info
 ; Backup GPRs and other registers
 push rbp
 mov rbp, rsp
@@ -124,6 +132,7 @@ call printf
 mov rax, 0
 mov rdi, msg_4
 call printf
+
 
 ; Call huron to calculate the area
 movsd xmm0, xmm12

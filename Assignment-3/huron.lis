@@ -1,94 +1,95 @@
-     1                                  global huron
-     2                                  extern printf
-     3                                  
-     4                                  segment .data
-     5 00000000 000000000000E03F            half dq 0.5
-     6                                      
-     7                                  segment .bss
-     8                                  align 64
-     9 00000000 <res 00000340>          backup_storage_area resb 832
-    10                                  
-    11                                  segment .text
-    12                                  
-    13                                  huron:
+     1                                  extern printf
+     2                                  
+     3                                  global huron
+     4                                  
+     5                                  segment .data
+     6 00000000 000000000000E03F        half dq 0.5     ; variable of one-half for later calculation
+     7 00000008 256C660A00              float_format db "%lf", 10,0
+     8                                  
+     9                                  
+    10                                  segment .bss
+    11                                  align 64
+    12 00000000 <res 00000340>          backup_storage_area resb 832
+    13                                  
     14                                  
-    15                                  ;backup GPRs
-    16 00000000 55                      push rbp
-    17 00000001 4889E5                  mov rbp, rsp
-    18 00000004 53                      push rbx
-    19 00000005 51                      push rcx
-    20 00000006 52                      push rdx
-    21 00000007 57                      push rdi
-    22 00000008 56                      push rsi
-    23 00000009 4150                    push r8
-    24 0000000B 4151                    push r9
-    25 0000000D 4152                    push r10
-    26 0000000F 4153                    push r11
-    27 00000011 4154                    push r12
-    28 00000013 4155                    push r13
-    29 00000015 4156                    push r14
-    30 00000017 4157                    push r15
-    31 00000019 9C                      pushf
-    32                                  
-    33                                  ;backup other registers
-    34 0000001A B807000000              mov rax,7
-    35 0000001F BA00000000              mov rdx,0
-    36 00000024 0FAE2425[00000000]      xsave [backup_storage_area]
-    37                                  
-    38 0000002C 4883EC20                sub rsp, 32
-    39 00000030 F20F110424              movsd [rsp], xmm0
-    40 00000035 F20F114C2408            movsd [rsp+8], xmm1
-    41 0000003B F20F11542410            movsd [rsp+16], xmm2
-    42                                  
-    43                                  
-    44                                  ; Calculate the semi-perimeter (s = (a + b + c) / 2)
-    45 00000041 F20F58C1                addsd xmm0, xmm1   ; xmm15 = a + b
-    46 00000045 F20F58C2                addsd xmm0, xmm2   ; xmm15 = a + b + c
-    47 00000049 F20F590425-             mulsd xmm0, [half]  ; xmm15 = (a + b + c) * 0.5 = s
-    47 0000004E [00000000]         
-    48 00000052 F2440F10F8              movsd xmm15, xmm0
-    49 00000057 F20F100424              movsd xmm0, [rsp]
-    50                                  
-    51                                  ; Calculate (s - a), (s - b), and (s - c)
-    52 0000005C F2410F10E7              movsd xmm4, xmm15    ; xmm4 = s
-    53 00000061 F20F5CE0                subsd xmm4, xmm0     ; xmm4 = s - a
-    54                                  
-    55 00000065 F2410F10EF              movsd xmm5, xmm15    ; xmm5 = s
-    56 0000006A F20F5CE9                subsd xmm5, xmm1     ; xmm5 = s - b
-    57                                  
-    58 0000006E F2410F10F7              movsd xmm6, xmm15    ; xmm6 = s
-    59 00000073 F20F5CF2                subsd xmm6, xmm2     ; xmm6 = s - c
-    60                                  
-    61 00000077 F20F59E5                mulsd xmm4, xmm5     ; xmm4 = (s - a) * (s - b)
-    62 0000007B F20F59E6                mulsd xmm4, xmm6     ; xmm4 = (s - a) * (s - b) * (s - c)
-    63 0000007F F2410F59E7              mulsd xmm4, xmm15    ; xmm4 = s * (s - a) * (s - b) * (s - c)
-    64                                  
-    65 00000084 F2440F10FC              movsd xmm15, xmm4  
-    66 00000089 F2450F51FF              sqrtsd xmm15, xmm15 
+    15                                  segment .text
+    16                                  
+    17                                  huron:
+    18                                  
+    19                                  ;backup GPRs
+    20 00000000 55                      push rbp
+    21 00000001 4889E5                  mov rbp, rsp
+    22 00000004 53                      push rbx
+    23 00000005 51                      push rcx
+    24 00000006 52                      push rdx
+    25 00000007 57                      push rdi
+    26 00000008 56                      push rsi
+    27 00000009 4150                    push r8
+    28 0000000B 4151                    push r9
+    29 0000000D 4152                    push r10
+    30 0000000F 4153                    push r11
+    31 00000011 4154                    push r12
+    32 00000013 4155                    push r13
+    33 00000015 4156                    push r14
+    34 00000017 4157                    push r15
+    35 00000019 9C                      pushf
+    36                                  
+    37                                  ;backup other registers
+    38 0000001A B807000000              mov rax, 7
+    39 0000001F BA00000000              mov rdx, 0
+    40 00000024 0FAE2425[00000000]      xsave [backup_storage_area]
+    41                                  
+    42 0000002C 4883EC20                sub rsp, 32             ; Allocating 32 bytes for sides
+    43 00000030 F2440F10E0              movsd xmm12, xmm0       ; xmm12 = a
+    44 00000035 F2440F10E9              movsd xmm13, xmm1       ; xmm13 = b
+    45 0000003A F2440F10F2              movsd xmm14, xmm2       ; xmm14 = c
+    46                                  
+    47                                  ; Calculate the semi-perimeter (s = (a + b + c) / 2)
+    48 0000003F F2450F58FC              addsd xmm15, xmm12        ; xmm15 = a
+    49 00000044 F2450F58FD              addsd xmm15, xmm13        ; xmm15 = a + b
+    50 00000049 F2450F58FE              addsd xmm15, xmm14        ; xmm15 = a + b + c
+    51 0000004E F2440F593C25-           mulsd xmm15, [half]      ; xmm15 = (a + b + c) * 0.5 = s
+    51 00000054 [00000000]         
+    52                                  
+    53                                  ; Calculate (s - a), (s - b), and (s - c)
+    54 00000058 F2450F10DF              movsd xmm11, xmm15       ; xmm4 = s
+    55 0000005D F2450F5CDC              subsd xmm11, xmm12        ; xmm4 = s - a
+    56                                  
+    57 00000062 F2450F10D7              movsd xmm10, xmm15       ; xmm5 = s
+    58 00000067 F2450F5CD5              subsd xmm10, xmm13        ; xmm5 = s - b
+    59                                  
+    60 0000006C F2450F10CF              movsd xmm9, xmm15       ; xmm6 = s
+    61 00000071 F2450F5CCE              subsd xmm9, xmm14        ; xmm6 = s - c
+    62                                  
+    63 00000076 F2450F59DA              mulsd xmm11, xmm10        ; xmm4 = (s - a) * (s - b)
+    64 0000007B F2450F59D9              mulsd xmm11, xmm9        ; xmm4 = (s - a) * (s - b) * (s - c)
+    65 00000080 F2450F59DF              mulsd xmm11, xmm15       ; xmm4 = s * (s - a) * (s - b) * (s - c)
+    66 00000085 F2450F51DB              sqrtsd xmm11, xmm11     ; xmm15 = sqrt(s * (s - a) * (s - b) * (s - c))
     67                                  
-    68 0000008E F2410F10C7              movsd xmm0, xmm15   ; Moving xmm15 to xmm0 to return the area of the triangle.
-    69 00000093 B807000000              mov rax, 7
-    70 00000098 BA00000000              mov rdx, 0
-    71 0000009D 0FAE2C25[00000000]      xrstor [backup_storage_area]  ; Restore SSE registers
-    72                                  
-    73 000000A5 4883C420                add rsp, 32
+    68 0000008A F2410F10C3              movsd xmm0, xmm11       ; Moving xmm15 to xmm0 to return the area of the triangle.
+    69 0000008F F20F110424              movsd [rsp], xmm0
+    70                                  ; Restore registers
+    71 00000094 B807000000              mov rax, 7
+    72 00000099 BA00000000              mov rdx, 0
+    73 0000009E 0FAE2C25[00000000]      xrstor [backup_storage_area]
     74                                  
-    75                                  
-    76                                  ; Restore general-purpose registers
-    77 000000A9 9D                      popf
-    78 000000AA 415F                    pop r15
-    79 000000AC 415E                    pop r14
-    80 000000AE 415D                    pop r13
-    81 000000B0 415C                    pop r12
-    82 000000B2 415B                    pop r11
-    83 000000B4 415A                    pop r10
-    84 000000B6 4159                    pop r9
-    85 000000B8 4158                    pop r8
-    86 000000BA 5E                      pop rsi
-    87 000000BB 5F                      pop rdi
-    88 000000BC 5A                      pop rdx
-    89 000000BD 59                      pop rcx
-    90 000000BE 5B                      pop rbx
-    91 000000BF 5D                      pop rbp
-    92                                  
-    93 000000C0 C3                      ret
+    75 000000A6 F20F100424              movsd xmm0, [rsp]
+    76 000000AB 4883C420                add rsp, 32             ; Deallocate bytes for variable
+    77                                  
+    78                                  ; Restore general-purpose registers
+    79 000000AF 9D                      popf
+    80 000000B0 415F                    pop r15
+    81 000000B2 415E                    pop r14
+    82 000000B4 415D                    pop r13
+    83 000000B6 415C                    pop r12
+    84 000000B8 415B                    pop r11
+    85 000000BA 415A                    pop r10
+    86 000000BC 4159                    pop r9
+    87 000000BE 4158                    pop r8
+    88 000000C0 5E                      pop rsi
+    89 000000C1 5F                      pop rdi
+    90 000000C2 5A                      pop rdx
+    91 000000C3 59                      pop rcx
+    92 000000C4 5B                      pop rbx
+    93 000000C5 5D                      pop rbp
+    94 000000C6 C3                      ret
