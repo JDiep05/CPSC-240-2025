@@ -27,34 +27,32 @@
     21 0000004B 0A256C6600              float_format db 10, "%lf", 0
     22 00000050 0A5468616E6B20796F-     msg_1 db 10, "Thank you", 10, 
     22 00000059 750A               
-    23 0000005B 0A496E76616C696420-     msg_2 db 10, "Invalid input. Please enter valid number.", 10, 0
-    23 00000064 696E7075742E20506C-
-    23 0000006D 6561736520656E7465-
-    23 00000076 722076616C6964206E-
-    23 0000007F 756D6265722E0A00   
-    24 00000087 0A546865736520696E-     msg_3 db 10, "These input have been tested and they are sides of a valid triangle.", 10, 0
-    24 00000090 707574206861766520-
-    24 00000099 6265656E2074657374-
-    24 000000A2 656420616E64207468-
-    24 000000AB 657920617265207369-
-    24 000000B4 646573206F66206120-
-    24 000000BD 76616C696420747269-
-    24 000000C6 616E676C652E0A00   
-    25 000000CE 0A546865204875726F-     msg_4 db 10, "The Huron formula will be applied to find the area."
-    25 000000D7 6E20666F726D756C61-
-    25 000000E0 2077696C6C20626520-
-    25 000000E9 6170706C6965642074-
-    25 000000F2 6F2066696E64207468-
-    25 000000FB 6520617265612E     
-    26 00000102 0A5468652061726561-     msg_5 db 10, "The area is %.4lf sq units. This number will be returned to the caller module.", 10, 0
-    26 0000010B 20697320252E346C66-
-    26 00000114 20737120756E697473-
-    26 0000011D 2E2054686973206E75-
-    26 00000126 6D6265722077696C6C-
-    26 0000012F 206265207265747572-
-    26 00000138 6E656420746F207468-
-    26 00000141 652063616C6C657220-
-    26 0000014A 6D6F64756C652E0A00 
+    23 0000005B 0A4572726F7220696E-     msg_2 db 10, "Error input try again", 10, 0
+    23 00000064 707574207472792061-
+    23 0000006D 6761696E0A00       
+    24 00000073 0A546865736520696E-     msg_3 db 10, "These input have been tested and they are sides of a valid triangle.", 10, 0
+    24 0000007C 707574206861766520-
+    24 00000085 6265656E2074657374-
+    24 0000008E 656420616E64207468-
+    24 00000097 657920617265207369-
+    24 000000A0 646573206F66206120-
+    24 000000A9 76616C696420747269-
+    24 000000B2 616E676C652E0A00   
+    25 000000BA 0A546865204875726F-     msg_4 db 10, "The Huron formula will be applied to find the area.", 10, 0
+    25 000000C3 6E20666F726D756C61-
+    25 000000CC 2077696C6C20626520-
+    25 000000D5 6170706C6965642074-
+    25 000000DE 6F2066696E64207468-
+    25 000000E7 6520617265612E0A00 
+    26 000000F0 0A5468652061726561-     msg_5 db 10, "The area is %.4lf sq units. This number will be returned to the caller module.", 10, 0
+    26 000000F9 20697320252E346C66-
+    26 00000102 20737120756E697473-
+    26 0000010B 2E2054686973206E75-
+    26 00000114 6D6265722077696C6C-
+    26 0000011D 206265207265747572-
+    26 00000126 6E656420746F207468-
+    26 0000012F 652063616C6C657220-
+    26 00000138 6D6F64756C652E0A00 
     27                                  
     28                                  segment .bss
     29                                  ;declared empty arrays
@@ -160,60 +158,58 @@
    117 0000011C E90BFFFFFF              jmp ask_input
    118                                  
    119                                  next:
-   120                                  ; If the sides form a valid triangle, proceed
-   121 00000121 B800000000              mov rax, 0
-   122 00000126 48BF-                   mov rdi, msg_3
-   122 00000128 [8700000000000000] 
-   123 00000130 E8(00000000)            call printf
-   124                                  
-   125 00000135 B800000000              mov rax, 0
-   126 0000013A 48BF-                   mov rdi, msg_4
-   126 0000013C [CE00000000000000] 
-   127 00000144 E8(00000000)            call printf
-   128                                  
-   129                                  ; Call huron to calculate the area
-   130 00000149 F2410F10C4              movsd xmm0, xmm12
-   131 0000014E F2410F10CD              movsd xmm1, xmm13
-   132 00000153 F2410F10D6              movsd xmm2, xmm14
-   133 00000158 E8(00000000)            call huron
+   120 00000121 B800000000              mov rax, 0
+   121 00000126 48BF-                   mov rdi, msg_3
+   121 00000128 [7300000000000000] 
+   122 00000130 E8(00000000)            call printf
+   123                                  
+   124 00000135 B800000000              mov rax, 0
+   125 0000013A 48BF-                   mov rdi, msg_4
+   125 0000013C [BA00000000000000] 
+   126 00000144 E8(00000000)            call printf
+   127                                  
+   128                                  ; Call huron to calculate the area
+   129 00000149 F2410F10C4              movsd xmm0, xmm12
+   130 0000014E F2410F10CD              movsd xmm1, xmm13
+   131 00000153 F2410F10D6              movsd xmm2, xmm14
+   132 00000158 E8(00000000)            call huron
+   133 0000015D F2440F10F8              movsd xmm15, xmm0
    134                                  
-   135 0000015D F2440F10F8              movsd xmm15, xmm0
-   136                                  
-   137                                  ; Print the area
-   138 00000162 B801000000              mov rax, 1
-   139 00000167 48BF-                   mov rdi, msg_5
-   139 00000169 [0201000000000000] 
-   140 00000171 F2410F10C7              movsd xmm0, xmm15
-   141 00000176 E8(00000000)            call printf
-   142                                  
-   143                                  ; Return the area to the caller
-   144 0000017B B800000000              mov rax, 0
-   145 00000180 6A00                    push qword 0
-   146 00000182 F2440F113C24            movsd [rsp], xmm15
-   147                                  
-   148                                  ; Restore registers
-   149 00000188 B807000000              mov rax, 7
-   150 0000018D B800000000              mov rax, 0
-   151 00000192 0FAE2C25[00000000]      xrstor [backup_storage_area]
-   152                                  
-   153                                  ; Return the area in xmm0
-   154 0000019A F20F100424              movsd xmm0, [rsp]
-   155 0000019F 58                      pop rax
-   156                                  
-   157                                  ; Restore GPRs
-   158 000001A0 9D                      popf
-   159 000001A1 415F                    pop r15
-   160 000001A3 415E                    pop r14
-   161 000001A5 415D                    pop r13
-   162 000001A7 415C                    pop r12
-   163 000001A9 415B                    pop r11
-   164 000001AB 415A                    pop r10
-   165 000001AD 4159                    pop r9
-   166 000001AF 4158                    pop r8
-   167 000001B1 5E                      pop rsi
-   168 000001B2 5F                      pop rdi
-   169 000001B3 5A                      pop rdx
-   170 000001B4 59                      pop rcx
-   171 000001B5 5B                      pop rbx
-   172 000001B6 5D                      pop rbp
-   173 000001B7 C3                      ret
+   135                                  ; Print the area
+   136 00000162 B801000000              mov rax, 1
+   137 00000167 48BF-                   mov rdi, msg_5
+   137 00000169 [F000000000000000] 
+   138 00000171 F2410F10C7              movsd xmm0, xmm15
+   139 00000176 E8(00000000)            call printf
+   140                                  
+   141                                  ; Return the area to the caller
+   142 0000017B B800000000              mov rax, 0
+   143 00000180 6A00                    push qword 0
+   144 00000182 F2440F113C24            movsd [rsp], xmm15
+   145                                  
+   146                                  ; Restore registers
+   147 00000188 B807000000              mov rax, 7
+   148 0000018D B800000000              mov rax, 0
+   149 00000192 0FAE2C25[00000000]      xrstor [backup_storage_area]
+   150                                  
+   151                                  ; Return the area in xmm0
+   152 0000019A F20F100424              movsd xmm0, [rsp]
+   153 0000019F 58                      pop rax
+   154                                  
+   155                                  ; Restore GPRs
+   156 000001A0 9D                      popf
+   157 000001A1 415F                    pop r15
+   158 000001A3 415E                    pop r14
+   159 000001A5 415D                    pop r13
+   160 000001A7 415C                    pop r12
+   161 000001A9 415B                    pop r11
+   162 000001AB 415A                    pop r10
+   163 000001AD 4159                    pop r9
+   164 000001AF 4158                    pop r8
+   165 000001B1 5E                      pop rsi
+   166 000001B2 5F                      pop rdi
+   167 000001B3 5A                      pop rdx
+   168 000001B4 59                      pop rcx
+   169 000001B5 5B                      pop rbx
+   170 000001B6 5D                      pop rbp
+   171 000001B7 C3                      ret

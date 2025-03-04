@@ -20,9 +20,9 @@ string_format db "%s %s %s", 0
 sides_format db "%f %f %f", 0
 float_format db 10, "%lf", 0
 msg_1 db 10, "Thank you", 10, 
-msg_2 db 10, "Invalid input. Please enter valid number.", 10, 0
+msg_2 db 10, "Error input try again", 10, 0
 msg_3 db 10, "These input have been tested and they are sides of a valid triangle.", 10, 0
-msg_4 db 10, "The Huron formula will be applied to find the area."
+msg_4 db 10, "The Huron formula will be applied to find the area.", 10, 0
 msg_5 db 10, "The area is %.4lf sq units. This number will be returned to the caller module.", 10, 0
 
 segment .bss
@@ -117,7 +117,6 @@ call printf
 jmp ask_input
 
 next:
-; If the sides form a valid triangle, proceed
 mov rax, 0
 mov rdi, msg_3
 call printf
@@ -131,7 +130,6 @@ movsd xmm0, xmm12
 movsd xmm1, xmm13
 movsd xmm2, xmm14
 call huron
-
 movsd xmm15, xmm0
 
 ; Print the area

@@ -1,9 +1,9 @@
-
 global huron
+extern printf
 
 segment .data
-    half db 0.5
-
+    half dq 0.5
+    
 segment .bss
 align 64
 backup_storage_area resb 832
@@ -36,49 +36,42 @@ mov rdx,0
 xsave [backup_storage_area]
 
 sub rsp, 32
-movsd [rbp - 8], xmm12
-movsd [rbp - 16], xmm13
-movsd [rbp - 24], xmm14
+movsd [rsp], xmm0
+movsd [rsp+8], xmm1
+movsd [rsp+16], xmm2
 
-movsd xmm12, xmm0   ; Moving side_1 into non-violatile register = a
-movsd xmm13, xmm1   ; Moving side_2 into non-violatile register = b
-movsd xmm14, xmm2   ; Moving side_3 into non-violatile register = c
 
 ; Calculate the semi-perimeter (s = (a + b + c) / 2)
-addsd xmm15, xmm12   ; xmm15 = a
-addsd xmm15, xmm13   ; xmm15 = a + b
-addsd xmm15, xmm14   ; xmm15 = a + b + c
-mulsd xmm15, [half]  ; xmm15 = (a + b + c) * 0.5 = s
+addsd xmm0, xmm1   ; xmm15 = a + b
+addsd xmm0, xmm2   ; xmm15 = a + b + c
+mulsd xmm0, [half]  ; xmm15 = (a + b + c) * 0.5 = s
+movsd xmm15, xmm0
+movsd xmm0, [rsp]
 
 ; Calculate (s - a), (s - b), and (s - c)
-movsd xmm1, xmm15   ; xmm1 = s
-subsd xmm1, xmm12  ; xmm1 = s - a
+movsd xmm4, xmm15    ; xmm4 = s
+subsd xmm4, xmm0     ; xmm4 = s - a
 
-movsd xmm2, xmm15   ; xmm2 = s
-subsd xmm2, xmm13  ; xmm2 = s - b
+movsd xmm5, xmm15    ; xmm5 = s
+subsd xmm5, xmm1     ; xmm5 = s - b
 
-movsd xmm3, xmm15   ; xmm3 = s
-subsd xmm3, xmm14  ; xmm3 = s - c
+movsd xmm6, xmm15    ; xmm6 = s
+subsd xmm6, xmm2     ; xmm6 = s - c
 
-; Calculate s * (s - a) * (s - b) * (s - c)
-mulsd xmm15, xmm1   ; xmm15 = s * (s - a)
-mulsd xmm15, xmm2   ; xmm15 = s * (s - a) * (s - b)
-mulsd xmm15, xmm3   ; xmm15 = s * (s - a) * (s - b) * (s - c)
+mulsd xmm4, xmm5     ; xmm4 = (s - a) * (s - b)
+mulsd xmm4, xmm6     ; xmm4 = (s - a) * (s - b) * (s - c)
+mulsd xmm4, xmm15    ; xmm4 = s * (s - a) * (s - b) * (s - c)
 
-; Calculate the square root to get the area
-sqrtsd xmm15, xmm15  ; xmm15 = sqrt(s * (s - a) * (s - b) * (s - c)) = area
+movsd xmm15, xmm4  
+sqrtsd xmm15, xmm15 
 
-; Store the result in the reserved memory location
+movsd xmm0, xmm15   ; Moving xmm15 to xmm0 to return the area of the triangle.
 mov rax, 7
 mov rdx, 0
 xrstor [backup_storage_area]  ; Restore SSE registers
 
-movsd xmm12, [rbp - 8]
-movsd xmm13, [rbp - 16]
-movsd xmm14, [rbp - 24]
 add rsp, 32
 
-movsd xmm0, xmm15   ; Moving xmm15 to xmm0 to return the area of the triangle.
 
 ; Restore general-purpose registers
 popf
@@ -96,4 +89,5 @@ pop rdx
 pop rcx
 pop rbx
 pop rbp
+
 ret

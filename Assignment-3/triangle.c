@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 extern double manager();
 
@@ -9,6 +10,8 @@ int main(void) {
     printf("\nWelcome to Huron's Triangles. We take care of all your triangle needs.\n");
     printf("\nPlease enter your name: ");
     fgets(name, sizeof(name), stdin);
+    if (name[strlen(name) -1] == '\n')
+        name[strlen(name) - 1] = '\0';
     double count = 0;
     count = manager();
 

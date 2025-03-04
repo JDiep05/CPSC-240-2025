@@ -17,46 +17,43 @@
     17                                  segment .text
     18                                  
     19                                  istriangle:
-    20 00000000 55                          push rbp
-    21 00000001 4889E5                      mov rbp, rsp
-    22 00000004 4883EC20                    sub rsp, 32
-    23 00000008 F2410F10C4                  movsd xmm0, xmm12
-    24 0000000D F2410F10CD                  movsd xmm1, xmm13
-    25 00000012 F2410F10D6                  movsd xmm2, xmm14
-    26                                      ; Input: xmm0 = side_1, xmm1 = side_2, xmm2 = side_3
-    27                                      ; Output: rax = 1 if valid triangle, 0 otherwise
+    20 00000000 55                      push rbp
+    21 00000001 4889E5                  mov rbp, rsp
+    22 00000004 4883EC20                sub rsp, 32
+    23 00000008 F20F110424              movsd [rsp], xmm0
+    24 0000000D F20F114C2408            movsd [rsp+8], xmm1
+    25 00000013 F20F11542410            movsd [rsp+16], xmm2
+    26                                  ; Input: xmm0 = side_1, xmm1 = side_2, xmm2 = side_3
+    27                                  ; Output: rax = 1 if valid triangle, 0 otherwise
     28                                  
-    29                                      ; Check triangle inequality: side_1 + side_2 > side_3
-    30 00000017 F20F58C1                    addsd xmm0, xmm1      ; xmm0 = side_1 + side_2
-    31 0000001B 660F2EC2                    ucomisd xmm0, xmm2    ; Compare (side_1 + side_2) with side_3
-    32 0000001F 7629                        jbe not_triangle      ; If (side_1 + side_2) <= side_3, not a triangle
+    29                                  ; Check triangle inequality: side_1 + side_2 > side_3
+    30 00000019 F20F58C1                addsd xmm0, xmm1      ; xmm0 = side_1 + side_2
+    31 0000001D 660F2EC2                ucomisd xmm0, xmm2    ; Compare (side_1 + side_2) with side_3
+    32 00000021 7627                    jbe not_triangle      ; If (side_1 + side_2) <= side_3, not a triangle
     33                                  
-    34                                      ; Check side_1 + side_3 > side_2
-    35 00000021 F20F10442408                movsd xmm0, [rsp + 8] ; Reload side_1 (assuming it was passed on the stack)
-    36 00000027 F20F58C2                    addsd xmm0, xmm2      ; xmm0 = side_1 + side_3
-    37 0000002B 660F2EC1                    ucomisd xmm0, xmm1    ; Compare (side_1 + side_3) with side_2
-    38 0000002F 7619                        jbe not_triangle      ; If (side_1 + side_3) <= side_2, not a triangle
+    34                                  ; Check side_1 + side_3 > side_2
+    35 00000023 F20F100424              movsd xmm0, [rsp] ; Reload side_1 (assuming it was passed on the stack)
+    36 00000028 F20F58C2                addsd xmm0, xmm2      ; xmm0 = side_1 + side_3
+    37 0000002C 660F2EC1                ucomisd xmm0, xmm1    ; Compare (side_1 + side_3) with side_2
+    38 00000030 7618                    jbe not_triangle      ; If (side_1 + side_3) <= side_2, not a triangle
     39                                  
-    40                                      ; Check side_2 + side_3 > side_1
-    41 00000031 F20F10442410                movsd xmm0, [rsp + 16] ; Reload side_2 (assuming it was passed on the stack)
-    42 00000037 F20F58C2                    addsd xmm0, xmm2      ; xmm0 = side_2 + side_3
-    43 0000003B 660F2E442408                ucomisd xmm0, [rsp + 8] ; Compare (side_2 + side_3) with side_1
-    44 00000041 7607                        jbe not_triangle      ; If (side_2 + side_3) <= side_1, not a triangle
+    40                                  ; Check side_2 + side_3 > side_1
+    41 00000032 F20F10442408            movsd xmm0, [rsp + 8] ; Reload side_2 (assuming it was passed on the stack)
+    42 00000038 F20F58C2                addsd xmm0, xmm2      ; xmm0 = side_2 + side_3
+    43 0000003C 660F2E0424              ucomisd xmm0, [rsp] ; Compare (side_2 + side_3) with side_1
+    44 00000041 7607                    jbe not_triangle      ; If (side_2 + side_3) <= side_1, not a triangle
     45                                  
-    46                                      ; If all checks pass, it's a valid triangle
-    47 00000043 B801000000                  mov rax, true
-    48 00000048 EB07                        jmp exit
+    46                                  ; If all checks pass, it's a valid triangle
+    47 00000043 B801000000              mov rax, true
+    48 00000048 EB07                    jmp exit
     49                                  
     50                                  not_triangle:
-    51                                      ; If any check fails, it's not a valid triangle
-    52 0000004A B800000000                  mov rax, false
-    53 0000004F EB00                        jmp exit
+    51                                  ; If any check fails, it's not a valid triangle
+    52 0000004A B800000000              mov rax, false
+    53 0000004F EB00                    jmp exit
     54                                  
     55                                  exit:
-    56                                      ; Restore non-volatile registers
-    57 00000051 F2440F1065F8                movsd xmm12, [rbp - 8]  ; Restore xmm12
-    58 00000057 F2440F106DF0                movsd xmm13, [rbp - 16] ; Restore xmm13
-    59 0000005D F2440F1075E8                movsd xmm14, [rbp - 24] ; Restore xmm14
-    60 00000063 4883C420                    add rsp, 32             ; Deallocate space for local variables
-    61 00000067 5D                          pop rbp
-    62 00000068 C3                          ret
+    56                                  ; Restore non-volatile registers
+    57 00000051 4883C420                add rsp, 32             ; Deallocate space for local variables
+    58 00000055 5D                      pop rbp
+    59 00000056 C3                      ret
