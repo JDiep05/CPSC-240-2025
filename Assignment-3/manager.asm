@@ -2,6 +2,8 @@
 
 extern printf
 
+extern atof
+
 extern scanf
 
 extern isfloat
@@ -14,7 +16,7 @@ global manager
 
 segment .data
 prompt_for_sides db 10, "Please enter the lengths of three sides of a triangle: ", 0
-scan_format db "%s %s %s", 0
+string_format db "%s %s %s", 0
 float_format db 10, "%lf", 0
 msg_1 db 10, "Thank you", 10, 
 msg_2 db 10, "Invalid input. Please enter valid number.", 10, 0
@@ -28,9 +30,9 @@ segment .bss
 align 64
 backup_storage_area resb 832
 
-side_1 resq 1   ; Reserving 1 byte for double input
-side_2 resq 1
-side_3 resq 1
+side1 resq 1   ; Reserving 1 byte for double input
+side2 resq 1
+side3 resq 1
 
 segment .text
 
@@ -66,7 +68,7 @@ mov rdi, prompt_for_sides
 call printf
 
 ; Read three numbers as strings
-mov rdi, scan_format  ; "%s %s %s"
+mov rdi, string_format  ; "%s %s %s"
 mov rsi, side1        ; First buffer
 mov rdx, side2        ; Second buffer
 mov rcx, side3        ; Third buffer
@@ -78,10 +80,8 @@ call isfloat
 cmp rax, 0
 je invalid_input
 mov rdi, side1
-mov rsi, float_format
-lea rdx, [rsp-8]  ; Temporary storage
-call sscanf
-movsd xmm0, qword [rsp-8]
+call atof
+movsd xmm12, xmm0
 
 ; Validate and convert side2
 mov rdi, side2
@@ -89,10 +89,8 @@ call isfloat
 cmp rax, 0
 je invalid_input
 mov rdi, side2
-mov rsi, float_format
-lea rdx, [rsp-16]
-call sscanf
-movsd xmm1, qword [rsp-16]
+call atof
+movsd xmm13, xmm0
 
 ; Validate and convert side3
 mov rdi, side3
@@ -100,10 +98,8 @@ call isfloat
 cmp rax, 0
 je invalid_input
 mov rdi, side3
-mov rsi, float_format
-lea rdx, [rsp-24]
-call sscanf
-movsd xmm2, qword [rsp-24]
+call atof
+movsd xmm12, xmm0
 
 jmp next
 
@@ -131,9 +127,9 @@ mov rdi, msg_4
 call printf
 
 mov rax, 3
-movsd xmm0, [side_1]
-movsd xmm1, [side_2]
-movsd xmm2, [side_3]
+movsd xmm0, [side1]
+movsd xmm1, [side2]
+movsd xmm2, [side3]
 call huron
 
 movsd xmm15, xmm0
