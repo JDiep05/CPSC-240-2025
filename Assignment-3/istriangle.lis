@@ -1,52 +1,104 @@
-     1                                  global istriangle
-     2                                  
-     3                                  true equ 1
-     4                                  false equ 0
-     5                                  
-     6                                  segment .data
-     7                                      ; This segment is empty
-     8                                  
-     9                                  segment .bss
-    10                                      ; This segment is empty
-    11                                  
-    12                                  segment .text
+     1                                  ;*******************************************************************************************************************************
+     2                                  ; Program name: "Huron's Triangle". This program takes user input's of sides to create a triangle and output the area of the triangle.
+     3                                  ; Copyright (C) 2025  Jonthan Diep                                                                                             *
+     4                                  ;                                                                                                                              *
+     5                                  ; This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License    *
+     6                                  ; as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.        *
+     7                                  ; This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty  *
+     8                                  ; of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.                *
+     9                                  ; You should have received a copy of the GNU General Public License along with this program.  If not, see                      *
+    10                                  ; <https://www.gnu.org/licenses/>.                                                                                             *
+    11                                  ;*******************************************************************************************************************************
+    12                                  
     13                                  
-    14                                  istriangle:
-    15 00000000 55                      push rbp
-    16 00000001 4889E5                  mov rbp, rsp
-    17 00000004 4883EC20                sub rsp, 32             ; Allocating 32 bytes for sides argument
-    18 00000008 F20F110424              movsd [rsp], xmm0
-    19 0000000D F20F114C2408            movsd [rsp+8], xmm1
-    20 00000013 F20F11542410            movsd [rsp+16], xmm2
-    21                                  
-    22                                  ; Check triangle inequality: side_1 + side_2 > side_3
-    23 00000019 F20F58C1                addsd xmm0, xmm1        ; xmm0 = (side_1) + side_2
-    24 0000001D 660F2EC2                ucomisd xmm0, xmm2      ; Compare (side_1 + side_2) with side_3
-    25 00000021 7627                    jbe not_triangle        ; If (side_1 + side_2) <= side_3, not a triangle
-    26                                  
-    27                                  ; Check side_1 + side_3 > side_2
-    28 00000023 F20F100424              movsd xmm0, [rsp]       ; Reload side_1 (assuming it was passed on the stack)
-    29 00000028 F20F58C2                addsd xmm0, xmm2        ; xmm0 = side_1 + side_3
-    30 0000002C 660F2EC1                ucomisd xmm0, xmm1      ; Compare (side_1 + side_3) with side_2
-    31 00000030 7618                    jbe not_triangle        ; If (side_1 + side_3) <= side_2, not a triangle
-    32                                  
-    33                                  ; Check side_2 + side_3 > side_1
-    34 00000032 F20F10442408            movsd xmm0, [rsp + 8]   ; Reload side_2 (assuming it was passed on the stack)
-    35 00000038 F20F58C2                addsd xmm0, xmm2        ; xmm0 = side_2 + side_3
-    36 0000003C 660F2E0424              ucomisd xmm0, [rsp]     ; Compare (side_2 + side_3) with side_1
-    37 00000041 7607                    jbe not_triangle        ; If (side_2 + side_3) <= side_1, not a triangle
-    38                                  
-    39                                  ; If all checks pass, it's a valid triangle
-    40 00000043 B801000000              mov rax, true
-    41 00000048 EB07                    jmp exit                ; Jump to exit block to return back to manager.asm
-    42                                  
-    43                                  not_triangle:
-    44                                  ; If any check fails, it's not a valid triangle
-    45 0000004A B800000000              mov rax, false
-    46 0000004F EB00                    jmp exit                ; Jump to exit block to return back to manager.asm
+    14                                  
+    15                                  ;========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1=========2=========3**
+    16                                  ; Author information
+    17                                  ;   Author name : Jonathan Diep
+    18                                  ;   Author email: jonathon.dieppp@csu.fullerton.edu
+    19                                  ;   CWID : 884973462
+    20                                  ;   Class: 240-03 Section 03
+    21                                  ; Program Information
+    22                                  ;   Program Name: Huron's Triangle
+    23                                  ;   Programming language: One module in C, Four module in X86, and One module in bash.
+    24                                  ;   Date program began: 2025-Mar-03
+    25                                  ;   Date of last update: 2025-Mar-08
+    26                                  ;   Files in this program: triangle.c, huron.asm, isfloat.asm, istriangle.asm, manager.asm, r.sh
+    27                                  ;   Testing: Alpha testing completed. All functions are correct.
+    28                                  ;   Status: Ready for release to customers
+    29                                  ;
+    30                                  ;Purpose
+    31                                  ;   This program takes three number inputs as sides to create a valid triangle
+    32                                  ;   The program will calculate the area of the triangle
+    33                                  ;
+    34                                  ;This file:
+    35                                  ;   File name: istriangle.asm
+    36                                  ;   Language: X86-64
+    37                                  ;   Max page width: 124 columns
+    38                                  ;   Assemble (standard): nasm -f elf64 -l istriangle.lis -o istriangle.o istriangle.asm
+    39                                  ;   Assemble (debug): nasm -f elf64 -gdwarf -l istriangle.lis -o istriangle.o istriangle.asm
+    40                                  ;   Optimal print specification: Landscape, 7 points, monospace, 8½x11 paper
+    41                                  ;   Prototype of this function: extern double istriangle();
+    42                                  ; 
+    43                                  ;
+    44                                  ;
+    45                                  ;
+    46                                  ;========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1=========2=========3**
     47                                  
-    48                                  exit:
-    49                                  ; Restore non-volatile registers
-    50 00000051 4883C420                add rsp, 32             ; Deallocate bytes for local variables
-    51 00000055 5D                      pop rbp
-    52 00000056 C3                      ret
+    48                                  
+    49                                  
+    50                                  global istriangle
+    51                                  
+    52                                  true equ 1
+    53                                  false equ 0
+    54                                  
+    55                                  segment .data
+    56                                      ; This segment is empty
+    57                                  
+    58                                  segment .bss
+    59                                      ; This segment is empty
+    60                                  
+    61                                  segment .text
+    62                                  
+    63                                  istriangle:
+    64 00000000 55                      push rbp
+    65 00000001 4889E5                  mov rbp, rsp
+    66 00000004 4883EC20                sub rsp, 32             ; Allocating 32 bytes for sides argument
+    67 00000008 F2440F10D8              movsd xmm11, xmm0       ; side_1 - a
+    68 0000000D F2440F10E1              movsd xmm12, xmm1       ; side_2 - b
+    69 00000012 F2440F10EA              movsd xmm13, xmm2       ; side_3 - c
+    70                                  
+    71                                  ; Check triangle inequality: side_1 + side_2 > side_3
+    72 00000017 F2410F10C3              movsd xmm0, xmm11       ; Moving side_1 for calculation
+    73 0000001C F2410F58C4              addsd xmm0, xmm12       ; xmm0 = (side_1) + side_2
+    74 00000021 66410F2EC5              ucomisd xmm0, xmm13     ; Compare (side_1 + side_2) with side_3
+    75 00000026 7624                    jbe not_triangle        ; If (side_1 + side_2) <= side_3, not a triangle
+    76                                  
+    77                                  ; Check side_1 + side_3 > side_2
+    78 00000028 F2410F10C3              movsd xmm0, xmm11       ; Reload side_1
+    79 0000002D F2410F58C5              addsd xmm0, xmm13       ; xmm0 = side_1 + side_3
+    80 00000032 66410F2EC4              ucomisd xmm0, xmm12     ; Compare (side_1 + side_3) with side_2
+    81 00000037 7613                    jbe not_triangle        ; If (side_1 + side_3) <= side_2, not a triangle
+    82                                  
+    83                                  ; Check side_2 + side_3 > side_1
+    84 00000039 F2410F10C4              movsd xmm0, xmm12       ; Reload side_2
+    85 0000003E F2410F58C5              addsd xmm0, xmm13       ; xmm0 = side_2 + side_3
+    86 00000043 66410F2EC3              ucomisd xmm0, xmm11     ; Compare (side_2 + side_3) with side_1
+    87 00000048 7602                    jbe not_triangle        ; If (side_2 + side_3) <= side_1, not a triangle
+    88                                  
+    89                                  ; If all checks pass, it's a valid triangle
+    90 0000004A EB0B                    jmp valid_triangle      ; Jump to exit block to return back to manager.asm
+    91                                  
+    92                                  not_triangle:
+    93                                  ; If any check fails, it's not a valid triangle
+    94 0000004C B800000000              mov rax, false          ; Return False (0)
+    95 00000051 4883C420                add rsp, 32             ; Deallocate bytes for local variables
+    96 00000055 5D                      pop rbp
+    97 00000056 C3                      ret
+    98                                  
+    99                                  valid_triangle:
+   100                                  ; Restore non-volatile registers
+   101 00000057 B801000000              mov rax, true           ; Return True (1)
+   102 0000005C 4883C420                add rsp, 32             ; Deallocate bytes for local variables
+   103 00000060 5D                      pop rbp
+   104 00000061 C3                      ret

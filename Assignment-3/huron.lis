@@ -1,95 +1,142 @@
-     1                                  extern printf
-     2                                  
-     3                                  global huron
-     4                                  
-     5                                  segment .data
-     6 00000000 000000000000E03F        half dq 0.5     ; variable of one-half for later calculation
-     7 00000008 256C660A00              float_format db "%lf", 10,0
-     8                                  
-     9                                  
-    10                                  segment .bss
-    11                                  align 64
-    12 00000000 <res 00000340>          backup_storage_area resb 832
+     1                                  ;*******************************************************************************************************************************
+     2                                  ; Program name: "Huron's Triangle". This program takes user input's of sides to create a triangle and output the area of the triangle.
+     3                                  ; Copyright (C) 2025  Jonthan Diep                                                                                             *
+     4                                  ;                                                                                                                              *
+     5                                  ; This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License    *
+     6                                  ; as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.        *
+     7                                  ; This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty  *
+     8                                  ; of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.                *
+     9                                  ; You should have received a copy of the GNU General Public License along with this program.  If not, see                      *
+    10                                  ; <https://www.gnu.org/licenses/>.                                                                                             *
+    11                                  ;*******************************************************************************************************************************
+    12                                  
     13                                  
     14                                  
-    15                                  segment .text
-    16                                  
-    17                                  huron:
-    18                                  
-    19                                  ;backup GPRs
-    20 00000000 55                      push rbp
-    21 00000001 4889E5                  mov rbp, rsp
-    22 00000004 53                      push rbx
-    23 00000005 51                      push rcx
-    24 00000006 52                      push rdx
-    25 00000007 57                      push rdi
-    26 00000008 56                      push rsi
-    27 00000009 4150                    push r8
-    28 0000000B 4151                    push r9
-    29 0000000D 4152                    push r10
-    30 0000000F 4153                    push r11
-    31 00000011 4154                    push r12
-    32 00000013 4155                    push r13
-    33 00000015 4156                    push r14
-    34 00000017 4157                    push r15
-    35 00000019 9C                      pushf
-    36                                  
-    37                                  ;backup other registers
-    38 0000001A B807000000              mov rax, 7
-    39 0000001F BA00000000              mov rdx, 0
-    40 00000024 0FAE2425[00000000]      xsave [backup_storage_area]
-    41                                  
-    42 0000002C 4883EC20                sub rsp, 32             ; Allocating 32 bytes for sides
-    43 00000030 F2440F10E0              movsd xmm12, xmm0       ; xmm12 = a
-    44 00000035 F2440F10E9              movsd xmm13, xmm1       ; xmm13 = b
-    45 0000003A F2440F10F2              movsd xmm14, xmm2       ; xmm14 = c
-    46                                  
-    47                                  ; Calculate the semi-perimeter (s = (a + b + c) / 2)
-    48 0000003F F2450F58FC              addsd xmm15, xmm12        ; xmm15 = a
-    49 00000044 F2450F58FD              addsd xmm15, xmm13        ; xmm15 = a + b
-    50 00000049 F2450F58FE              addsd xmm15, xmm14        ; xmm15 = a + b + c
-    51 0000004E F2440F593C25-           mulsd xmm15, [half]      ; xmm15 = (a + b + c) * 0.5 = s
-    51 00000054 [00000000]         
-    52                                  
-    53                                  ; Calculate (s - a), (s - b), and (s - c)
-    54 00000058 F2450F10DF              movsd xmm11, xmm15       ; xmm4 = s
-    55 0000005D F2450F5CDC              subsd xmm11, xmm12        ; xmm4 = s - a
+    15                                  ;========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1=========2=========3**
+    16                                  ; Author information
+    17                                  ;   Author name : Jonathan Diep
+    18                                  ;   Author email: jonathon.dieppp@csu.fullerton.edu
+    19                                  ;   CWID : 884973462
+    20                                  ;   Class: 240-03 Section 03
+    21                                  ; Program Information
+    22                                  ;   Program Name: Huron's Triangle
+    23                                  ;   Programming language: One module in C, Four module in X86, and One module in bash.
+    24                                  ;   Date program began: 2025-Mar-03
+    25                                  ;   Date of last update: 2025-Mar-08
+    26                                  ;   Files in this program: triangle.c, huron.asm, isfloat.asm, istriangle.asm, manager.asm, r.sh
+    27                                  ;   Testing: Alpha testing completed. All functions are correct.
+    28                                  ;   Status: Ready for release to customers
+    29                                  ;
+    30                                  ;Purpose
+    31                                  ;   This program takes three number inputs as sides to create a valid triangle
+    32                                  ;   The program will calculate the area of the triangle
+    33                                  ;
+    34                                  ;This file:
+    35                                  ;   File name: huron.asm
+    36                                  ;   Language: X86-64
+    37                                  ;   Max page width: 124 columns
+    38                                  ;   Assemble (standard): nasm -f elf64 -l huron.lis -o huron.o huron.asm
+    39                                  ;   Assemble (debug): nasm -f elf64 -gdwarf -l huron.lis -o huron.o huron.asm
+    40                                  ;   Optimal print specification: Landscape, 7 points, monospace, 8½x11 paper
+    41                                  ;   Prototype of this function: extern double huron();
+    42                                  ; 
+    43                                  ;
+    44                                  ;
+    45                                  ;
+    46                                  ;========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1=========2=========3**
+    47                                  
+    48                                  
+    49                                  
+    50                                  global huron
+    51                                  
+    52                                  segment .data
+    53 00000000 000000000000E03F        half dq 0.5     ; variable of one-half for later calculation
+    54 00000008 256C660A00              float_format db "%lf", 10,0
+    55                                  
     56                                  
-    57 00000062 F2450F10D7              movsd xmm10, xmm15       ; xmm5 = s
-    58 00000067 F2450F5CD5              subsd xmm10, xmm13        ; xmm5 = s - b
-    59                                  
-    60 0000006C F2450F10CF              movsd xmm9, xmm15       ; xmm6 = s
-    61 00000071 F2450F5CCE              subsd xmm9, xmm14        ; xmm6 = s - c
-    62                                  
-    63 00000076 F2450F59DA              mulsd xmm11, xmm10        ; xmm4 = (s - a) * (s - b)
-    64 0000007B F2450F59D9              mulsd xmm11, xmm9        ; xmm4 = (s - a) * (s - b) * (s - c)
-    65 00000080 F2450F59DF              mulsd xmm11, xmm15       ; xmm4 = s * (s - a) * (s - b) * (s - c)
-    66 00000085 F2450F51DB              sqrtsd xmm11, xmm11     ; xmm15 = sqrt(s * (s - a) * (s - b) * (s - c))
-    67                                  
-    68 0000008A F2410F10C3              movsd xmm0, xmm11       ; Moving xmm15 to xmm0 to return the area of the triangle.
-    69 0000008F F20F110424              movsd [rsp], xmm0
-    70                                  ; Restore registers
-    71 00000094 B807000000              mov rax, 7
-    72 00000099 BA00000000              mov rdx, 0
-    73 0000009E 0FAE2C25[00000000]      xrstor [backup_storage_area]
-    74                                  
-    75 000000A6 F20F100424              movsd xmm0, [rsp]
-    76 000000AB 4883C420                add rsp, 32             ; Deallocate bytes for variable
-    77                                  
-    78                                  ; Restore general-purpose registers
-    79 000000AF 9D                      popf
-    80 000000B0 415F                    pop r15
-    81 000000B2 415E                    pop r14
-    82 000000B4 415D                    pop r13
-    83 000000B6 415C                    pop r12
-    84 000000B8 415B                    pop r11
-    85 000000BA 415A                    pop r10
-    86 000000BC 4159                    pop r9
-    87 000000BE 4158                    pop r8
-    88 000000C0 5E                      pop rsi
-    89 000000C1 5F                      pop rdi
-    90 000000C2 5A                      pop rdx
-    91 000000C3 59                      pop rcx
-    92 000000C4 5B                      pop rbx
-    93 000000C5 5D                      pop rbp
-    94 000000C6 C3                      ret
+    57                                  segment .bss
+    58                                  align 64
+    59 00000000 <res 00000340>          backup_storage_area resb 832
+    60                                  
+    61                                  
+    62                                  segment .text
+    63                                  
+    64                                  huron:
+    65                                  
+    66                                  ; Backup GPRs
+    67 00000000 55                      push rbp
+    68 00000001 4889E5                  mov rbp, rsp
+    69 00000004 53                      push rbx
+    70 00000005 51                      push rcx
+    71 00000006 52                      push rdx
+    72 00000007 57                      push rdi
+    73 00000008 56                      push rsi
+    74 00000009 4150                    push r8
+    75 0000000B 4151                    push r9
+    76 0000000D 4152                    push r10
+    77 0000000F 4153                    push r11
+    78 00000011 4154                    push r12
+    79 00000013 4155                    push r13
+    80 00000015 4156                    push r14
+    81 00000017 4157                    push r15
+    82 00000019 9C                      pushf
+    83                                  
+    84                                  ;backup other registers
+    85 0000001A B807000000              mov rax, 7
+    86 0000001F BA00000000              mov rdx, 0
+    87 00000024 0FAE2425[00000000]      xsave [backup_storage_area]
+    88                                  
+    89 0000002C 4883EC20                sub rsp, 32                 ; Allocating 32 bytes for sides
+    90 00000030 F2440F10E0              movsd xmm12, xmm0           ; xmm12 = a
+    91 00000035 F2440F10E9              movsd xmm13, xmm1           ; xmm13 = b
+    92 0000003A F2440F10F2              movsd xmm14, xmm2           ; xmm14 = c
+    93                                  
+    94                                  ; Calculate the semi-perimeter (s = (a + b + c) / 2)
+    95 0000003F F2450F58FC              addsd xmm15, xmm12          ; xmm15 = a
+    96 00000044 F2450F58FD              addsd xmm15, xmm13          ; xmm15 = a + b
+    97 00000049 F2450F58FE              addsd xmm15, xmm14          ; xmm15 = a + b + c
+    98 0000004E F2440F593C25-           mulsd xmm15, [half]         ; xmm15 = (a + b + c) * 0.5 = s
+    98 00000054 [00000000]         
+    99                                  
+   100                                  ; Calculate (s - a), (s - b), and (s - c)
+   101 00000058 F2450F10DF              movsd xmm11, xmm15          ; xmm4 = s
+   102 0000005D F2450F5CDC              subsd xmm11, xmm12          ; xmm4 = s - a
+   103                                  
+   104 00000062 F2450F10D7              movsd xmm10, xmm15          ; xmm5 = s
+   105 00000067 F2450F5CD5              subsd xmm10, xmm13          ; xmm5 = s - b
+   106                                  
+   107 0000006C F2450F10CF              movsd xmm9, xmm15           ; xmm6 = s
+   108 00000071 F2450F5CCE              subsd xmm9, xmm14           ; xmm6 = s - c
+   109                                  
+   110 00000076 F2450F59DA              mulsd xmm11, xmm10          ; xmm4 = (s - a) * (s - b)
+   111 0000007B F2450F59D9              mulsd xmm11, xmm9           ; xmm4 = (s - a) * (s - b) * (s - c)
+   112 00000080 F2450F59DF              mulsd xmm11, xmm15          ; xmm4 = s * (s - a) * (s - b) * (s - c)
+   113 00000085 F2450F51DB              sqrtsd xmm11, xmm11         ; xmm15 = sqrt(s * (s - a) * (s - b) * (s - c))
+   114                                  
+   115 0000008A F2410F10C3              movsd xmm0, xmm11           ; Moving xmm15 to xmm0 to return the area of the triangle.
+   116 0000008F F20F110424              movsd [rsp], xmm0
+   117                                  ; Restore registers
+   118 00000094 B807000000              mov rax, 7
+   119 00000099 BA00000000              mov rdx, 0
+   120 0000009E 0FAE2C25[00000000]      xrstor [backup_storage_area]
+   121                                  
+   122 000000A6 F20F100424              movsd xmm0, [rsp]
+   123 000000AB 4883C420                add rsp, 32                 ; Deallocate bytes for variable
+   124                                  
+   125                                  ; Restore general-purpose registers
+   126 000000AF 9D                      popf
+   127 000000B0 415F                    pop r15
+   128 000000B2 415E                    pop r14
+   129 000000B4 415D                    pop r13
+   130 000000B6 415C                    pop r12
+   131 000000B8 415B                    pop r11
+   132 000000BA 415A                    pop r10
+   133 000000BC 4159                    pop r9
+   134 000000BE 4158                    pop r8
+   135 000000C0 5E                      pop rsi
+   136 000000C1 5F                      pop rdi
+   137 000000C2 5A                      pop rdx
+   138 000000C3 59                      pop rcx
+   139 000000C4 5B                      pop rbx
+   140 000000C5 5D                      pop rbp
+   141 000000C6 C3                      ret

@@ -1,3 +1,16 @@
+#/bin/bash
+
+# Program name "Arrays of Floating Point Numbers"
+# Author: Jonathan Diep
+# Author Email: jonathon.dieppp@csu.fullerton.edu
+# CWID: 884973462
+# Class: 240-03 Section 03
+# Date program began: 2024-Feb-22
+# Date of last update: 2024-Feb-22
+# This file is the script file that accompanies the "Arrays of Floating Point Numbers" program.
+# Prepare for execution in normal mode (not gdb mode).
+
+
 rm *.o
 rm *.out
 
