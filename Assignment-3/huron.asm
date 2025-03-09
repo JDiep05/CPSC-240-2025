@@ -20,10 +20,10 @@
 ;   Class: 240-03 Section 03
 ; Program Information
 ;   Program Name: Huron's Triangle
-;   Programming language: One module in C, Four module in X86, and One module in bash.
+;   Programming language: One module in C, Four module in X86, One in macro, and One module in bash.
 ;   Date program began: 2025-Mar-03
 ;   Date of last update: 2025-Mar-08
-;   Files in this program: triangle.c, huron.asm, isfloat.asm, istriangle.asm, manager.asm, r.sh
+;   Files in this program: triangle.c, huron.asm, isfloat.asm, istriangle.asm, manager.asm, triangle.inc, r.sh
 ;   Testing: Alpha testing completed. All functions are correct.
 ;   Status: Ready for release to customers
 ;
