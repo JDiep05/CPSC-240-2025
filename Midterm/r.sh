@@ -1,14 +1,9 @@
 #/bin/bash
 
-# Program name "Harmonic Mean"
-# Author: Jonathan Diep
-# Author Email: jonathon.dieppp@csu.fullerton.edu
-# CWID: 884973462
-# Class: 240-03 Section 03
-# Date program began: 2024-Mar-10
-# Date of last update: 2024-Mar-10
-# This file is the script file that accompanies the "Harmonic Mean" program.
-# Prepare for execution in normal mode (not gdb mode).
+# Jonathan Diep
+# CPSC 240-03
+# March 10, 2025 
+# jonathon.dieppp@csu.fullerton.edu
 
 # Delete un-needed files
 rm *.o
