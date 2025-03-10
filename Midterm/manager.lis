@@ -1,0 +1,240 @@
+     1                                  
+     2                                  ;*******************************************************************************************************************************
+     3                                  ; Program name: "Harmonic Mean". This program takes user input's of non-zero floating point number and place them into an array.
+     4                                  ; Copyright (C) 2025  Jonthan Diep                                                                                             *
+     5                                  ;                                                                                                                              *
+     6                                  ; This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License    *
+     7                                  ; as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.        *
+     8                                  ; This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty  *
+     9                                  ; of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.                *
+    10                                  ; You should have received a copy of the GNU General Public License along with this program.  If not, see                      *
+    11                                  ; <https://www.gnu.org/licenses/>.                                                                                             *
+    12                                  ;*******************************************************************************************************************************
+    13                                  
+    14                                  
+    15                                  
+    16                                  ;========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1=========2=========3**
+    17                                  ; Author information
+    18                                  ;   Author name : Jonathan Diep
+    19                                  ;   Author email: jonathon.dieppp@csu.fullerton.edu
+    20                                  ;   CWID : 884973462
+    21                                  ;   Class: 240-03 Section 03
+    22                                  ; Program Information
+    23                                  ;   Program Name: Harmonic Mean
+    24                                  ;   Programming language: One module in C, Three module in X86, and One module in bash.
+    25                                  ;   Date program began: 2025-Mar-10
+    26                                  ;   Date of last update: 2025-Mar-10
+    27                                  ;   Files in this program: driver.c, manager.asm, input_array.asm, output_array.asm, sum_reciprocals.asm, r.sh
+    28                                  ;   Testing: Alpha testing completed. All functions are correct.
+    29                                  ;   Status: Ready for release to customers
+    30                                  ;
+    31                                  ;Purpose
+    32                                  ;   This program takes user input's of non-zero floating point number and place them into an array.
+    33                                  ;   The program will calculate the sum of reciprocal and the harmonic mean of the array.
+    34                                  ;
+    35                                  ;This file:
+    36                                  ;   File name: manager.asm
+    37                                  ;   Language: X86-64
+    38                                  ;   Max page width: 124 columns
+    39                                  ;   Assemble (standard): nasm -f elf64 -l manager.lis -o manager.o manager.asm
+    40                                  ;   Assemble (debug): nasm -f elf64 -gdwarf -l manager.lis -o manager.o manager.asm
+    41                                  ;   Optimal print specification: Landscape, 7 points, monospace, 8½x11 paper
+    42                                  ;   Prototype of this function: extern double triangle();
+    43                                  ; 
+    44                                  ;
+    45                                  ;
+    46                                  ;
+    47                                  ;========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1=========2=========3**
+    48                                  
+    49                                  
+    50                                  
+    51                                  ;declaration
+    52                                  
+    53                                  extern printf
+    54                                  
+    55                                  extern input_array
+    56                                  
+    57                                  extern output_array
+    58                                  
+    59                                  extern sum_reciprocals
+    60                                  
+    61                                  global manager
+    62                                  
+    63                                  segment .data
+    64 00000000 57656C636F6D652074-     msg_1 db "Welcome to Harmonic Means!", 10, 0
+    64 00000009 6F204861726D6F6E69-
+    64 00000012 63204D65616E73210A-
+    64 0000001B 00                 
+    65 0000001C 0A466F722074686520-     msg_2 db 10, "For the array enter a sequence of non-zero float numbers separated by white space.", 10, 0
+    65 00000025 617272617920656E74-
+    65 0000002E 657220612073657175-
+    65 00000037 656E6365206F66206E-
+    65 00000040 6F6E2D7A65726F2066-
+    65 00000049 6C6F6174206E756D62-
+    65 00000052 657273207365706172-
+    65 0000005B 617465642062792077-
+    65 00000064 686974652073706163-
+    65 0000006D 652E0A00           
+    66 00000071 416674657220746865-     msg_3 db "After the last input press enter followed by Control+D to exit:", 10, 0
+    66 0000007A 206C61737420696E70-
+    66 00000083 757420707265737320-
+    66 0000008C 656E74657220666F6C-
+    66 00000095 6C6F77656420627920-
+    66 0000009E 436F6E74726F6C2B44-
+    66 000000A7 20746F20657869743A-
+    66 000000B0 0A00               
+    67 000000B2 5468652053756D206F-     msg_4 db "The Sum of Reciprocals of the numbers in the array is %.5lf", 10, 0
+    67 000000BB 66205265636970726F-
+    67 000000C4 63616C73206F662074-
+    67 000000CD 6865206E756D626572-
+    67 000000D6 7320696E2074686520-
+    67 000000DF 617272617920697320-
+    67 000000E8 252E356C660A00     
+    68 000000EF 546869732069732048-     msg_5 db "This is Harmonic Mean of the numbers in the array: %.5lf", 10, 0
+    68 000000F8 61726D6F6E6963204D-
+    68 00000101 65616E206F66207468-
+    68 0000010A 65206E756D62657273-
+    68 00000113 20696E207468652061-
+    68 0000011C 727261793A20252E35-
+    68 00000125 6C660A00           
+    69 00000129 546865204861726D6F-     msg_6 db "The Harmonic Mean will now be returned to main.", 10, 0
+    69 00000132 6E6963204D65616E20-
+    69 0000013B 77696C6C206E6F7720-
+    69 00000144 62652072657475726E-
+    69 0000014D 656420746F206D6169-
+    69 00000156 6E2E0A00           
+    70 0000015A 0A5468657365206E6F-     msg_array db 10,"These non-zero numbers were received and added into the array", 10, 0
+    70 00000163 6E2D7A65726F206E75-
+    70 0000016C 6D6265727320776572-
+    70 00000175 652072656365697665-
+    70 0000017E 6420616E6420616464-
+    70 00000187 656420696E746F2074-
+    70 00000190 68652061727261790A-
+    70 00000199 00                 
+    71                                  
+    72                                  segment .bss
+    73                                  align 64
+    74 00000000 <res 00000340>          backup_storage_area resb 832
+    75                                  
+    76 00000340 <res 00000080>          my_array resq 16    ; reserve 16 quadword (128 bytes)
+    77                                  
+    78                                  segment .text
+    79                                  manager: 
+    80                                  
+    81                                  ;backup GPRs
+    82 00000000 55                      push rbp
+    83 00000001 4889E5                  mov rbp, rsp
+    84 00000004 53                      push rbx
+    85 00000005 51                      push rcx
+    86 00000006 52                      push rdx
+    87 00000007 57                      push rdi
+    88 00000008 56                      push rsi
+    89 00000009 4150                    push r8
+    90 0000000B 4151                    push r9
+    91 0000000D 4152                    push r10
+    92 0000000F 4153                    push r11
+    93 00000011 4154                    push r12
+    94 00000013 4155                    push r13
+    95 00000015 4156                    push r14
+    96 00000017 4157                    push r15
+    97 00000019 9C                      pushf
+    98                                  
+    99                                  ; Backup other registers
+   100 0000001A B807000000              mov rax, 7
+   101 0000001F BA00000000              mov rdx, 0
+   102 00000024 0FAE2425[00000000]      xsave [backup_storage_area]
+   103                                  
+   104 0000002C B800000000              mov rax, 0
+   105 00000031 48BF-                   mov rdi, msg_1
+   105 00000033 [0000000000000000] 
+   106 0000003B E8(00000000)            call printf
+   107                                  
+   108 00000040 B800000000              mov rax, 0
+   109 00000045 48BF-                   mov rdi, msg_2
+   109 00000047 [1C00000000000000] 
+   110 0000004F E8(00000000)            call printf
+   111                                  
+   112 00000054 B800000000              mov rax, 0
+   113 00000059 48BF-                   mov rdi, msg_3
+   113 0000005B [7100000000000000] 
+   114 00000063 E8(00000000)            call printf
+   115                                  
+   116 00000068 B800000000              mov rax, 0
+   117 0000006D 48BF-                   mov rdi, my_array
+   117 0000006F [4003000000000000] 
+   118 00000077 BE10000000              mov rsi, 16
+   119 0000007C E8(00000000)            call input_array
+   120                                  
+   121 00000081 4989C5                  mov r13, rax        ; Saving array length into non-violatile register for later useful
+   122                                  
+   123 00000084 B800000000              mov rax, 0
+   124 00000089 48BF-                   mov rdi, msg_array
+   124 0000008B [5A01000000000000] 
+   125 00000093 E8(00000000)            call printf
+   126                                  
+   127 00000098 B800000000              mov rax, 0
+   128 0000009D 48BF-                   mov rdi, my_array
+   128 0000009F [4003000000000000] 
+   129 000000A7 4C89EE                  mov rsi, r13
+   130 000000AA E8(00000000)            call output_array
+   131                                  
+   132 000000AF B800000000              mov rax, 0
+   133 000000B4 48BF-                   mov rdi, my_array
+   133 000000B6 [4003000000000000] 
+   134 000000BE 4C89EE                  mov rsi, r13
+   135 000000C1 E8(00000000)            call sum_reciprocals
+   136                                  
+   137 000000C6 F2440F10F8              movsd xmm15, xmm0   ; Saving sum of reciprocal to non-violatile register
+   138                                  
+   139 000000CB B801000000              mov rax, 1
+   140 000000D0 48BF-                   mov rdi, msg_4
+   140 000000D2 [B200000000000000] 
+   141 000000DA F2410F10C7              movsd xmm0, xmm15
+   142 000000DF E8(00000000)            call printf
+   143                                  
+   144 000000E4 F2490F2AC5              cvtsi2sd xmm0, r13  ; Convert r13 (number of elements) to a double into xmm1
+   145 000000E9 F2410F5EC7              divsd xmm0, xmm15   ; (length of array) / (sum of reciprocals)
+   146 000000EE F2440F10F0              movsd xmm14, xmm0   ; Saving the harmonic mean in non-violatile register
+   147                                  
+   148 000000F3 B801000000              mov rax, 1
+   149 000000F8 48BF-                   mov rdi, msg_5
+   149 000000FA [EF00000000000000] 
+   150 00000102 F2410F10C6              movsd xmm0, xmm14
+   151 00000107 E8(00000000)            call printf
+   152                                  
+   153 0000010C B800000000              mov rax, 0
+   154 00000111 48BF-                   mov rdi, msg_6
+   154 00000113 [2901000000000000] 
+   155 0000011B E8(00000000)            call printf
+   156                                  
+   157                                  ; Saving xmm14 (harmonic mean) 
+   158 00000120 B800000000              mov rax, 0
+   159 00000125 6A00                    push qword 0        ; Reserving 8 bytes to maintain the sum
+   160 00000127 F2440F113424            movsd [rsp], xmm14  ; Passing the sum into the reserved q word
+   161                                  
+   162                                  ; Restoring registers
+   163 0000012D B807000000              mov rax, 7
+   164 00000132 B800000000              mov rax, 0
+   165 00000137 0FAE2C25[00000000]      xrstor [backup_storage_area]
+   166                                  
+   167                                  ; Sending the sum to main
+   168 0000013F F20F100424              movsd xmm0, [rsp]   ; Passing rsp to xmm0, xmm0 will be returned
+   169 00000144 58                      pop rax
+   170                                  
+   171                                  ;Restore the GPRs
+   172 00000145 9D                      popf
+   173 00000146 415F                    pop r15
+   174 00000148 415E                    pop r14
+   175 0000014A 415D                    pop r13
+   176 0000014C 415C                    pop r12
+   177 0000014E 415B                    pop r11
+   178 00000150 415A                    pop r10
+   179 00000152 4159                    pop r9
+   180 00000154 4158                    pop r8
+   181 00000156 5E                      pop rsi
+   182 00000157 5F                      pop rdi
+   183 00000158 5A                      pop rdx
+   184 00000159 59                      pop rcx
+   185 0000015A 5B                      pop rbx
+   186 0000015B 5D                      pop rbp
+   187 0000015C C3                      ret

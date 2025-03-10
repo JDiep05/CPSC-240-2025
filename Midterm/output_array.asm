@@ -1,6 +1,6 @@
 ;*******************************************************************************************************************************
-; Program name: "Arrays of Floating Point Numbers". This program takes user input's of floating point number and place them into an array.
-; Copyright (C) 2025  Jonthan Diep                                                                                             *
+; Program name: "Harmonic Mean". This program takes user input's of non-zero floating point number and place them into an array.
+; Copyright (C) 2025  Jonthan Diep                                                                                           *
 ;                                                                                                                              *
 ; This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License    *
 ; as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.        *
@@ -19,17 +19,17 @@
 ;   CWID : 884973462
 ;   Class: 240-03 Section 03
 ; Program Information
-;   Program Name: Arrays of Floating Point Numbers
-;   Programming language: Two module in C, Six module in X86, and One module in bash.
-;   Date program began: 2025-Feb-22
-;   Date of last update: 2025-Feb-22
-;   Files in this program: main.c, manager.asm, input_array.asm, output_array.asm, sum.asm, sort.asm, swap.asm, isfloat.asm, run.sh.
+;   Program Name: Harmonic Mean
+;   Programming language: One module in C, Three module in X86, and One module in bash.
+;   Date program began: 2025-Mar-10
+;   Date of last update: 2025-Mar-10
+;   Files in this program: driver.c, manager.asm, input_array.asm, output_array.asm, sum_reciprocals.asm, r.sh
 ;   Testing: Alpha testing completed. All functions are correct.
 ;   Status: Ready for release to customers
 ;
 ;Purpose
-;   This program takes user input's of floating point number and place them into an array.
-;   The program will calculate the sum, the mean, and sort the array.
+;   This program takes user input's of non-zero floating point number and place them into an array.
+;   The program will calculate the sum of reciprocal and the harmonic mean of the array.
 ;
 ;This file:
 ;   File name: output_array.asm
@@ -53,7 +53,6 @@ global output_array
 
 segment .data
 floatformat db "%.5f ", 0
-intformat db "%d", 0
 
 newline db 10, 0
 

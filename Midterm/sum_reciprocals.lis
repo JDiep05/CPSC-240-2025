@@ -1,0 +1,121 @@
+     1                                  ;*******************************************************************************************************************************
+     2                                  ; Program name: "Arrays of Floating Point Numbers". This program takes user input's of floating point number and place them into an array.
+     3                                  ; Copyright (C) 2025  Jonthan Diep                                                                                             *
+     4                                  ;                                                                                                                              *
+     5                                  ; This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License    *
+     6                                  ; as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.        *
+     7                                  ; This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty  *
+     8                                  ; of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.                *
+     9                                  ; You should have received a copy of the GNU General Public License along with this program.  If not, see                      *
+    10                                  ; <https://www.gnu.org/licenses/>.                                                                                             *
+    11                                  ;*******************************************************************************************************************************
+    12                                  
+    13                                  
+    14                                  
+    15                                  ;========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1=========2=========3**
+    16                                  ; Author information
+    17                                  ;   Author name : Jonathan Diep
+    18                                  ;   Author email: jonathon.dieppp@csu.fullerton.edu
+    19                                  ;   CWID : 884973462
+    20                                  ;   Class: 240-03 Section 03
+    21                                  ; Program Information
+    22                                  ;   Program Name: Harmonic Mean
+    23                                  ;   Programming language: One module in C, Three module in X86, and One module in bash.
+    24                                  ;   Date program began: 2025-Mar-10
+    25                                  ;   Date of last update: 2025-Mar-10
+    26                                  ;   Files in this program: driver.c, manager.asm, input_array.asm, output_array.asm, sum_reciprocals.asm, r.sh
+    27                                  ;   Testing: Alpha testing completed. All functions are correct.
+    28                                  ;   Status: Ready for release to customers
+    29                                  ;
+    30                                  ;Purpose
+    31                                  ;   This program takes user input's of non-zero floating point number and place them into an array.
+    32                                  ;   The program will calculate the sum of reciprocal and the harmonic mean of the array.
+    33                                  ;
+    34                                  ;This file:
+    35                                  ;   File name: sum_reciprocals.asm
+    36                                  ;   Language: X86-64
+    37                                  ;   Max page width: 124 columns
+    38                                  ;   Assemble (standard): nasm -f elf64 -l sum_reciprocals.lis -o sum_reciprocals.o sum_reciprocals.asm
+    39                                  ;   Assemble (debug): nasm -f elf64 -gdwarf -l sum_reciprocals.lis -o sum_reciprocals.o sum_reciprocals.asm
+    40                                  ;   Optimal print specification: Landscape, 7 points, monospace, 8½x11 paper
+    41                                  ;   Prototype of this function: extern double sum_reciprocals();
+    42                                  ; 
+    43                                  ;
+    44                                  ;
+    45                                  ;
+    46                                  ;========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1=========2=========3**
+    47                                  
+    48                                  
+    49                                  
+    50                                  global sum_reciprocals
+    51                                  
+    52                                  segment .data
+    53 00000000 000000000000F03F        one dq 1.0
+    54                                  
+    55                                  segment .bss
+    56                                  align 64
+    57 00000000 <res 00000340>          backup_storage_area resb 832
+    58                                  
+    59                                  segment .text
+    60                                  
+    61                                  sum_reciprocals:
+    62                                  
+    63                                  ;backup GPRs
+    64 00000000 55                      push rbp
+    65 00000001 4889E5                  mov rbp, rsp
+    66 00000004 53                      push rbx
+    67 00000005 51                      push rcx
+    68 00000006 52                      push rdx
+    69 00000007 57                      push rdi
+    70 00000008 56                      push rsi
+    71 00000009 4150                    push r8
+    72 0000000B 4151                    push r9
+    73 0000000D 4152                    push r10
+    74 0000000F 4153                    push r11
+    75 00000011 4154                    push r12
+    76 00000013 4155                    push r13
+    77 00000015 4156                    push r14
+    78 00000017 4157                    push r15
+    79 00000019 9C                      pushf
+    80                                  
+    81                                  ;backup other registers
+    82 0000001A B807000000              mov rax,7
+    83 0000001F BA00000000              mov rdx,0
+    84 00000024 0FAE2425[00000000]      xsave [backup_storage_area]
+    85                                  
+    86 0000002C 4989FC                  mov r12, rdi
+    87 0000002F 4989F5                  mov r13, rsi
+    88 00000032 41BE00000000            mov r14, 0    ; Index/loop counter
+    89                                  
+    90                                  sum_loop:
+    91 00000038 4883EC08                sub rsp, 8
+    92 0000003C F2440F102C25-           movsd xmm13, qword [one]    ; Add 1.0 to xmm13 to divide number and reloads 1.0 after calculation
+    92 00000042 [00000000]         
+    93 00000046 F2470F103CF4            movsd xmm15, [r12 + r14*8]
+    94 0000004C F2450F5EEF              divsd xmm13, xmm15          ; xmm13 = 1.0 / xmm15
+    95 00000051 F2450F58F5              addsd xmm14, xmm13
+    96 00000056 4883C408                add rsp, 8
+    97                                  
+    98 0000005A 49FFC6                  inc r14
+    99 0000005D 4D39EE                  cmp r14, r13
+   100 00000060 7CD6                    jl sum_loop     ; If index < length then continue the loop
+   101 00000062 7F00                    jg sum_exit     ; If index > length then exit the loop
+   102                                  
+   103                                  sum_exit:
+   104 00000064 F2410F10C6              movsd xmm0, xmm14
+   105 00000069 9D                      popf
+   106 0000006A 415F                    pop r15
+   107 0000006C 415E                    pop r14
+   108 0000006E 415D                    pop r13
+   109 00000070 415C                    pop r12
+   110 00000072 415B                    pop r11
+   111 00000074 415A                    pop r10
+   112 00000076 4159                    pop r9
+   113 00000078 4158                    pop r8
+   114 0000007A 5E                      pop rsi
+   115 0000007B 5F                      pop rdi
+   116 0000007C 5A                      pop rdx
+   117 0000007D 59                      pop rcx
+   118 0000007E 5B                      pop rbx
+   119 0000007F 5D                      pop rbp   ;Restore rbp to the base of the activation record of the caller program
+   120 00000080 C3                      ret
