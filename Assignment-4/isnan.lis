@@ -1,0 +1,104 @@
+     1                                  ;*******************************************************************************************************************************
+     2                                  ; Program name: "Non-deterministic Random Numbers". This program prompts the user for the number of values to generate, fills an array with random numbers, then normalizes and sorts the array.
+     3                                  ; Copyright (C) 2025  Jonathan Diep                                                                                             *
+     4                                  ;                                                                                                                              *
+     5                                  ; This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License    *
+     6                                  ; as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.        *
+     7                                  ; This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty  *
+     8                                  ; of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.                *
+     9                                  ; You should have received a copy of the GNU General Public License along with this program.  If not, see                      *
+    10                                  ; <https://www.gnu.org/licenses/>.                                                                                             *
+    11                                  ;*******************************************************************************************************************************
+    12                                  
+    13                                  
+    14                                  
+    15                                  ;========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1=========2=========3**
+    16                                  ; Author information
+    17                                  ;   Author name : Jonathan Diep
+    18                                  ;   Author email: jonathon.dieppp@csu.fullerton.edu
+    19                                  ;   CWID : 884973462
+    20                                  ;   Class: 240-03 Section 03
+    21                                  ; Program Information
+    22                                  ;   Program Name: Non-deterministic Random Numbers
+    23                                  ;   Programming language: Two module in C, Five module in X86, and One module in bash.
+    24                                  ;   Date program began: 2025-Mar-25
+    25                                  ;   Date of last update: 2025-Mar-27
+    26                                  ;   Files in this program: gcc -m64 -no-pie -o main.out main.o executive.o fill_random_array.o isnan.o normalize_array.o show_array.o sort.o
+    27                                  ;   Testing: Alpha testing completed. All functions are correct.
+    28                                  ;   Status: Ready for release to customers
+    29                                  ;
+    30                                  ;Purpose
+    31                                  ;   This program prompts user for a value from 1-100 and generates random scientific decimal based on user input onto the array
+    32                                  ;   The program will normalize the values to be between 1.0 and 2.0
+    33                                  ;   The program will sort your array in numerical order
+    34                                  ;
+    35                                  ;This file:
+    36                                  ;   File name: isnan.asm
+    37                                  ;   Language: X86-64
+    38                                  ;   Max page width: 124 columns
+    39                                  ;   Assemble (standard): nasm -f elf64 -l isnan.lis -o isnan.o isnan.asm
+    40                                  ;   Assemble (debug): nasm -f elf64 -gdwarf -l isnan.lis -o isnan.o isnan.asm
+    41                                  ;   Optimal print specification: Landscape, 7 points, monospace, 8½x11 paper
+    42                                  ;   Prototype of this function: extern double isnan();
+    43                                  ; 
+    44                                  ;
+    45                                  ;
+    46                                  ;
+    47                                  ;========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1=========2=========3**
+    48                                  
+    49                                  global isnan
+    50                                  
+    51                                  segment .data
+    52                                  
+    53                                  segment .bss
+    54                                  
+    55                                  segment .text
+    56                                  isnan:
+    57                                  
+    58                                  ;backup GPRs
+    59 00000000 55                      push rbp
+    60 00000001 4889E5                  mov rbp, rsp
+    61 00000004 53                      push rbx
+    62 00000005 51                      push rcx
+    63 00000006 52                      push rdx
+    64 00000007 57                      push rdi
+    65 00000008 56                      push rsi
+    66 00000009 4150                    push r8
+    67 0000000B 4151                    push r9
+    68 0000000D 4152                    push r10
+    69 0000000F 4153                    push r11
+    70 00000011 4154                    push r12
+    71 00000013 4155                    push r13
+    72 00000015 4156                    push r14
+    73 00000017 4157                    push r15
+    74 00000019 9C                      pushf
+    75                                  
+    76 0000001A F2440F10F8              movsd xmm15, xmm0
+    77 0000001F 66450F2EFF              ucomisd xmm15, xmm15
+    78 00000024 7A07                    jp nan
+    79 00000026 B801000000              mov rax, 1
+    80 0000002B EB05                    jmp exit
+    81                                  
+    82                                  
+    83                                  nan:
+    84 0000002D B800000000              mov rax, 0
+    85                                  
+    86                                  
+    87                                  exit:
+    88                                  ; Restore the GPRs
+    89 00000032 9D                      popf
+    90 00000033 415F                    pop r15
+    91 00000035 415E                    pop r14
+    92 00000037 415D                    pop r13
+    93 00000039 415C                    pop r12
+    94 0000003B 415B                    pop r11
+    95 0000003D 415A                    pop r10
+    96 0000003F 4159                    pop r9
+    97 00000041 4158                    pop r8
+    98 00000043 5E                      pop rsi
+    99 00000044 5F                      pop rdi
+   100 00000045 5A                      pop rdx
+   101 00000046 59                      pop rcx
+   102 00000047 5B                      pop rbx
+   103 00000048 5D                      pop rbp   ;Restore rbp to the base of the activation record of the caller program
+   104 00000049 C3                      ret

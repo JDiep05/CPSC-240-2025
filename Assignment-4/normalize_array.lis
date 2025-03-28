@@ -1,0 +1,138 @@
+     1                                  ;*******************************************************************************************************************************
+     2                                  ; Program name: "Non-deterministic Random Numbers". This program prompts the user for the number of values to generate, fills an array with random numbers, then normalizes and sorts the array.
+     3                                  ; Copyright (C) 2025  Jonathan Diep                                                                                             *
+     4                                  ;                                                                                                                              *
+     5                                  ; This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License    *
+     6                                  ; as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.        *
+     7                                  ; This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty  *
+     8                                  ; of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.                *
+     9                                  ; You should have received a copy of the GNU General Public License along with this program.  If not, see                      *
+    10                                  ; <https://www.gnu.org/licenses/>.                                                                                             *
+    11                                  ;*******************************************************************************************************************************
+    12                                  
+    13                                  
+    14                                  
+    15                                  ;========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1=========2=========3**
+    16                                  ; Author information
+    17                                  ;   Author name : Jonathan Diep
+    18                                  ;   Author email: jonathon.dieppp@csu.fullerton.edu
+    19                                  ;   CWID : 884973462
+    20                                  ;   Class: 240-03 Section 03
+    21                                  ; Program Information
+    22                                  ;   Program Name: Non-deterministic Random Numbers
+    23                                  ;   Programming language: Two module in C, Five module in X86, and One module in bash.
+    24                                  ;   Date program began: 2025-Mar-25
+    25                                  ;   Date of last update: 2025-Mar-27
+    26                                  ;   Files in this program: gcc -m64 -no-pie -o main.out main.o executive.o fill_random_array.o isnan.o normalize_array.o show_array.o sort.o
+    27                                  ;   Testing: Alpha testing completed. All functions are correct.
+    28                                  ;   Status: Ready for release to customers
+    29                                  ;
+    30                                  ;Purpose
+    31                                  ;   This program prompts user for a value from 1-100 and generates random scientific decimal based on user input onto the array
+    32                                  ;   The program will normalize the values to be between 1.0 and 2.0
+    33                                  ;   The program will sort your array in numerical order
+    34                                  ;
+    35                                  ;This file:
+    36                                  ;   File name: normalize_array.asm
+    37                                  ;   Language: X86-64
+    38                                  ;   Max page width: 124 columns
+    39                                  ;   Assemble (standard): nasm -f elf64 -l normalize_array.lis -o normalize_array.o normalize_array.asm
+    40                                  ;   Assemble (debug): nasm -f elf64 -gdwarf -l normalize_array.lis -o normalize_array.o normalize_array.asm
+    41                                  ;   Optimal print specification: Landscape, 7 points, monospace, 8½x11 paper
+    42                                  ;   Prototype of this function: extern double normalize_array();
+    43                                  ; 
+    44                                  ;
+    45                                  ;
+    46                                  ;
+    47                                  ;========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1=========2=========3**
+    48                                  
+    49                                  
+    50                                  
+    51                                  global normalize_array
+    52                                  
+    53                                  segment .data                 ;Place initialized data here
+    54                                  
+    55                                  segment .bss      ;Declare pointers to un-initialized space in this segment.
+    56                                  
+    57                                  segment .text
+    58                                  normalize_array:
+    59                                  
+    60                                  ;backup GPRs
+    61 00000000 55                      push rbp
+    62 00000001 4889E5                  mov rbp, rsp
+    63 00000004 53                      push rbx
+    64 00000005 51                      push rcx
+    65 00000006 52                      push rdx
+    66 00000007 57                      push rdi
+    67 00000008 56                      push rsi
+    68 00000009 4150                    push r8
+    69 0000000B 4151                    push r9
+    70 0000000D 4152                    push r10
+    71 0000000F 4153                    push r11
+    72 00000011 4154                    push r12
+    73 00000013 4155                    push r13
+    74 00000015 4156                    push r14
+    75 00000017 4157                    push r15
+    76 00000019 9C                      pushf
+    77                                  
+    78                                  ;obtain array address and size and store in nonvolatile registers
+    79 0000001A 4989FC                  mov r12, rdi ;our array
+    80 0000001D 4989F5                  mov r13, rsi ;number of values 
+    81                                  
+    82                                  ;set counter to 0 to keep track of all the numbers that have already been normalized
+    83 00000020 41BE00000000            mov r14, 0
+    84                                  
+    85                                  ;check if all values in the array have been normalized
+    86                                  check_size:
+    87 00000026 4D39EE                  cmp r14, r13
+    88 00000029 7C02                    jl normalize_loop
+    89                                  
+    90                                  ;if all numbers have been normalized, jump to exit the function
+    91 0000002B EB3A                    jmp exit
+    92                                  
+    93                                  ;jump here if array hasnt been fully normalized to continue normalizing
+    94                                  normalize_loop:
+    95                                  
+    96                                  ;mov number from array onto the stack and into r12 to change the stored exp to 3ff to make the value in between 1 and 2
+    97 0000002D F2470F103CF4            movsd xmm15, [r12 + r14 * 8]
+    98 00000033 6A00                    push qword 0
+    99 00000035 F2440F113C24            movsd [rsp], xmm15
+   100 0000003B 415F                    pop r15
+   101 0000003D 49C1E70C                shl r15, 12
+   102 00000041 49C1EF0C                shr r15, 12
+   103 00000045 48B8000000000000F0-     mov rax, 0x3ff0000000000000
+   103 0000004E 3F                 
+   104 0000004F 4909C7                  or r15, rax
+   105                                  
+   106                                  ;push the normalized number into xmm15 register from r12
+   107 00000052 4157                    push r15
+   108 00000054 F2440F103C24            movsd xmm15, [rsp]
+   109 0000005A 415F                    pop r15
+   110                                  
+   111                                  ;move the now normalized number from xmm15 back into the array
+   112 0000005C F2470F113CF4            movsd [r12+r14*8], xmm15
+   113                                    
+   114                                  ;increase the counter for how many numbers in array have been normalized then jump to check again if all numbers are normalized
+   115 00000062 49FFC6                  inc r14
+   116 00000065 EBBF                    jmp check_size
+   117                                  
+   118                                  ;exit the function
+   119                                  exit:
+   120                                  ;Restore the GPRs
+   121 00000067 9D                      popf
+   122 00000068 415F                    pop r15
+   123 0000006A 415E                    pop r14
+   124 0000006C 415D                    pop r13
+   125 0000006E 415C                    pop r12
+   126 00000070 415B                    pop r11
+   127 00000072 415A                    pop r10
+   128 00000074 4159                    pop r9
+   129 00000076 4158                    pop r8
+   130 00000078 5E                      pop rsi
+   131 00000079 5F                      pop rdi
+   132 0000007A 5A                      pop rdx
+   133 0000007B 59                      pop rcx
+   134 0000007C 5B                      pop rbx
+   135 0000007D 5D                      pop rbp   ;Restore rbp to the base of the activation record of the caller program
+   136 0000007E C3                      ret
+   137                                  ;End of the function normalize_array ====================================================================

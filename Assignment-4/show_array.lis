@@ -1,0 +1,140 @@
+     1                                  ;*******************************************************************************************************************************
+     2                                  ; Program name: "Non-deterministic Random Numbers". This program prompts the user for the number of values to generate, fills an array with random numbers, then normalizes and sorts the array.
+     3                                  ; Copyright (C) 2025  Jonathan Diep                                                                                             *
+     4                                  ;                                                                                                                              *
+     5                                  ; This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License    *
+     6                                  ; as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.        *
+     7                                  ; This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty  *
+     8                                  ; of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.                *
+     9                                  ; You should have received a copy of the GNU General Public License along with this program.  If not, see                      *
+    10                                  ; <https://www.gnu.org/licenses/>.                                                                                             *
+    11                                  ;*******************************************************************************************************************************
+    12                                  
+    13                                  
+    14                                  
+    15                                  ;========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1=========2=========3**
+    16                                  ; Author information
+    17                                  ;   Author name : Jonathan Diep
+    18                                  ;   Author email: jonathon.dieppp@csu.fullerton.edu
+    19                                  ;   CWID : 884973462
+    20                                  ;   Class: 240-03 Section 03
+    21                                  ; Program Information
+    22                                  ;   Program Name: Non-deterministic Random Numbers
+    23                                  ;   Programming language: Two module in C, Five module in X86, and One module in bash.
+    24                                  ;   Date program began: 2025-Mar-25
+    25                                  ;   Date of last update: 2025-Mar-27
+    26                                  ;   Files in this program: gcc -m64 -no-pie -o main.out main.o executive.o fill_random_array.o isnan.o normalize_array.o show_array.o sort.o
+    27                                  ;   Testing: Alpha testing completed. All functions are correct.
+    28                                  ;   Status: Ready for release to customers
+    29                                  ;
+    30                                  ;Purpose
+    31                                  ;   This program prompts user for a value from 1-100 and generates random scientific decimal based on user input onto the array
+    32                                  ;   The program will normalize the values to be between 1.0 and 2.0
+    33                                  ;   The program will sort your array in numerical order
+    34                                  ;
+    35                                  ;This file:
+    36                                  ;   File name: show_array.asm
+    37                                  ;   Language: X86-64
+    38                                  ;   Max page width: 124 columns
+    39                                  ;   Assemble (standard): nasm -f elf64 -l show_array.lis -o show_array.o show_array.asm
+    40                                  ;   Assemble (debug): nasm -f elf64 -gdwarf -l show_array.lis -o show_array.o show_array.asm
+    41                                  ;   Optimal print specification: Landscape, 7 points, monospace, 8½x11 paper
+    42                                  ;   Prototype of this function: extern double show_array();
+    43                                  ; 
+    44                                  ;
+    45                                  ;
+    46                                  ;
+    47                                  ;========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1=========2=========3**
+    48                                  
+    49                                  
+    50                                  extern printf
+    51                                  
+    52                                  global show_array
+    53                                  
+    54                                  segment .data                 ;Place initialized data here
+    55 00000000 494545453735340909-     IEEE db "IEEE754			Scientific Decimal", 10, 0
+    55 00000009 09536369656E746966-
+    55 00000012 696320446563696D61-
+    55 0000001B 6C0A00             
+    56 0000001E 3078253031366C5809-     output_format db "0x%016lX	%-18.13g",10, 0
+    56 00000027 252D31382E3133670A-
+    56 00000030 00                 
+    57                                  
+    58                                  segment .bss      ;Declare pointers to un-initialized space in this segment.
+    59                                  
+    60                                  segment .text
+    61                                  show_array:
+    62                                  
+    63                                  ;backup GPRs
+    64 00000000 55                      push rbp
+    65 00000001 4889E5                  mov rbp, rsp
+    66 00000004 53                      push rbx
+    67 00000005 51                      push rcx
+    68 00000006 52                      push rdx
+    69 00000007 57                      push rdi
+    70 00000008 56                      push rsi
+    71 00000009 4150                    push r8
+    72 0000000B 4151                    push r9
+    73 0000000D 4152                    push r10
+    74 0000000F 4153                    push r11
+    75 00000011 4154                    push r12
+    76 00000013 4155                    push r13
+    77 00000015 4156                    push r14
+    78 00000017 4157                    push r15
+    79 00000019 9C                      pushf
+    80                                  
+    81                                  ;obtain array address and size and store in nonvolatile registers
+    82 0000001A 4989FC                  mov r12, rdi
+    83 0000001D 4989F5                  mov r13, rsi
+    84                                  
+    85                                  ;set counter to 0 to keep track of if all of array values have been printed
+    86 00000020 41BE00000000            mov r14, 0
+    87                                  
+    88                                  ;print a header for the array to show which value is hex and which is scientific notation
+    89 00000026 B800000000              mov rax, 0
+    90 0000002B 48BF-                   mov rdi, IEEE
+    90 0000002D [0000000000000000] 
+    91 00000035 E8(00000000)            call printf
+    92                                  
+    93                                  ;check if all of array has been printed
+    94                                  check_size:
+    95 0000003A 4D39EE                  cmp r14, r13
+    96 0000003D 7C02                    jl show_loop
+    97                                  
+    98                                  ;if array has finished printing jump to exit the function
+    99 0000003F EB23                    jmp exit
+   100                                  
+   101                                  ;jump here if array is not done printing to continue printing
+   102                                  show_loop:
+   103                                  
+   104                                  ;print out a value with its ieee form and scientific notation form
+   105 00000041 B802000000              mov rax, 2
+   106 00000046 48BF-                   mov rdi, output_format
+   106 00000048 [1E00000000000000] 
+   107 00000050 4B8B34F4                mov rsi, [r12+r14*8]
+   108 00000054 F2430F1004F4            movsd xmm0, [r12+r14*8]
+   109 0000005A E8(00000000)            call printf
+   110                                  
+   111                                  ;add to counter and jump to check if all of array has printed yet
+   112 0000005F 49FFC6                  inc r14
+   113 00000062 EBD6                    jmp check_size
+   114                                  
+   115                                  ;exit the function when done
+   116                                  exit:
+   117                                  ; Restore the GPRs
+   118 00000064 9D                      popf
+   119 00000065 415F                    pop r15
+   120 00000067 415E                    pop r14
+   121 00000069 415D                    pop r13
+   122 0000006B 415C                    pop r12
+   123 0000006D 415B                    pop r11
+   124 0000006F 415A                    pop r10
+   125 00000071 4159                    pop r9
+   126 00000073 4158                    pop r8
+   127 00000075 5E                      pop rsi
+   128 00000076 5F                      pop rdi
+   129 00000077 5A                      pop rdx
+   130 00000078 59                      pop rcx
+   131 00000079 5B                      pop rbx
+   132 0000007A 5D                      pop rbp
+   133 0000007B C3                      ret
