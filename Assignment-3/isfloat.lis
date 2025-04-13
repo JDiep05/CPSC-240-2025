@@ -9,150 +9,150 @@
      9                                  ;See the GNU Lesser General Public License for more details. A copy of the GNU General Public License v3 is available here: *
     10                                  ;<https:;www.gnu.org/licenses/>.                            *
     11                                  ;****************************************************************************************************************************
-    12                                  ;
-    13                                  ;
-    14                                  ;========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1=========2=========3**
-    15                                  ;Author information
-    16                                  ;  Author name: Floyd Holliday
-    17                                  ;  Author email: holliday@fullerton.edu
-    18                                  ;  Author phone (wired phone in CS building): (657)278-7021
-    19                                  ;
-    20                                  ;Status
-    21                                  ;  This software is not an application program, but rather it is a single function licensed for use by other applications.
-    22                                  ;  This function can be embedded within both FOSS programs and in proprietary programs as permitted by the LGPL.
-    23                                  
-    24                                  ;Function information
-    25                                  ;  Function name: isfloat
-    26                                  ;  Programming language: X86 assembly in Intel syntax.
-    27                                  ;  Date development began:  2022-Feb-28
-    28                                  ;  Date version 1.0 finished: 2022-Mar-03
-    29                                  ;  Files of this function: isfloat.asm
-    30                                  ;  System requirements: an X86 platform with nasm installed o other compatible assembler.
-    31                                  ;  Know issues: <now in testing phase>
-    32                                  ;  Assembler used for testing: Nasm version 2.14.02
-    33                                  ;  Prototype: bool isfloat(char *);
-    34                                  ;
-    35                                  ;Purpose
-    36                                  ;  This function wil accept a string (array of char) and verify that it can be converted to a corresponding 64-bit 
-    37                                  ;  float number or not converted to a float number.
-    38                                  ;
-    39                                  ;Translation information
-    40                                  ;  Assemble: nasm -f elf64 -l isfloat.lis -o isfloat.o isfloat.asm
-    41                                  ;
-    42                                  ;Software design document:
-    43                                  ;  An Execution flow chart accompanies this function.  That document will provide a better understanding of the 
-    44                                  ;  algorithm used in the isfloat function than a direct reading of the source code of the function.
-    45                                  
-    46                                  ;========= Begin source code ====================================================================================
-    47                                  ;Declaration area
-    48                                  extern printf
-    49                                  global isfloat
-    50                                  
-    51                                  null equ 0
-    52                                  true equ -1
-    53                                  false equ 0
-    54                                  
-    55                                  segment .data
-    56                                     ;This segment is empty
-    57                                  segment .bss
-    58                                     ;This segment is empty
-    59                                  
-    60                                  segment .text
-    61                                  isfloat:
-    62                                  
-    63                                  ;Block that backs up almost all GPRs
-    64                                  ;Back up the general purpose registers for the sole purpose of protecting the data of the caller.
-    65 00000000 55                      push rbp                                          ;Backup rbp
-    66 00000001 4889E5                  mov  rbp,rsp                                      ;The base pointer now points to top of stack
-    67 00000004 57                      push rdi                                          ;Backup rdi
-    68 00000005 56                      push rsi                                          ;Backup rsi
-    69 00000006 52                      push rdx                                          ;Backup rdx
-    70 00000007 51                      push rcx                                          ;Backup rcx
-    71 00000008 4150                    push r8                                           ;Backup r8
-    72 0000000A 4151                    push r9                                           ;Backup r9
-    73 0000000C 4152                    push r10                                          ;Backup r10
-    74 0000000E 4153                    push r11                                          ;Backup r11
-    75 00000010 4154                    push r12                                          ;Backup r12
-    76 00000012 4155                    push r13                                          ;Backup r13
-    77 00000014 4156                    push r14                                          ;Backup r14
-    78 00000016 4157                    push r15                                          ;Backup r15
-    79 00000018 53                      push rbx                                          ;Backup rbx
-    80 00000019 9C                      pushf                                             ;Backup rflags
-    81                                  
+    12                                  
+    13                                  
+    14                                  
+    15                                  ;========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1=========2=========3**
+    16                                  ;Author information
+    17                                  ;  Author name: Floyd Holliday
+    18                                  ;  Author email: holliday@fullerton.edu
+    19                                  ;  Author phone (wired phone in CS building): (657)278-7021
+    20                                  ;
+    21                                  ;Status
+    22                                  ;  This software is not an application program, but rather it is a single function licensed for use by other applications.
+    23                                  ;  This function can be embedded within both FOSS programs and in proprietary programs as permitted by the LGPL.
+    24                                  
+    25                                  ;Function information
+    26                                  ;  Function name: isfloat
+    27                                  ;  Programming language: X86 assembly in Intel syntax.
+    28                                  ;  Date development began:  2022-Feb-28
+    29                                  ;  Date version 1.0 finished: 2022-Mar-03
+    30                                  ;  Files of this function: isfloat.asm
+    31                                  ;  System requirements: an X86 platform with nasm installed o other compatible assembler.
+    32                                  ;  Know issues: <now in testing phase>
+    33                                  ;  Assembler used for testing: Nasm version 2.14.02
+    34                                  ;  Prototype: bool isfloat(char *);
+    35                                  ;
+    36                                  ;Purpose
+    37                                  ;  This function wil accept a string (array of char) and verify that it can be converted to a corresponding 64-bit 
+    38                                  ;  float number or not converted to a float number.
+    39                                  ;
+    40                                  ;Translation information
+    41                                  ;  Assemble: nasm -f elf64 -l isfloat.lis -o isfloat.o isfloat.asm
+    42                                  ;
+    43                                  ;Software design document:
+    44                                  ;  An Execution flow chart accompanies this function.  That document will provide a better understanding of the 
+    45                                  ;  algorithm used in the isfloat function than a direct reading of the source code of the function.
+    46                                  
+    47                                  ;========= Begin source code ====================================================================================
+    48                                  ;Declaration area
+    49                                  extern printf
+    50                                  global isfloat
+    51                                  
+    52                                  null equ 0
+    53                                  true equ -1
+    54                                  false equ 0
+    55                                  
+    56                                  segment .data
+    57                                     ;This segment is empty
+    58                                  segment .bss
+    59                                     ;This segment is empty
+    60                                  
+    61                                  segment .text
+    62                                  isfloat:
+    63                                  
+    64                                  ;Block that backs up almost all GPRs
+    65                                  ;Back up the general purpose registers for the sole purpose of protecting the data of the caller.
+    66 00000000 55                      push rbp                                          ;Backup rbp
+    67 00000001 4889E5                  mov  rbp,rsp                                      ;The base pointer now points to top of stack
+    68 00000004 57                      push rdi                                          ;Backup rdi
+    69 00000005 56                      push rsi                                          ;Backup rsi
+    70 00000006 52                      push rdx                                          ;Backup rdx
+    71 00000007 51                      push rcx                                          ;Backup rcx
+    72 00000008 4150                    push r8                                           ;Backup r8
+    73 0000000A 4151                    push r9                                           ;Backup r9
+    74 0000000C 4152                    push r10                                          ;Backup r10
+    75 0000000E 4153                    push r11                                          ;Backup r11
+    76 00000010 4154                    push r12                                          ;Backup r12
+    77 00000012 4155                    push r13                                          ;Backup r13
+    78 00000014 4156                    push r14                                          ;Backup r14
+    79 00000016 4157                    push r15                                          ;Backup r15
+    80 00000018 53                      push rbx                                          ;Backup rbx
+    81 00000019 9C                      pushf                                             ;Backup rflags
     82                                  
-    83                                  ;Make a copy of the passed in array of ascii values
-    84 0000001A 4989FD                  mov r13, rdi                                      ;r13 is the array of char
-    85                                  ;Let r14 be an index of the array r13.  Initialize to integer 0
-    86 0000001D 4D31F6                  xor r14, r14
-    87                                  
-    88                                  ;Check for leading plus or minus signs
-    89 00000020 41807D002B              cmp byte [r13],'+'
-    90 00000025 7407                    je increment_index
-    91 00000027 41807D002D              cmp byte[r13],'-'
-    92 0000002C 7503                    jne continue_validation
-    93                                  increment_index:
-    94 0000002E 49FFC6                  inc r14
-    95                                  
-    96                                  continue_validation:
-    97                                  
-    98                                  ;Block: loop to validate chars before the decimal point
-    99                                  loop_before_point:
-   100 00000031 B800000000                 mov rax,0
-   101 00000036 4831FF                     xor rdi,rdi                ;Zero out rdi
-   102 00000039 438A7C3500                 mov dil,byte [r13+1*r14]   ;dil is the low byte in the register rdi; reference Jorgensen, p. 10
-   103 0000003E E85C000000                 call is_digit
-   104 00000043 4883F800                   cmp rax,false
-   105 00000047 7405                       je is_it_radix_point
-   106 00000049 49FFC6                     inc r14
-   107 0000004C EBE3                       jmp loop_before_point
-   108                                  ;End of loop checking chars before the point is encountered.
-   109                                  
-   110                                  is_it_radix_point:
-   111                                  
-   112                                  ;Is the next value of the array a genuine radix point?
-   113 0000004E 43807C35002E            cmp byte[r13+1*r14],'.'
-   114 00000054 752C                        jne return_false
-   115                                  
-   116                                  ;A point has been found, therefore, begin a loop to process remaining digits.
-   117                                  start_loop_after_finding_a_point:
-   118 00000056 49FFC6                      inc r14
-   119 00000059 B800000000                  mov rax,0
-   120 0000005E 4831FF                      xor rdi,rdi
-   121 00000061 438A7C3500                  mov dil,byte[r13+1*r14]
-   122 00000066 E834000000                  call is_digit
-   123 0000006B 4883F800                    cmp rax,false
-   124 0000006F 75E5                        jne start_loop_after_finding_a_point
-   125                                  ;End of loop processing valid digits after passing the one decimal point.
-   126                                  
-   127                                  ;Something other than a digit has been found.  
-   128                                  ;It should be null at the end of the string.
-   129 00000071 43807C350000            cmp byte [r13+1*r14],null
-   130 00000077 7509                    jne return_false
-   131 00000079 48C7C0FFFFFFFF          mov rax,true
-   132 00000080 EB05                    jmp restore_gpr_registers
-   133                                      
-   134                                  return_false:
-   135 00000082 B800000000              mov rax,false
-   136                                  
-   137                                  restore_gpr_registers:
-   138 00000087 9D                      popf                                    ;Restore rflags
-   139 00000088 5B                      pop rbx                                 ;Restore rbx
-   140 00000089 415F                    pop r15                                 ;Restore r15
-   141 0000008B 415E                    pop r14                                 ;Restore r14
-   142 0000008D 415D                    pop r13                                 ;Restore r13
-   143 0000008F 415C                    pop r12                                 ;Restore r12
-   144 00000091 415B                    pop r11                                 ;Restore r11
-   145 00000093 415A                    pop r10                                 ;Restore r10
-   146 00000095 4159                    pop r9                                  ;Restore r9
-   147 00000097 4158                    pop r8                                  ;Restore r8
-   148 00000099 59                      pop rcx                                 ;Restore rcx
-   149 0000009A 5A                      pop rdx                                 ;Restore rdx
-   150 0000009B 5E                      pop rsi                                 ;Restore rsi
-   151 0000009C 5F                      pop rdi                                 ;Restore rdi
-   152 0000009D 5D                      pop rbp                                 ;Restore rbp
-   153                                  
-   154 0000009E C3                      ret                                     ;Pop the integer stack and jump to the address represented by the popped value.
-   155                                  
+    83                                  
+    84                                  ;Make a copy of the passed in array of ascii values
+    85 0000001A 4989FD                  mov r13, rdi                                      ;r13 is the array of char
+    86                                  ;Let r14 be an index of the array r13.  Initialize to integer 0
+    87 0000001D 4D31F6                  xor r14, r14
+    88                                  
+    89                                  ;Check for leading plus or minus signs
+    90 00000020 41807D002B              cmp byte [r13],'+'
+    91 00000025 7407                    je increment_index
+    92 00000027 41807D002D              cmp byte[r13],'-'
+    93 0000002C 7503                    jne continue_validation
+    94                                  increment_index:
+    95 0000002E 49FFC6                  inc r14
+    96                                  
+    97                                  continue_validation:
+    98                                  
+    99                                  ;Block: loop to validate chars before the decimal point
+   100                                  loop_before_point:
+   101 00000031 B800000000                 mov rax,0
+   102 00000036 4831FF                     xor rdi,rdi                ;Zero out rdi
+   103 00000039 438A7C3500                 mov dil,byte [r13+1*r14]   ;dil is the low byte in the register rdi; reference Jorgensen, p. 10
+   104 0000003E E85C000000                 call is_digit
+   105 00000043 4883F800                   cmp rax,false
+   106 00000047 7405                       je is_it_radix_point
+   107 00000049 49FFC6                     inc r14
+   108 0000004C EBE3                       jmp loop_before_point
+   109                                  ;End of loop checking chars before the point is encountered.
+   110                                  
+   111                                  is_it_radix_point:
+   112                                  
+   113                                  ;Is the next value of the array a genuine radix point?
+   114 0000004E 43807C35002E            cmp byte[r13+1*r14],'.'
+   115 00000054 752C                        jne return_false
+   116                                  
+   117                                  ;A point has been found, therefore, begin a loop to process remaining digits.
+   118                                  start_loop_after_finding_a_point:
+   119 00000056 49FFC6                      inc r14
+   120 00000059 B800000000                  mov rax,0
+   121 0000005E 4831FF                      xor rdi,rdi
+   122 00000061 438A7C3500                  mov dil,byte[r13+1*r14]
+   123 00000066 E834000000                  call is_digit
+   124 0000006B 4883F800                    cmp rax,false
+   125 0000006F 75E5                        jne start_loop_after_finding_a_point
+   126                                  ;End of loop processing valid digits after passing the one decimal point.
+   127                                  
+   128                                  ;Something other than a digit has been found.  
+   129                                  ;It should be null at the end of the string.
+   130 00000071 43807C350000            cmp byte [r13+1*r14],null
+   131 00000077 7509                    jne return_false
+   132 00000079 48C7C0FFFFFFFF          mov rax,true
+   133 00000080 EB05                    jmp restore_gpr_registers
+   134                                      
+   135                                  return_false:
+   136 00000082 B800000000              mov rax,false
+   137                                  
+   138                                  restore_gpr_registers:
+   139 00000087 9D                      popf                                    ;Restore rflags
+   140 00000088 5B                      pop rbx                                 ;Restore rbx
+   141 00000089 415F                    pop r15                                 ;Restore r15
+   142 0000008B 415E                    pop r14                                 ;Restore r14
+   143 0000008D 415D                    pop r13                                 ;Restore r13
+   144 0000008F 415C                    pop r12                                 ;Restore r12
+   145 00000091 415B                    pop r11                                 ;Restore r11
+   146 00000093 415A                    pop r10                                 ;Restore r10
+   147 00000095 4159                    pop r9                                  ;Restore r9
+   148 00000097 4158                    pop r8                                  ;Restore r8
+   149 00000099 59                      pop rcx                                 ;Restore rcx
+   150 0000009A 5A                      pop rdx                                 ;Restore rdx
+   151 0000009B 5E                      pop rsi                                 ;Restore rsi
+   152 0000009C 5F                      pop rdi                                 ;Restore rdi
+   153 0000009D 5D                      pop rbp                                 ;Restore rbp
+   154                                  
+   155 0000009E C3                      ret                                     ;Pop the integer stack and jump to the address represented by the popped value.
    156                                  
    157                                  
    158                                  
@@ -162,129 +162,130 @@
    162                                  
    163                                  
    164                                  
-   165                                  ;========= Begin function is_digit ==================================================================================
-   166                                  
-   167                                  ;****************************************************************************************************************************
-   168                                  ;Program name: "is_digit".  This a library function contained in a single file.  The function receives a char parameter.  It*
-   169                                  ;returns true if that parameter is the ascii value of a decimal digit and returns false in all other cases.                  *
-   170                                  ;Copyright (C) 2022 Floyd Holliday.                                                                                         *
-   171                                  ;                                                                                                                           *
-   172                                  ;This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public   *
-   173                                  ;License version 3 as published by the Free Software Foundation.  This program is distributed in the hope that it will be   *
-   174                                  ;useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.*
-   175                                  ;See the GNU Lesser General Public License for more details. A copy of the GNU General Public License v3 is available here: *
-   176                                  ;<https:;www.gnu.org/licenses/>.                                                                                            *
-   177                                  ;****************************************************************************************************************************
-   178                                  ;
+   165                                  
+   166                                  ;========= Begin function is_digit ==================================================================================
+   167                                  
+   168                                  ;****************************************************************************************************************************
+   169                                  ;Program name: "is_digit".  This a library function contained in a single file.  The function receives a char parameter.  It*
+   170                                  ;returns true if that parameter is the ascii value of a decimal digit and returns false in all other cases.                  *
+   171                                  ;Copyright (C) 2022 Floyd Holliday.                                                                                         *
+   172                                  ;                                                                                                                           *
+   173                                  ;This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public   *
+   174                                  ;License version 3 as published by the Free Software Foundation.  This program is distributed in the hope that it will be   *
+   175                                  ;useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.*
+   176                                  ;See the GNU Lesser General Public License for more details. A copy of the GNU General Public License v3 is available here: *
+   177                                  ;<https:;www.gnu.org/licenses/>.                                                                                            *
+   178                                  ;****************************************************************************************************************************
    179                                  ;
-   180                                  ;========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1=========2=========3**
-   181                                  ;Author information
-   182                                  ;  Author name: Floyd Holliday
-   183                                  ;  Author email: holliday@fullerton.edu
-   184                                  ;  Author phone (wired phone in CS building): (657)278-7021
-   185                                  ;
-   186                                  ;Status
-   187                                  ;  This software is not an application program, but rather it is a single function licensed for use by other applications.
-   188                                  ;  This function can be embedded within both FOSS programs and in proprietary programs as permitted by the LGPL.
-   189                                  
-   190                                  ;Function information
-   191                                  ;  Function name: is_digit
-   192                                  ;  Name selection.  This function is named is_digit to avoid confusion with an existing library function named isdigit.
-   193                                  ;  Programming language: X86 assembly in Intel syntax.
-   194                                  ;  Date development began:  2022-Feb-28
-   195                                  ;  Date version 1.0 finished: 2022-Feb 28
-   196                                  ;  Files of this function: currently is_digit is an auxillary function of isfloat, and as such does not occupy its own file.
-   197                                  ;  System requirements: an X86 platform with nasm installed or other compatible assembler.
-   198                                  ;  Known issues: none
-   199                                  ;  Assembler used for testing: Nasm version 2.14.02
-   200                                  ;  Prototype: bool is_digit(char);
-   201                                  ;
-   202                                  ;Purpose
-   203                                  ;  This function wil accept a single char as input parameter and determine if that parameter represents a decimal digit. 
-   204                                  ;
-   205                                  ;Translation information if this function occupied its own file.  Currently the function is_digit resides in the same 
-   206                                  ;same file as isfloat and therefore, will be assembled when isfloat is assembled.
-   207                                  ;  Assemble: nasm -f elf64 -l is_digit.lis -o is_digit.o is_digit.asm
-   208                                  ;
-   209                                  ;Software design document:
-   210                                  ;  An Execution flow chart accompanies this function.  That document will provide a better understanding of the 
-   211                                  ;  algorithm used in the isfloat function than a direct reading of the source code of the function.
-   212                                  
-   213                                  ;========= Begin source code ====================================================================================
-   214                                  ;Declaration area
-   215                                  true equ -1
-   216                                  false equ 0
-   217                                  ascii_value_of_zero equ 0x30
-   218                                  ascii_value_of_nine equ 0x39
-   219                                  
-   220                                  segment .data
-   221                                     ;This segment is empty
-   222                                  
-   223                                  segment .bss
-   224                                     ;This segment is empty
-   225                                  
-   226                                  segment .text
-   227                                  is_digit:
-   228                                  
-   229                                  ;Block that backs up almost all GPRs
-   230                                  ;Back up the general purpose registers for the sole purpose of protecting the data of the caller.
-   231 0000009F 55                      push rbp                                          ;Backup rbp
-   232 000000A0 4889E5                  mov  rbp,rsp                                      ;The base pointer now points to top of stack
-   233 000000A3 57                      push rdi                                          ;Backup rdi
-   234 000000A4 56                      push rsi                                          ;Backup rsi
-   235 000000A5 52                      push rdx                                          ;Backup rdx
-   236 000000A6 51                      push rcx                                          ;Backup rcx
-   237 000000A7 4150                    push r8                                           ;Backup r8
-   238 000000A9 4151                    push r9                                           ;Backup r9
-   239 000000AB 4152                    push r10                                          ;Backup r10
-   240 000000AD 4153                    push r11                                          ;Backup r11
-   241 000000AF 4154                    push r12                                          ;Backup r12
-   242 000000B1 4155                    push r13                                          ;Backup r13
-   243 000000B3 4156                    push r14                                          ;Backup r14
-   244 000000B5 4157                    push r15                                          ;Backup r15
-   245 000000B7 53                      push rbx                                          ;Backup rbx
-   246 000000B8 9C                      pushf                                             ;Backup rflags
-   247                                  
-   248                                  ;Make a copy of the passed in array of ascii values.
-   249                                  ;Note that only the low one-byte of rdi is important for this function is_digit.
-   250                                  ;Nevertheless, we copy the entire 8-byte register.
-   251 000000B9 41BD00000000            mov r13,0
-   252 000000BF 4188FD                  mov r13b,dil     ;Copy the low byte of rdi to the low byte of r13.  The other bytes of rdi are all zeros.
-   253                                  
-   254                                  ;Block to test if value in r13 >= ascii(0)
-   255 000000C2 4983FD30                cmp r13,ascii_value_of_zero
-   256 000000C6 7C12                    jl is_digit.return_false
-   257                                  
-   258                                  ;Block to test if value in r13 <= ascii(9)
-   259 000000C8 4983FD39                cmp r13,ascii_value_of_nine
-   260 000000CC 7F0C                    jg is_digit.return_false
-   261                                  
-   262                                  ;Return true
-   263 000000CE 4831C0                  xor rax,rax  ;Set rax to zero
-   264 000000D1 48C7C0FFFFFFFF          mov rax,true
-   265 000000D8 EB08                    jmp is_digit.restore_gpr_registers
-   266                                  
-   267                                  is_digit.return_false:
-   268 000000DA 4831C0                  xor rax,rax  ;Set rax to zero
-   269 000000DD B800000000              mov rax,false
-   270                                  
-   271                                  is_digit.restore_gpr_registers:
-   272                                  ;Restore all general purpose registers to their original values
-   273 000000E2 9D                      popf                                    ;Restore rflags
-   274 000000E3 5B                      pop rbx                                 ;Restore rbx
-   275 000000E4 415F                    pop r15                                 ;Restore r15
-   276 000000E6 415E                    pop r14                                 ;Restore r14
-   277 000000E8 415D                    pop r13                                 ;Restore r13
-   278 000000EA 415C                    pop r12                                 ;Restore r12
-   279 000000EC 415B                    pop r11                                 ;Restore r11
-   280 000000EE 415A                    pop r10                                 ;Restore r10
-   281 000000F0 4159                    pop r9                                  ;Restore r9
-   282 000000F2 4158                    pop r8                                  ;Restore r8
-   283 000000F4 59                      pop rcx                                 ;Restore rcx
-   284 000000F5 5A                      pop rdx                                 ;Restore rdx
-   285 000000F6 5E                      pop rsi                                 ;Restore rsi
-   286 000000F7 5F                      pop rdi                                 ;Restore rdi
-   287 000000F8 5D                      pop rbp                                 ;Restore rbp
-   288                                  
-   289 000000F9 C3                      ret                                     ;Pop the integer stack and jump to the address represented by the popped value.
-   290                                  
+   180                                  ;
+   181                                  ;========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1=========2=========3**
+   182                                  ;Author information
+   183                                  ;  Author name: Floyd Holliday
+   184                                  ;  Author email: holliday@fullerton.edu
+   185                                  ;  Author phone (wired phone in CS building): (657)278-7021
+   186                                  ;
+   187                                  ;Status
+   188                                  ;  This software is not an application program, but rather it is a single function licensed for use by other applications.
+   189                                  ;  This function can be embedded within both FOSS programs and in proprietary programs as permitted by the LGPL.
+   190                                  
+   191                                  ;Function information
+   192                                  ;  Function name: is_digit
+   193                                  ;  Name selection.  This function is named is_digit to avoid confusion with an existing library function named isdigit.
+   194                                  ;  Programming language: X86 assembly in Intel syntax.
+   195                                  ;  Date development began:  2022-Feb-28
+   196                                  ;  Date version 1.0 finished: 2022-Feb 28
+   197                                  ;  Files of this function: currently is_digit is an auxillary function of isfloat, and as such does not occupy its own file.
+   198                                  ;  System requirements: an X86 platform with nasm installed or other compatible assembler.
+   199                                  ;  Known issues: none
+   200                                  ;  Assembler used for testing: Nasm version 2.14.02
+   201                                  ;  Prototype: bool is_digit(char);
+   202                                  ;
+   203                                  ;Purpose
+   204                                  ;  This function wil accept a single char as input parameter and determine if that parameter represents a decimal digit. 
+   205                                  ;
+   206                                  ;Translation information if this function occupied its own file.  Currently the function is_digit resides in the same 
+   207                                  ;same file as isfloat and therefore, will be assembled when isfloat is assembled.
+   208                                  ;  Assemble: nasm -f elf64 -l is_digit.lis -o is_digit.o is_digit.asm
+   209                                  ;
+   210                                  ;Software design document:
+   211                                  ;  An Execution flow chart accompanies this function.  That document will provide a better understanding of the 
+   212                                  ;  algorithm used in the isfloat function than a direct reading of the source code of the function.
+   213                                  
+   214                                  ;========= Begin source code ====================================================================================
+   215                                  ;Declaration area
+   216                                  true equ -1
+   217                                  false equ 0
+   218                                  ascii_value_of_zero equ 0x30
+   219                                  ascii_value_of_nine equ 0x39
+   220                                  
+   221                                  segment .data
+   222                                     ;This segment is empty
+   223                                  
+   224                                  segment .bss
+   225                                     ;This segment is empty
+   226                                  
+   227                                  segment .text
+   228                                  is_digit:
+   229                                  
+   230                                  ;Block that backs up almost all GPRs
+   231                                  ;Back up the general purpose registers for the sole purpose of protecting the data of the caller.
+   232 0000009F 55                      push rbp                                          ;Backup rbp
+   233 000000A0 4889E5                  mov  rbp,rsp                                      ;The base pointer now points to top of stack
+   234 000000A3 57                      push rdi                                          ;Backup rdi
+   235 000000A4 56                      push rsi                                          ;Backup rsi
+   236 000000A5 52                      push rdx                                          ;Backup rdx
+   237 000000A6 51                      push rcx                                          ;Backup rcx
+   238 000000A7 4150                    push r8                                           ;Backup r8
+   239 000000A9 4151                    push r9                                           ;Backup r9
+   240 000000AB 4152                    push r10                                          ;Backup r10
+   241 000000AD 4153                    push r11                                          ;Backup r11
+   242 000000AF 4154                    push r12                                          ;Backup r12
+   243 000000B1 4155                    push r13                                          ;Backup r13
+   244 000000B3 4156                    push r14                                          ;Backup r14
+   245 000000B5 4157                    push r15                                          ;Backup r15
+   246 000000B7 53                      push rbx                                          ;Backup rbx
+   247 000000B8 9C                      pushf                                             ;Backup rflags
+   248                                  
+   249                                  ;Make a copy of the passed in array of ascii values.
+   250                                  ;Note that only the low one-byte of rdi is important for this function is_digit.
+   251                                  ;Nevertheless, we copy the entire 8-byte register.
+   252 000000B9 41BD00000000            mov r13,0
+   253 000000BF 4188FD                  mov r13b,dil     ;Copy the low byte of rdi to the low byte of r13.  The other bytes of rdi are all zeros.
+   254                                  
+   255                                  ;Block to test if value in r13 >= ascii(0)
+   256 000000C2 4983FD30                cmp r13,ascii_value_of_zero
+   257 000000C6 7C12                    jl is_digit.return_false
+   258                                  
+   259                                  ;Block to test if value in r13 <= ascii(9)
+   260 000000C8 4983FD39                cmp r13,ascii_value_of_nine
+   261 000000CC 7F0C                    jg is_digit.return_false
+   262                                  
+   263                                  ;Return true
+   264 000000CE 4831C0                  xor rax,rax  ;Set rax to zero
+   265 000000D1 48C7C0FFFFFFFF          mov rax,true
+   266 000000D8 EB08                    jmp is_digit.restore_gpr_registers
+   267                                  
+   268                                  is_digit.return_false:
+   269 000000DA 4831C0                  xor rax,rax  ;Set rax to zero
+   270 000000DD B800000000              mov rax,false
+   271                                  
+   272                                  is_digit.restore_gpr_registers:
+   273                                  ;Restore all general purpose registers to their original values
+   274 000000E2 9D                      popf                                    ;Restore rflags
+   275 000000E3 5B                      pop rbx                                 ;Restore rbx
+   276 000000E4 415F                    pop r15                                 ;Restore r15
+   277 000000E6 415E                    pop r14                                 ;Restore r14
+   278 000000E8 415D                    pop r13                                 ;Restore r13
+   279 000000EA 415C                    pop r12                                 ;Restore r12
+   280 000000EC 415B                    pop r11                                 ;Restore r11
+   281 000000EE 415A                    pop r10                                 ;Restore r10
+   282 000000F0 4159                    pop r9                                  ;Restore r9
+   283 000000F2 4158                    pop r8                                  ;Restore r8
+   284 000000F4 59                      pop rcx                                 ;Restore rcx
+   285 000000F5 5A                      pop rdx                                 ;Restore rdx
+   286 000000F6 5E                      pop rsi                                 ;Restore rsi
+   287 000000F7 5F                      pop rdi                                 ;Restore rdi
+   288 000000F8 5D                      pop rbp                                 ;Restore rbp
+   289                                  
+   290 000000F9 C3                      ret                                     ;Pop the integer stack and jump to the address represented by the popped value.
+   291                                  

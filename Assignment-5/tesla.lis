@@ -1,0 +1,75 @@
+     1                                  global compute_resist
+     2                                  
+     3                                  section .data
+     4 00000000 000000000000F03F        one dq 1.0
+     5                                  
+     6                                  section .bss
+     7                                      ; This segment is empty
+     8                                  
+     9                                  section .text
+    10                                  compute_resist:
+    11                                  
+    12                                  ; Backup GPRs
+    13 00000000 55                      push rbp
+    14 00000001 4889E5                  mov rbp, rsp
+    15 00000004 53                      push rbx
+    16 00000005 51                      push rcx
+    17 00000006 52                      push rdx
+    18 00000007 57                      push rdi
+    19 00000008 56                      push rsi
+    20 00000009 4150                    push r8
+    21 0000000B 4151                    push r9
+    22 0000000D 4152                    push r10
+    23 0000000F 4153                    push r11
+    24 00000011 4154                    push r12
+    25 00000013 4155                    push r13
+    26 00000015 4156                    push r14
+    27 00000017 4157                    push r15
+    28 00000019 9C                      pushf
+    29                                  
+    30                                  ; Arguments: xmm1 = R1, xmm2 = R2, xmm3 = R3
+    31                                  ; Returns xmm0 = R_total = 1 / (1/R1 + 1/(R2 + R3))
+    32                                  
+    33 0000001A 4989FC                  mov r12, rdi    ; Array of inputs
+    34 0000001D 4989F5                  mov r13, rsi    ; Size of the array
+    35 00000020 41BE00000000            mov r14, 0      ; Index/loop counter
+    36                                  
+    37                                  
+    38                                  resist_loop:
+    39 00000026 4883EC08                sub rsp, 8
+    40 0000002A F2440F102C25-           movsd xmm13, [one]  ; initialize xmm13 as 1 and reloads it every loop
+    40 00000030 [00000000]         
+    41 00000034 F2470F103CF4            movsd xmm15, [r12 + r14*8]
+    42 0000003A F2450F5EEF              divsd xmm13, xmm15
+    43 0000003F F2450F58F5              addsd xmm14, xmm13
+    44 00000044 4883C408                add rsp, 8
+    45                                  
+    46 00000048 49FFC6                  inc r14
+    47 0000004B 4D39EE                  cmp r14, r13
+    48 0000004E 7CD6                    jl resist_loop     ; If index < length then continue the loop
+    49 00000050 7F00                    jg exit     ; If index > length then exit the loop
+    50                                  
+    51                                  exit:
+    52 00000052 F2440F102C25-           movsd xmm13, [one]  ; xmm13 = 1
+    52 00000058 [00000000]         
+    53 0000005C F2450F5EEE              divsd xmm13, xmm14
+    54 00000061 F2410F10C5              movsd xmm0, xmm13
+    55                                  
+    56                                  ; Restore general-purpose registers
+    57 00000066 9D                      popf
+    58 00000067 415F                    pop r15
+    59 00000069 415E                    pop r14
+    60 0000006B 415D                    pop r13
+    61 0000006D 415C                    pop r12
+    62 0000006F 415B                    pop r11
+    63 00000071 415A                    pop r10
+    64 00000073 4159                    pop r9
+    65 00000075 4158                    pop r8
+    66 00000077 5E                      pop rsi
+    67 00000078 5F                      pop rdi
+    68 00000079 5A                      pop rdx
+    69 0000007A 59                      pop rcx
+    70 0000007B 5B                      pop rbx
+    71 0000007C 5D                      pop rbp
+    72 0000007D C3                      ret
+    73                                  

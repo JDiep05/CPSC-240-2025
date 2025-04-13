@@ -1,0 +1,119 @@
+     1                                  ; Declarations
+     2                                  extern printf
+     3                                  extern edison
+     4                                  
+     5                                  global main
+     6                                  
+     7                                  segment .data
+     8 00000000 57656C636F6D652074-     msg_1 db "Welcome to Electricity brought to you by Jonathan Diep", 10, 0
+     8 00000009 6F20456C6563747269-
+     8 00000012 636974792062726F75-
+     8 0000001B 67687420746F20796F-
+     8 00000024 75206279204A6F6E61-
+     8 0000002D 7468616E2044696570-
+     8 00000036 0A00               
+     9 00000038 546869732070726F67-     msg_2 db "This program will compute the resistance current flow in your direct circuit.", 10, 0
+     9 00000041 72616D2077696C6C20-
+     9 0000004A 636F6D707574652074-
+     9 00000053 686520726573697374-
+     9 0000005C 616E63652063757272-
+     9 00000065 656E7420666C6F7720-
+     9 0000006E 696E20796F75722064-
+     9 00000077 697265637420636972-
+     9 00000080 637569742E0A00     
+    10 00000087 0A5468652064726976-     msg_3 db 10, "The driver recieved this number %.5lf, and will keep it until next semester.", 10, 0
+    10 00000090 657220726563696576-
+    10 00000099 65642074686973206E-
+    10 000000A2 756D62657220252E35-
+    10 000000AB 6C662C20616E642077-
+    10 000000B4 696C6C206B65657020-
+    10 000000BD 697420756E74696C20-
+    10 000000C6 6E6578742073656D65-
+    10 000000CF 737465722E0A00     
+    11 000000D6 41207A65726F207769-     msg_4 db "A zero will be returned to the Operating System", 10, 0
+    11 000000DF 6C6C20626520726574-
+    11 000000E8 75726E656420746F20-
+    11 000000F1 746865204F70657261-
+    11 000000FA 74696E672053797374-
+    11 00000103 656D0A00           
+    12                                  
+    13                                  
+    14                                  segment .bss
+    15 00000000 <res 00000008>          res_current resq 1
+    16                                  
+    17                                  
+    18                                  segment .text
+    19                                  main:
+    20                                  
+    21                                  ; Backup GPRs
+    22 00000000 55                      push rbp
+    23 00000001 4889E5                  mov rbp, rsp
+    24 00000004 53                      push rbx
+    25 00000005 51                      push rcx
+    26 00000006 52                      push rdx
+    27 00000007 57                      push rdi
+    28 00000008 56                      push rsi
+    29 00000009 4150                    push r8
+    30 0000000B 4151                    push r9
+    31 0000000D 4152                    push r10
+    32 0000000F 4153                    push r11
+    33 00000011 4154                    push r12
+    34 00000013 4155                    push r13
+    35 00000015 4156                    push r14
+    36 00000017 4157                    push r15
+    37 00000019 9C                      pushf
+    38                                  
+    39                                  ; Print welcoming msg
+    40 0000001A B800000000              mov rax, 0
+    41 0000001F 48BF-                   mov rdi, msg_1
+    41 00000021 [0000000000000000] 
+    42 00000029 E8(00000000)            call printf
+    43                                  
+    44                                  ; Print program's purpose msg
+    45 0000002E B800000000              mov rax, 0
+    46 00000033 48BF-                   mov rdi, msg_2
+    46 00000035 [3800000000000000] 
+    47 0000003D E8(00000000)            call printf
+    48                                  
+    49                                  ; Call edison function
+    50 00000042 B800000000              mov rax, 0
+    51 00000047 48BF-                   mov rdi, res_current
+    51 00000049 [0000000000000000] 
+    52 00000051 E8(00000000)            call edison
+    53                                  
+    54                                  ; Store the returned value (in xmm0) to res_current
+    55 00000056 F20F110425-             movsd [res_current], xmm0
+    55 0000005B [00000000]         
+    56                                  
+    57                                  ; Now print the message with the value
+    58 0000005F B800000000              mov rax, 0
+    59 00000064 48BF-                   mov rdi, msg_3
+    59 00000066 [8700000000000000] 
+    60 0000006E F20F100425-             movsd xmm0, [res_current]
+    60 00000073 [00000000]         
+    61 00000077 E8(00000000)            call printf
+    62                                  
+    63 0000007C B800000000              mov rax, 0
+    64 00000081 48BF-                   mov rdi, msg_4
+    64 00000083 [D600000000000000] 
+    65 0000008B E8(00000000)            call printf
+    66                                  
+    67 00000090 9D                      popf
+    68 00000091 415F                    pop r15
+    69 00000093 415E                    pop r14
+    70 00000095 415D                    pop r13
+    71 00000097 415C                    pop r12
+    72 00000099 415B                    pop r11
+    73 0000009B 415A                    pop r10
+    74 0000009D 4159                    pop r9
+    75 0000009F 4158                    pop r8
+    76 000000A1 5E                      pop rsi
+    77 000000A2 5F                      pop rdi
+    78 000000A3 5A                      pop rdx
+    79 000000A4 59                      pop rcx
+    80 000000A5 5B                      pop rbx
+    81 000000A6 5D                      pop rbp
+    82                                  
+    83 000000A7 B83C000000              mov rax, 60       ; syscall: exit
+    84 000000AC BF00000000              mov rdi, 0        ; exit code 0
+    85 000000B1 0F05                    syscall

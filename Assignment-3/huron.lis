@@ -115,28 +115,29 @@
    114                                  
    115 0000008A F2410F10C3              movsd xmm0, xmm11           ; Moving xmm15 to xmm0 to return the area of the triangle.
    116 0000008F F20F110424              movsd [rsp], xmm0
-   117                                  ; Restore registers
-   118 00000094 B807000000              mov rax, 7
-   119 00000099 BA00000000              mov rdx, 0
-   120 0000009E 0FAE2C25[00000000]      xrstor [backup_storage_area]
-   121                                  
-   122 000000A6 F20F100424              movsd xmm0, [rsp]
-   123 000000AB 4883C420                add rsp, 32                 ; Deallocate bytes for variable
-   124                                  
-   125                                  ; Restore general-purpose registers
-   126 000000AF 9D                      popf
-   127 000000B0 415F                    pop r15
-   128 000000B2 415E                    pop r14
-   129 000000B4 415D                    pop r13
-   130 000000B6 415C                    pop r12
-   131 000000B8 415B                    pop r11
-   132 000000BA 415A                    pop r10
-   133 000000BC 4159                    pop r9
-   134 000000BE 4158                    pop r8
-   135 000000C0 5E                      pop rsi
-   136 000000C1 5F                      pop rdi
-   137 000000C2 5A                      pop rdx
-   138 000000C3 59                      pop rcx
-   139 000000C4 5B                      pop rbx
-   140 000000C5 5D                      pop rbp
-   141 000000C6 C3                      ret
+   117                                  
+   118                                  ; Restore registers
+   119 00000094 B807000000              mov rax, 7
+   120 00000099 BA00000000              mov rdx, 0
+   121 0000009E 0FAE2C25[00000000]      xrstor [backup_storage_area]
+   122                                  
+   123 000000A6 F20F100424              movsd xmm0, [rsp]
+   124 000000AB 4883C420                add rsp, 32                 ; Deallocate bytes for variable
+   125                                  
+   126                                  ; Restore general-purpose registers
+   127 000000AF 9D                      popf
+   128 000000B0 415F                    pop r15
+   129 000000B2 415E                    pop r14
+   130 000000B4 415D                    pop r13
+   131 000000B6 415C                    pop r12
+   132 000000B8 415B                    pop r11
+   133 000000BA 415A                    pop r10
+   134 000000BC 4159                    pop r9
+   135 000000BE 4158                    pop r8
+   136 000000C0 5E                      pop rsi
+   137 000000C1 5F                      pop rdi
+   138 000000C2 5A                      pop rdx
+   139 000000C3 59                      pop rcx
+   140 000000C4 5B                      pop rbx
+   141 000000C5 5D                      pop rbp
+   142 000000C6 C3                      ret

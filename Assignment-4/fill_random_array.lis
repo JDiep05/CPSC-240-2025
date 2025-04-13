@@ -52,17 +52,17 @@
     52                                  
     53                                  global fill_random_array
     54                                  
-    55                                  segment .data                 ;Place initialized data here
+    55                                  segment .data
     56 00000000 0A2564202025640A00      intformat db 10, "%d  %d", 10, 0 
-    57 00000009 2531382E3133670000-     int_float dq "%18.13g", 0
+    57 00000009 2531382E3133670000-     int_float dq "%18.13g", 0           ; Format for decimal output
     57 00000012 00000000000000     
     58                                  
-    59                                  segment .bss      ;Declare pointers to un-initialized space in this segment.
+    59                                  segment .bss
     60                                  
     61                                  segment .text
     62                                  fill_random_array:
     63                                  
-    64                                  ;backup GPRs
+    64                                  ; Backup GPRs
     65 00000000 55                      push rbp
     66 00000001 4889E5                  mov rbp, rsp
     67 00000004 53                      push rbx
@@ -92,7 +92,7 @@
     91                                  
     92                                  fill_array:
     93 0000002D B800000000              mov rax, 0
-    94 00000032 490FC7F7                rdrand r15
+    94 00000032 490FC7F7                rdrand r15      ; Function that generates a random number into r15
     95 00000036 4C89FF                  mov rdi, r15
     96 00000039 4157                    push r15
     97 0000003B 4157                    push r15
@@ -101,11 +101,11 @@
    100 00000045 415F                    pop r15
    101                                  
    102 00000047 F2410F10C7              movsd xmm0, xmm15
-   103 0000004C E8(00000000)            call isnan
-   104 00000051 4883F800                cmp rax, 0
+   103 0000004C E8(00000000)            call isnan      ; Function that checks if current value is NaN
+   104 00000051 4883F800                cmp rax, 0      ; Repeats loop if value is NaN
    105 00000055 74D6                    je fill_array
    106                                  
-   107 00000057 F2470F113CF4            movsd [r12+r14*8], xmm15
+   107 00000057 F2470F113CF4            movsd [r12+r14*8], xmm15    ; Store random generated value into index of my_array
    108                                  
    109 0000005D 49FFC6                  inc r14
    110 00000060 EBC4                    jmp check_size

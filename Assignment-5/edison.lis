@@ -1,0 +1,324 @@
+     1                                  %include "acdc.inc"
+     1                              <1> ; ====================================================
+     2                              <1> ; Macro: convert_res_to_array
+     3                              <1> ; Purpose: Convert 3 resistance strings to floats,
+     4                              <1> ;          store in float array
+     5                              <1> ; Arguments:
+     6                              <1> ;   %1 = input1 string
+     7                              <1> ;   %2 = input2 string
+     8                              <1> ;   %3 = input3 string
+     9                              <1> ;   %4 = array label to store converted floats
+    10                              <1> ; Output:
+    11                              <1> ;   [%4 + 0]   = double of input1
+    12                              <1> ;   [%4 + 8]   = double of input2
+    13                              <1> ;   [%4 + 16]  = double of input3
+    14                              <1> ; ====================================================
+    15                              <1> 
+    16                              <1> %macro get_res 4
+    17                              <1>     ; Convert input1
+    18                              <1>     mov rdi, %1
+    19                              <1>     call atof
+    20                              <1>     movsd [%4], xmm0
+    21                              <1> 
+    22                              <1>     ; Convert input2
+    23                              <1>     mov rdi, %2
+    24                              <1>     call atof
+    25                              <1>     movsd [%4 + 8], xmm0
+    26                              <1> 
+    27                              <1>     ; Convert input3
+    28                              <1>     mov rdi, %3
+    29                              <1>     call atof
+    30                              <1>     movsd [%4 + 16], xmm0
+    31                              <1> %endmacro
+     2                                  
+     3                                  extern printf
+     4                                  extern atof
+     5                                  extern compute_resist
+     6                                  extern fgets
+     7                                  extern strlen
+     8                                  extern stdin
+     9                                  extern scanf
+    10                                  
+    11                                  global edison
+    12                                  
+    13                                  string_size equ 48
+    14                                  
+    15                                  section .data
+    16 00000000 506C6561736520656E-     prompt_name db "Please enter your full name: ", 0
+    16 00000009 74657220796F757220-
+    16 00000012 66756C6C206E616D65-
+    16 0000001B 3A2000             
+    17 0000001E 506C6561736520656E-     prompt_career db "Please enter the career path you are following: ", 0
+    17 00000027 746572207468652063-
+    17 00000030 617265657220706174-
+    17 00000039 6820796F7520617265-
+    17 00000042 20666F6C6C6F77696E-
+    17 0000004B 673A2000           
+    18 0000004F 5468616E6B20796F75-     thank_career db "Thank you. We appreciate all %s", 10, 0
+    18 00000058 2E2057652061707072-
+    18 00000061 65636961746520616C-
+    18 0000006A 6C2025730A00       
+    19 00000070 506C6561736520656E-     prompt_resist db "Please enter the resistance in ohms on each of the three sub-circuits separated by ws.", 10, 0
+    19 00000079 746572207468652072-
+    19 00000082 6573697374616E6365-
+    19 0000008B 20696E206F686D7320-
+    19 00000094 6F6E2065616368206F-
+    19 0000009D 662074686520746872-
+    19 000000A6 6565207375622D6369-
+    19 000000AF 726375697473207365-
+    19 000000B8 706172617465642062-
+    19 000000C1 792077732E0A00     
+    20 000000C8 54686520746F74616C-     total_resist db "The total resistance of the full circuit is computed to be %.7lf ohms.", 10, 0
+    20 000000D1 20726573697374616E-
+    20 000000DA 6365206F6620746865-
+    20 000000E3 2066756C6C20636972-
+    20 000000EC 637569742069732063-
+    20 000000F5 6F6D70757465642074-
+    20 000000FE 6F20626520252E376C-
+    20 00000107 66206F686D732E0A00 
+    21 00000110 0A454D462069732063-     emf_msg db 10, "EMF is constant on every branch of any circuit.", 10, 0
+    21 00000119 6F6E7374616E74206F-
+    21 00000122 6E2065766572792062-
+    21 0000012B 72616E6368206F6620-
+    21 00000134 616E79206369726375-
+    21 0000013D 69742E0A00         
+    22 00000142 506C6561736520656E-     prompt_emf db "Please enter the EMF of this circuit in volts: ", 0
+    22 0000014B 746572207468652045-
+    22 00000154 4D46206F6620746869-
+    22 0000015D 732063697263756974-
+    22 00000166 20696E20766F6C7473-
+    22 0000016F 3A2000             
+    23 00000172 5468616E6B20796F75-     thank_you db "Thank you.", 10, 0
+    23 0000017B 2E0A00             
+    24 0000017E 0A5468652063757272-     result_msg db 10, "The current flowing in this circuit has been computed: %.8lf amps", 10, 0
+    24 00000187 656E7420666C6F7769-
+    24 00000190 6E6720696E20746869-
+    24 00000199 732063697263756974-
+    24 000001A2 20686173206265656E-
+    24 000001AB 20636F6D7075746564-
+    24 000001B4 3A20252E386C662061-
+    24 000001BD 6D70730A00         
+    25 000001C2 0A5468616E6B20796F-     farewell db 10, "Thank you %s for using the program Electricity.", 10, 0
+    25 000001CB 7520257320666F7220-
+    25 000001D4 7573696E6720746865-
+    25 000001DD 2070726F6772616D20-
+    25 000001E6 456C65637472696369-
+    25 000001EF 74792E0A00         
+    26                                  
+    27 000001F4 257320257320257300      string_format db "%s %s %s", 0
+    28 000001FD 257300                  single_format db "%s", 0
+    29 00000200 256C6600                float_format db "%lf", 0
+    30                                  
+    31                                  section .bss
+    32                                  align 64
+    33 00000000 <res 00000340>          backup_storage_area resb 832
+    34                                  
+    35 00000340 <res 00000020>          input1 resb 32
+    36 00000360 <res 00000020>          input2 resb 32
+    37 00000380 <res 00000020>          input3 resb 32
+    38 000003A0 <res 00000020>          emf_input resb 32
+    39 000003C0 <res 00000018>          res_array resq 3
+    40                                  
+    41 000003D8 <res 00000030>          name resb string_size   ; Reserving 48 byte for string input
+    42 00000408 <res 00000030>          career resb string_size   ; 48 byte is optimal for flexibility
+    43                                  
+    44                                  section .text
+    45                                  
+    46                                  edison:
+    47 00000000 55                      push rbp
+    48 00000001 4889E5                  mov rbp, rsp
+    49 00000004 53                      push rbx
+    50 00000005 51                      push rcx
+    51 00000006 52                      push rdx
+    52 00000007 57                      push rdi
+    53 00000008 56                      push rsi
+    54 00000009 4150                    push r8
+    55 0000000B 4151                    push r9
+    56 0000000D 4152                    push r10
+    57 0000000F 4153                    push r11
+    58 00000011 4154                    push r12
+    59 00000013 4155                    push r13
+    60 00000015 4156                    push r14
+    61 00000017 4157                    push r15
+    62 00000019 9C                      pushf
+    63                                  
+    64                                  ;backup other registers
+    65 0000001A B807000000              mov rax, 7
+    66 0000001F BA00000000              mov rdx, 0
+    67 00000024 0FAE2425[00000000]      xsave [backup_storage_area]
+    68                                  
+    69                                  ; ===== Prompt and read name =====
+    70 0000002C B800000000              mov rax, 0
+    71 00000031 48BF-                   mov rdi, prompt_name
+    71 00000033 [0000000000000000] 
+    72 0000003B E8(00000000)            call printf
+    73                                  
+    74 00000040 B800000000              mov rax, 0
+    75 00000045 48BF-                   mov rdi, name
+    75 00000047 [D803000000000000] 
+    76 0000004F BE30000000              mov rsi, string_size
+    77 00000054 488B1425[00000000]      mov rdx, [stdin]
+    78 0000005C E8(00000000)            call fgets
+    79                                  
+    80 00000061 B800000000              mov rax, 0
+    81 00000066 48BF-                   mov rdi, name
+    81 00000068 [D803000000000000] 
+    82 00000070 E8(00000000)            call strlen
+    83 00000075 C680[D7030000]00        mov byte [name + rax - 1], 0   ; remove newline
+    84                                  
+    85                                  ; ===== Prompt and read career =====
+    86 0000007C B800000000              mov rax, 0
+    87 00000081 48BF-                   mov rdi, prompt_career
+    87 00000083 [1E00000000000000] 
+    88 0000008B E8(00000000)            call printf
+    89                                  
+    90 00000090 B800000000              mov rax, 0
+    91 00000095 48BF-                   mov rdi, career
+    91 00000097 [0804000000000000] 
+    92 0000009F BE30000000              mov rsi, string_size
+    93 000000A4 488B1425[00000000]      mov rdx, [stdin]
+    94 000000AC E8(00000000)            call fgets
+    95                                  
+    96 000000B1 B800000000              mov rax, 0
+    97 000000B6 48BF-                   mov rdi, career
+    97 000000B8 [0804000000000000] 
+    98 000000C0 E8(00000000)            call strlen
+    99 000000C5 C680[07040000]00        mov byte [career + rax - 1], 0
+   100                                  
+   101                                  ; ===== Print appreciation =====
+   102 000000CC B800000000              mov rax, 0
+   103 000000D1 48BF-                   mov rdi, thank_career
+   103 000000D3 [4F00000000000000] 
+   104 000000DB 48BE-                   mov rsi, career
+   104 000000DD [0804000000000000] 
+   105 000000E5 E8(00000000)            call printf
+   106                                  
+   107                                  ; ===== Prompt for input =====
+   108 000000EA B800000000              mov rax, 0
+   109 000000EF 48BF-                   mov rdi, prompt_resist
+   109 000000F1 [7000000000000000] 
+   110 000000F9 E8(00000000)            call printf
+   111                                  
+   112                                  ; Read three numbers as strings
+   113 000000FE 48BF-                   mov rdi, string_format  ; "%s %s %s"
+   113 00000100 [F401000000000000] 
+   114 00000108 48BE-                   mov rsi, input1          ; First input
+   114 0000010A [4003000000000000] 
+   115 00000112 48BA-                   mov rdx, input2          ; Second input
+   115 00000114 [6003000000000000] 
+   116 0000011C 48B9-                   mov rcx, input3          ; Third input
+   116 0000011E [8003000000000000] 
+   117 00000126 E8(00000000)            call scanf
+   118                                  
+   119                                  ; ===== Sending input to macro =====
+   120                                  get_res input1, input2, input3, res_array   ; Calling macro file wtih four arguments
+   120                              <1> 
+   120 0000012B 48BF-               <1>  mov rdi, %1
+   120 0000012D [4003000000000000]  <1>
+   120 00000135 E8(00000000)        <1>  call atof
+   120 0000013A F20F110425-         <1>  movsd [%4], xmm0
+   120 0000013F [C0030000]          <1>
+   120                              <1> 
+   120                              <1> 
+   120 00000143 48BF-               <1>  mov rdi, %2
+   120 00000145 [6003000000000000]  <1>
+   120 0000014D E8(00000000)        <1>  call atof
+   120 00000152 F20F110425-         <1>  movsd [%4 + 8], xmm0
+   120 00000157 [C8030000]          <1>
+   120                              <1> 
+   120                              <1> 
+   120 0000015B 48BF-               <1>  mov rdi, %3
+   120 0000015D [8003000000000000]  <1>
+   120 00000165 E8(00000000)        <1>  call atof
+   120 0000016A F20F110425-         <1>  movsd [%4 + 16], xmm0
+   120 0000016F [D0030000]          <1>
+   121                                                                              ; Macro will convert it from string to float numbers
+   122                                                                              ; Adds the input into an array
+   123                                  
+   124                                  ; ===== Calculating Resistance =====
+   125 00000173 B800000000              mov rax, 0
+   126 00000178 48BF-                   mov rdi, res_array
+   126 0000017A [C003000000000000] 
+   127 00000182 BE03000000              mov rsi, 3      ; Size of the array is three
+   128 00000187 E8(00000000)            call compute_resist
+   129 0000018C F2440F10F8              movsd xmm15, xmm0   ; Saving value in a non-violatile register
+   130                                  
+   131                                  ; ===== Printing Total Resistance =====
+   132 00000191 B801000000              mov rax, 1
+   133 00000196 48BF-                   mov rdi, total_resist
+   133 00000198 [C800000000000000] 
+   134 000001A0 F2410F10C7              movsd xmm0, xmm15
+   135 000001A5 E8(00000000)            call printf
+   136                                  
+   137                                  ; ===== Prompt and read EMF =====
+   138 000001AA B800000000              mov rax, 0
+   139 000001AF 48BF-                   mov rdi, prompt_emf
+   139 000001B1 [4201000000000000] 
+   140 000001B9 E8(00000000)            call printf
+   141                                  
+   142 000001BE B800000000              mov rax, 0
+   143 000001C3 48BF-                   mov rdi, single_format
+   143 000001C5 [FD01000000000000] 
+   144 000001CD 48BE-                   mov rsi, emf_input
+   144 000001CF [A003000000000000] 
+   145 000001D7 E8(00000000)            call scanf
+   146                                  
+   147 000001DC 48BF-                   mov rdi, emf_input
+   147 000001DE [A003000000000000] 
+   148 000001E6 E8(00000000)            call atof
+   149 000001EB F2440F10F0              movsd xmm14, xmm0
+   150                                  
+   151                                  ; ===== Thank the user =====
+   152 000001F0 B800000000              mov rax, 0
+   153 000001F5 48BF-                   mov rdi, thank_you
+   153 000001F7 [7201000000000000] 
+   154 000001FF E8(00000000)            call printf
+   155                                  
+   156                                  ; ===== Compute current I = E / R =====
+   157 00000204 F2450F5EF7              divsd xmm14, xmm15
+   158                                  
+   159                                  ; ===== Print current =====
+   160 00000209 B801000000              mov rax, 1
+   161 0000020E 48BF-                   mov rdi, result_msg
+   161 00000210 [7E01000000000000] 
+   162 00000218 F2410F10C6              movsd xmm0, xmm14
+   163 0000021D E8(00000000)            call printf
+   164                                  
+   165                                  ; ===== Print farewell =====
+   166 00000222 B800000000              mov rax, 0
+   167 00000227 48BF-                   mov rdi, farewell
+   167 00000229 [C201000000000000] 
+   168 00000231 48BE-                   mov rsi, name
+   168 00000233 [D803000000000000] 
+   169 0000023B E8(00000000)            call printf
+   170                                  
+   171                                  ; ===== Return result to faraday =====
+   172 00000240 B800000000              mov rax, 0
+   173 00000245 6A00                    push qword 0
+   174 00000247 F2440F113424            movsd [rsp], xmm14
+   175                                  
+   176                                  ; Restore registers
+   177 0000024D B807000000              mov rax, 7
+   178 00000252 BA00000000              mov rdx, 0
+   179 00000257 0FAE2C25[00000000]      xrstor [backup_storage_area]
+   180                                  
+   181 0000025F F20F100424              movsd xmm0, [rsp]
+   182 00000264 58                      pop rax
+   183                                  
+   184                                  ; Restore general-purpose registers
+   185 00000265 9D                      popf
+   186 00000266 415F                    pop r15
+   187 00000268 415E                    pop r14
+   188 0000026A 415D                    pop r13
+   189 0000026C 415C                    pop r12
+   190 0000026E 415B                    pop r11
+   191 00000270 415A                    pop r10
+   192 00000272 4159                    pop r9
+   193 00000274 4158                    pop r8
+   194 00000276 5E                      pop rsi
+   195 00000277 5F                      pop rdi
+   196 00000278 5A                      pop rdx
+   197 00000279 59                      pop rcx
+   198 0000027A 5B                      pop rbx
+   199 0000027B 5D                      pop rbp
+   200 0000027C C3                      ret

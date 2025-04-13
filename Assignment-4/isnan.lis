@@ -75,8 +75,8 @@
     75                                  
     76 0000001A F2440F10F8              movsd xmm15, xmm0
     77 0000001F 66450F2EFF              ucomisd xmm15, xmm15
-    78 00000024 7A07                    jp nan
-    79 00000026 B801000000              mov rax, 1
+    78 00000024 7A07                    jp nan          ; If xmm15 is NaN will return a 0
+    79 00000026 B801000000              mov rax, 1      ; If xmm15 is not NaN will return 1
     80 0000002B EB05                    jmp exit
     81                                  
     82                                  

@@ -114,6 +114,7 @@ sqrtsd xmm11, xmm11         ; xmm15 = sqrt(s * (s - a) * (s - b) * (s - c))
 
 movsd xmm0, xmm11           ; Moving xmm15 to xmm0 to return the area of the triangle.
 movsd [rsp], xmm0
+
 ; Restore registers
 mov rax, 7
 mov rdx, 0

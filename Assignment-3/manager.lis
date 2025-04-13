@@ -23,7 +23,7 @@
     23                                  ;   Programming language: One module in C, Four module in X86, and One module in bash.
     24                                  ;   Date program began: 2025-Mar-03
     25                                  ;   Date of last update: 2025-Mar-08
-    26                                  ;   Files in this program: triangle.c, huron.asm, isfloat.asm, istriangle.asm, manager.asm, r.sh
+    26                                  ;   Files in this program: triangle.c, huron.asm, isfloat.asm, istriangle.asm, manager.asm, triangle.inc, r.sh
     27                                  ;   Testing: Alpha testing completed. All functions are correct.
     28                                  ;   Status: Ready for release to customers
     29                                  ;
@@ -62,12 +62,20 @@
     62                                  extern huron
     63                                  
     64                                  %include "triangle.inc" 
-     1                              <1> 
-     2                              <1> 
-     3                              <1> %macro print_str 1
-     4                              <1>     mov rdi, %1    ; Address to print author_info
-     5                              <1>     call printf    ; Call printf function
-     6                              <1> %endmacro
+     1                              <1> ; Program name "Huron's Triangle"
+     2                              <1> ; Author: Jonathan Diep
+     3                              <1> ; Author Email: jonathon.dieppp@csu.fullerton.edu
+     4                              <1> ; CWID: 884973462
+     5                              <1> ; Class: 240-03 Section 03
+     6                              <1> ; Date program began: 2024-Mar-03
+     7                              <1> ; Date of last update: 2024-Mar-08
+     8                              <1> ; This file is the script file that accompanies the "Huron's Triangle" program.
+     9                              <1> 
+    10                              <1> 
+    11                              <1> %macro print_str 1
+    12                              <1>     mov rdi, %1    ; Address to print author_info
+    13                              <1>     call printf    ; Call printf function
+    14                              <1> %endmacro
     65                                  
     66                                  global manager
     67                                  

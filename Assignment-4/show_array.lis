@@ -51,7 +51,7 @@
     51                                  
     52                                  global show_array
     53                                  
-    54                                  segment .data                 ;Place initialized data here
+    54                                  segment .data
     55 00000000 494545453735340909-     IEEE db "IEEE754			Scientific Decimal", 10, 0
     55 00000009 09536369656E746966-
     55 00000012 696320446563696D61-
@@ -60,12 +60,12 @@
     56 00000027 252D31382E3133670A-
     56 00000030 00                 
     57                                  
-    58                                  segment .bss      ;Declare pointers to un-initialized space in this segment.
+    58                                  segment .bss
     59                                  
     60                                  segment .text
     61                                  show_array:
     62                                  
-    63                                  ;backup GPRs
+    63                                  ; Backup GPRs
     64 00000000 55                      push rbp
     65 00000001 4889E5                  mov rbp, rsp
     66 00000004 53                      push rbx
@@ -83,58 +83,52 @@
     78 00000017 4157                    push r15
     79 00000019 9C                      pushf
     80                                  
-    81                                  ;obtain array address and size and store in nonvolatile registers
-    82 0000001A 4989FC                  mov r12, rdi
-    83 0000001D 4989F5                  mov r13, rsi
-    84                                  
-    85                                  ;set counter to 0 to keep track of if all of array values have been printed
-    86 00000020 41BE00000000            mov r14, 0
-    87                                  
-    88                                  ;print a header for the array to show which value is hex and which is scientific notation
-    89 00000026 B800000000              mov rax, 0
-    90 0000002B 48BF-                   mov rdi, IEEE
-    90 0000002D [0000000000000000] 
-    91 00000035 E8(00000000)            call printf
-    92                                  
-    93                                  ;check if all of array has been printed
-    94                                  check_size:
-    95 0000003A 4D39EE                  cmp r14, r13
-    96 0000003D 7C02                    jl show_loop
+    81 0000001A 4989FC                  mov r12, rdi
+    82 0000001D 4989F5                  mov r13, rsi
+    83                                  
+    84                                  ; Counter set to 0
+    85 00000020 41BE00000000            mov r14, 0
+    86                                  
+    87                                  ; Print IEEE header
+    88 00000026 B800000000              mov rax, 0
+    89 0000002B 48BF-                   mov rdi, IEEE
+    89 0000002D [0000000000000000] 
+    90 00000035 E8(00000000)            call printf
+    91                                  
+    92                                  check_size:
+    93 0000003A 4D39EE                  cmp r14, r13
+    94 0000003D 7C02                    jl show_loop
+    95                                  
+    96 0000003F EB23                    jmp exit
     97                                  
-    98                                  ;if array has finished printing jump to exit the function
-    99 0000003F EB23                    jmp exit
-   100                                  
-   101                                  ;jump here if array is not done printing to continue printing
-   102                                  show_loop:
-   103                                  
-   104                                  ;print out a value with its ieee form and scientific notation form
-   105 00000041 B802000000              mov rax, 2
-   106 00000046 48BF-                   mov rdi, output_format
-   106 00000048 [1E00000000000000] 
-   107 00000050 4B8B34F4                mov rsi, [r12+r14*8]
-   108 00000054 F2430F1004F4            movsd xmm0, [r12+r14*8]
-   109 0000005A E8(00000000)            call printf
-   110                                  
-   111                                  ;add to counter and jump to check if all of array has printed yet
-   112 0000005F 49FFC6                  inc r14
-   113 00000062 EBD6                    jmp check_size
-   114                                  
-   115                                  ;exit the function when done
-   116                                  exit:
-   117                                  ; Restore the GPRs
-   118 00000064 9D                      popf
-   119 00000065 415F                    pop r15
-   120 00000067 415E                    pop r14
-   121 00000069 415D                    pop r13
-   122 0000006B 415C                    pop r12
-   123 0000006D 415B                    pop r11
-   124 0000006F 415A                    pop r10
-   125 00000071 4159                    pop r9
-   126 00000073 4158                    pop r8
-   127 00000075 5E                      pop rsi
-   128 00000076 5F                      pop rdi
-   129 00000077 5A                      pop rdx
-   130 00000078 59                      pop rcx
-   131 00000079 5B                      pop rbx
-   132 0000007A 5D                      pop rbp
-   133 0000007B C3                      ret
+    98                                  show_loop:
+    99                                  
+   100                                  ; Print out value into IEEE form
+   101 00000041 B802000000              mov rax, 2
+   102 00000046 48BF-                   mov rdi, output_format
+   102 00000048 [1E00000000000000] 
+   103 00000050 4B8B34F4                mov rsi, [r12+r14*8]
+   104 00000054 F2430F1004F4            movsd xmm0, [r12+r14*8]
+   105 0000005A E8(00000000)            call printf
+   106                                  
+   107 0000005F 49FFC6                  inc r14
+   108 00000062 EBD6                    jmp check_size
+   109                                  
+   110                                  exit:
+   111                                  ; Restore the GPRs
+   112 00000064 9D                      popf
+   113 00000065 415F                    pop r15
+   114 00000067 415E                    pop r14
+   115 00000069 415D                    pop r13
+   116 0000006B 415C                    pop r12
+   117 0000006D 415B                    pop r11
+   118 0000006F 415A                    pop r10
+   119 00000071 4159                    pop r9
+   120 00000073 4158                    pop r8
+   121 00000075 5E                      pop rsi
+   122 00000076 5F                      pop rdi
+   123 00000077 5A                      pop rdx
+   124 00000078 59                      pop rcx
+   125 00000079 5B                      pop rbx
+   126 0000007A 5D                      pop rbp
+   127 0000007B C3                      ret
