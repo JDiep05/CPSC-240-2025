@@ -1,3 +1,55 @@
+;*******************************************************************************************************************************
+; Program name: "Faraday Program". This program takes three inputs and calculate the resistance and uses an EMF input to calculate the flow
+; Copyright (C) 2025  Jonathan Diep                                                                                            *
+;                                                                                                                              *
+; This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License    *
+; as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.        *
+; This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty  *
+; of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.                *
+; You should have received a copy of the GNU General Public License along with this program.  If not, see                      *
+; <https://www.gnu.org/licenses/>.                                                                                             *
+;*******************************************************************************************************************************
+
+
+
+;========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1=========2=========3**
+; Author information
+;   Author name : Jonathan Diep
+;   Author email: jonathon.dieppp@csu.fullerton.edu
+;   CWID : 884973462
+;   Class: 240-03 Section 03
+; Program Information
+;   Program Name: Faraday Program
+;   Programming language: Three module in X86, One module in Macro, and One module in bash.
+;   Date program began: 2025-Apr-10
+;   Date of last update: 2025-Apr-12
+;   Files in this program: faraday.asm, edison.asm, tesla.asm, acdc.inc, r.sh
+;   Testing: Alpha testing completed. All functions are correct.
+;   Status: Ready for release to customers
+;
+;Purpose
+;   This program takes three inputs and calculate the resistance and uses an EMF input to calculate the flow
+;
+;
+;
+;This file:
+;   File name: edison.asm
+;   Language: X86-64
+;   Max page width: 124 columns
+;   Assemble (standard): nasm -f elf64 -l edison.lis -o edison.o edison.asm
+;   Assemble (debug): nasm -f elf64 -gdwarf edison.lis -o edison.o edison.asm
+;   Optimal print specification: Landscape, 7 points, monospace, 8½x11 paper
+;   Prototype of this function: extern double edison();
+; 
+;
+;
+;
+;========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1=========2=========3**
+
+
+
+
+; Declarations
 %include "acdc.inc"
 
 extern printf
@@ -15,7 +67,7 @@ string_size equ 48
 section .data
 prompt_name db "Please enter your full name: ", 0
 prompt_career db "Please enter the career path you are following: ", 0
-thank_career db "Thank you. We appreciate all %s", 10, 0
+thank_career db "Thank you. We appreciate all %s.", 10, 0
 prompt_resist db "Please enter the resistance in ohms on each of the three sub-circuits separated by ws.", 10, 0
 total_resist db "The total resistance of the full circuit is computed to be %.7lf ohms.", 10, 0
 emf_msg db 10, "EMF is constant on every branch of any circuit.", 10, 0
@@ -96,7 +148,7 @@ call fgets
 mov rax, 0
 mov rdi, career
 call strlen
-mov byte [career + rax - 1], 0
+mov byte [career + rax - 1], 's'
 
 ; ===== Print appreciation =====
 mov rax, 0
@@ -167,6 +219,7 @@ mov rax, 0
 mov rdi, farewell
 mov rsi, name
 call printf
+
 
 ; ===== Return result to faraday =====
 mov rax, 0

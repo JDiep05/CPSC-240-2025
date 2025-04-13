@@ -86,7 +86,7 @@
     55 0000005B [00000000]         
     56                                  
     57                                  ; Now print the message with the value
-    58 0000005F B800000000              mov rax, 0
+    58 0000005F B801000000              mov rax, 1
     59 00000064 48BF-                   mov rdi, msg_3
     59 00000066 [8700000000000000] 
     60 0000006E F20F100425-             movsd xmm0, [res_current]

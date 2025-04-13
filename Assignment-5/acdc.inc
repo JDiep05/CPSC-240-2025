@@ -1,7 +1,5 @@
 ; ====================================================
 ; Macro: convert_res_to_array
-; Purpose: Convert 3 resistance strings to floats,
-;          store in float array
 ; Arguments:
 ;   %1 = input1 string
 ;   %2 = input2 string

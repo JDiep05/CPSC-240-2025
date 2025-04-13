@@ -183,7 +183,7 @@
     97 000000B6 48BF-                   mov rdi, career
     97 000000B8 [0804000000000000] 
     98 000000C0 E8(00000000)            call strlen
-    99 000000C5 C680[07040000]00        mov byte [career + rax - 1], 0
+    99 000000C5 C680[07040000]73        mov byte [career + rax - 1], 's'
    100                                  
    101                                  ; ===== Print appreciation =====
    102 000000CC B800000000              mov rax, 0
@@ -292,33 +292,34 @@
    168 00000233 [D803000000000000] 
    169 0000023B E8(00000000)            call printf
    170                                  
-   171                                  ; ===== Return result to faraday =====
-   172 00000240 B800000000              mov rax, 0
-   173 00000245 6A00                    push qword 0
-   174 00000247 F2440F113424            movsd [rsp], xmm14
-   175                                  
-   176                                  ; Restore registers
-   177 0000024D B807000000              mov rax, 7
-   178 00000252 BA00000000              mov rdx, 0
-   179 00000257 0FAE2C25[00000000]      xrstor [backup_storage_area]
-   180                                  
-   181 0000025F F20F100424              movsd xmm0, [rsp]
-   182 00000264 58                      pop rax
-   183                                  
-   184                                  ; Restore general-purpose registers
-   185 00000265 9D                      popf
-   186 00000266 415F                    pop r15
-   187 00000268 415E                    pop r14
-   188 0000026A 415D                    pop r13
-   189 0000026C 415C                    pop r12
-   190 0000026E 415B                    pop r11
-   191 00000270 415A                    pop r10
-   192 00000272 4159                    pop r9
-   193 00000274 4158                    pop r8
-   194 00000276 5E                      pop rsi
-   195 00000277 5F                      pop rdi
-   196 00000278 5A                      pop rdx
-   197 00000279 59                      pop rcx
-   198 0000027A 5B                      pop rbx
-   199 0000027B 5D                      pop rbp
-   200 0000027C C3                      ret
+   171                                  
+   172                                  ; ===== Return result to faraday =====
+   173 00000240 B800000000              mov rax, 0
+   174 00000245 6A00                    push qword 0
+   175 00000247 F2440F113424            movsd [rsp], xmm14
+   176                                  
+   177                                  ; Restore registers
+   178 0000024D B807000000              mov rax, 7
+   179 00000252 BA00000000              mov rdx, 0
+   180 00000257 0FAE2C25[00000000]      xrstor [backup_storage_area]
+   181                                  
+   182 0000025F F20F100424              movsd xmm0, [rsp]
+   183 00000264 58                      pop rax
+   184                                  
+   185                                  ; Restore general-purpose registers
+   186 00000265 9D                      popf
+   187 00000266 415F                    pop r15
+   188 00000268 415E                    pop r14
+   189 0000026A 415D                    pop r13
+   190 0000026C 415C                    pop r12
+   191 0000026E 415B                    pop r11
+   192 00000270 415A                    pop r10
+   193 00000272 4159                    pop r9
+   194 00000274 4158                    pop r8
+   195 00000276 5E                      pop rsi
+   196 00000277 5F                      pop rdi
+   197 00000278 5A                      pop rdx
+   198 00000279 59                      pop rcx
+   199 0000027A 5B                      pop rbx
+   200 0000027B 5D                      pop rbp
+   201 0000027C C3                      ret
