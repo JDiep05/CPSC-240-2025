@@ -1,0 +1,8 @@
+     1                                  ; getqwords.asm
+     2                                  global getqwords
+     3                                  
+     4                                  section .text
+     5                                  getqwords:
+     6                                      ; rdi has address
+     7 00000000 488B07                      mov rax, [rdi]   ; read quadword from memory
+     8 00000003 C3                          ret
